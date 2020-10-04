@@ -5,6 +5,14 @@ __status__ = 'development'
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
+def self_columns(func):
+    def wrapped(self, X):
+            X_tr = func(self, X)
+            self.columns = X_tr.columns
+            return X_tr
+    return wrapped
+
+
 class BaseTransformer(BaseEstimator, TransformerMixin):
     
     def __init__(self):
@@ -15,9 +23,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         self.columns = [] # for safety if there are multiple fits
         return self
         
-        
+    @self_columns    
     def transform(self, X, y=None):
-        self.columns = X.columns  # important to write this if overwritten
         return X
      
         

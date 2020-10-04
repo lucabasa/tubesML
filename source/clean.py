@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.1'
 __status__ = 'development'
 
-from source.base import BaseTransformer
+from source.base import BaseTransformer, self_columns
 
 from sklearn.impute import SimpleImputer
 import pandas as pd
@@ -32,10 +32,9 @@ class DfImputer(BaseTransformer):
         self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
         return self
 
-    
+    @self_columns
     def transform(self, X):
         # assumes X is a DataFrame
         Ximp = self.imp.transform(X)
         Xfilled = pd.DataFrame(Ximp, index=X.index, columns=X.columns)
-        self.columns = Xfilled.columns
         return Xfilled
