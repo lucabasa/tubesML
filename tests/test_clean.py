@@ -46,3 +46,9 @@ def test_cl_strat_constant():
     imputer = source.DfImputer(strategy='constant', fill_value=5)
     imputer.fit(df)
     pd.testing.assert_series_equal(imputer.statistics_, pd.Series([5, 5], index=df.columns), check_dtype=False)
+
+    
+def test_cl_error():
+    with pytest.raises(ValueError):
+        imputer = source.DfImputer(strategy='not the mean')
+        
