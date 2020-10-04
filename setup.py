@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-DESCRIPTION = "pipeML, "
+DESCRIPTION = "pipeML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 LONG_DESCRIPTION = """\
-TBD
+A package that allows for flexible ML pipelines, model validation, and model inspection
 """
 
 DISTNAME = 'pipeml'
