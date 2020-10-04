@@ -29,3 +29,20 @@ def test_cl_cols():
     assert imputer.columns[0] == 'a'
     assert imputer.columns[1] == 'b'
     
+    
+def test_cl_strat_median():
+    imputer = source.DfImputer(strategy='median')
+    imputer.fit(df)
+    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([3, 2], index=df.columns), check_dtype=False)
+
+
+def test_cl_strat_mostfreq():
+    imputer = source.DfImputer(strategy='most_frequent')
+    imputer.fit(df)
+    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([1, 1], index=df.columns), check_dtype=False)
+
+
+def test_cl_strat_constant():
+    imputer = source.DfImputer(strategy='constant', fill_value=5)
+    imputer.fit(df)
+    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([5, 5], index=df.columns), check_dtype=False)
