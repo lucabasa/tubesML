@@ -17,7 +17,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         
         
     def transform(self, X, y=None):
-        self.columns = X.columns
+        self.columns = X.columns  # important to write this if overwritten
         return X
      
         
