@@ -5,6 +5,7 @@ __status__ = 'development'
 from source.base import BaseTransformer
 
 from sklearn.impute import SimpleImputer
+import pandas as pd
 
 
 class DfImputer(BaseTransformer):
