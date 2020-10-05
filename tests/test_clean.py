@@ -52,3 +52,10 @@ def test_cl_error():
     with pytest.raises(ValueError):
         imputer = source.DfImputer(strategy='not the mean')
         
+        
+def test_get_feature_names():
+    scaler = source.DfScaler()
+    res = scaler.fit_transform(df)
+    assert scaler.get_feature_names()[0] == 'a'
+    assert scaler.get_feature_names()[1] == 'b'
+        
