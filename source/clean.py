@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.1'
 __status__ = 'development'
 
-from source.base import BaseTransformer, self_columns
+from source.base import BaseTransformer, self_columns, reset_columns
 
 from sklearn.impute import SimpleImputer
 import pandas as pd
@@ -26,7 +26,7 @@ class DfImputer(BaseTransformer):
         if self.strategy not in allowed_strategies:
             raise ValueError(f"Can only use these strategies: {allowed_strategies} got strategy={self.strategy}")
 
-
+    @reset_columns
     def fit(self, X, y=None):
         self.imp.fit(X)
         self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)

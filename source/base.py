@@ -15,14 +15,22 @@ def self_columns(func):
     return wrapped
 
 
+def reset_columns(func):
+    @functools.wraps(func)
+    def wrapped(self, X):
+            func(self, X)
+            self.columns = []
+            return func(self, X)
+    return wrapped
+
+
 class BaseTransformer(BaseEstimator, TransformerMixin):
     
     def __init__(self):
         self.columns = [] # useful to well behave with FeatureUnion
         
-        
+    @reset_columns    
     def fit(self, X, y=None):
-        self.columns = [] # for safety if there are multiple fits
         return self
         
     @self_columns    
