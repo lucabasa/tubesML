@@ -9,7 +9,7 @@ import pandas as pd
 
 class DfScaler(BaseTransformer):
     '''
-    Wrapper of several sklearn scalers
+    Wrapper of several sklearn scalers that keeps the dataframe structure
     '''
     def __init__(self, method='standard', feature_range=(0,1)):
         super().__init__()

@@ -13,30 +13,49 @@ df = create_data()
 
 
 def test_scl_standard():
+    '''
+    Test StandardScaler
+    '''
     scaler = source.DfScaler(method='standard')
     res = scaler.fit_transform(df)
-    assert res['a'].mean() == 0
+    for col in df.columns:
+        assert res[col].mean() == 0
     
     
 def test_scl_robust():
+    '''
+    Test RobustScaler
+    '''
     scaler = source.DfScaler(method='robust')
     res = scaler.fit_transform(df)
-    assert res['a'].mean() == 0
+    for col in df.columns:
+        assert res[col].mean() == df[col].mean() - df[col].median()
     
 
 def test_scl_minmax():
+    '''
+    Test MinMaxScaler
+    '''
     scaler = source.DfScaler(method='minmax')
     res = scaler.fit_transform(df)
+    #todo: this test is not very robust
     assert res['a'].mean() == 0.5
 
 
 def test_scl_scale():
+    '''
+    Test the definition of scale a series works
+    '''
     scaler = source.DfScaler()
     scaler.fit(df)
+    #todo: this test is not very robust
     pd.testing.assert_series_equal(scaler.scale_, pd.Series([1.414214, 1], index=df.columns), check_dtype=False)
     
     
 def test_scl_scale_minmax():
+    '''
+    Test the definition of scale a series works with minmax
+    '''
     scaler = source.DfScaler(method='minmax', feature_range=(0,2))
     scaler.fit(df)
     real_scale = (scaler.feature_range[1] - scaler.feature_range[0]) / (df['a'].max() - df['a'].min())
@@ -44,18 +63,29 @@ def test_scl_scale_minmax():
     
     
 def test_scl_mean():
+    '''
+    Test the definition of mean a series works
+    '''
     scaler = source.DfScaler(method='standard')
     scaler.fit(df)
-    pd.testing.assert_series_equal(scaler.mean_, pd.Series([3, 1], index=df.columns), check_dtype=False)
+    real_mean = df.mean()
+    pd.testing.assert_series_equal(scaler.mean_, real_mean, check_dtype=False)
     
     
 def test_scl_center():
+    '''
+    Test the definition of center a series works
+    '''
     scaler = source.DfScaler(method='robust')
     scaler.fit(df)
-    pd.testing.assert_series_equal(scaler.center_, pd.Series([3, 1], index=df.columns), check_dtype=False)
+    real_center = df.median()
+    pd.testing.assert_series_equal(scaler.center_, real_center, check_dtype=False)
     
     
 def test_scl_min():
+    '''
+    Test the definition of min_ for minmax as a series works
+    '''
     scaler = source.DfScaler(method='minmax')
     scaler.fit(df)
     real_min = scaler.feature_range[0] - df.min(axis=0) * scaler.scale_
@@ -63,21 +93,30 @@ def test_scl_min():
 
 
 def test_scl_error():
+    '''
+    Test the scaler raises the right error 
+    '''
     with pytest.raises(ValueError):
         imputer = source.DfScaler(method='Not the right method')
         
         
 def test_scl_cols():
+    '''
+    Test the attribute columns is well defined
+    '''
     scaler = source.DfScaler()
     res = scaler.fit_transform(df)
-    assert scaler.columns[0] == 'a'
-    assert scaler.columns[1] == 'b'
+    assert scaler.columns[0] == df.columns[0]
+    assert scaler.columns[1] == df.columns[1]
     
     
 def test_get_feature_names():
-    scaler = source.DfScaler()
-    res = scaler.fit_transform(df)
-    assert scaler.get_feature_names()[0] == 'a'
-    assert scaler.get_feature_names()[1] == 'b'
+    '''
+    Test the transformer still has get_feature_names
+    '''
+    trsf = source.DfScaler()
+    res = trsf.fit_transform(df)
+    assert trsf.get_feature_names()[0] == df.columns[0]
+    assert trsf.get_feature_names()[1] == df.columns[1]
     
     

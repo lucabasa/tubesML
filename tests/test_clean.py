@@ -12,50 +12,77 @@ def create_data():
 df = create_data()
 
 def test_clean():
+    '''
+    Test the imputer actually works
+    '''
     imputer = source.DfImputer(strategy='mean')
     res = imputer.fit_transform(df)
     assert res.isna().any().any() == 0
     
 
 def test_cl_stats():
+    '''
+    Test the imputer learns the mean
+    '''
     imputer = source.DfImputer(strategy='mean')
     imputer.fit(df)
-    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([3, 2], index=df.columns), check_dtype=False)
+    real_mean = df.mean()
+    pd.testing.assert_series_equal(imputer.statistics_, real_mean, check_dtype=False)
     
 
 def test_cl_cols():
+    '''
+    Test the attribute columns is well defined
+    '''
     imputer = source.DfImputer(strategy='mean')
     res = imputer.fit_transform(df)
-    assert imputer.columns[0] == 'a'
-    assert imputer.columns[1] == 'b'
+    assert imputer.columns[0] == df.columns[0]
+    assert imputer.columns[1] == df.columns[1]
     
     
-def test_cl_strat_median():
+def test_cl_stat_median():
+    '''
+    Test the imputer learns the median
+    '''
     imputer = source.DfImputer(strategy='median')
     imputer.fit(df)
-    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([3, 2], index=df.columns), check_dtype=False)
+    real_median = df.median()
+    pd.testing.assert_series_equal(imputer.statistics_, real_median, check_dtype=False)
 
 
-def test_cl_strat_mostfreq():
+def test_cl_stat_mostfreq():
+    '''
+    Test the imputer learns the most frequent 
+    '''
     imputer = source.DfImputer(strategy='most_frequent')
     imputer.fit(df)
+    # todo: this test is not very robust
     pd.testing.assert_series_equal(imputer.statistics_, pd.Series([1, 1], index=df.columns), check_dtype=False)
 
 
-def test_cl_strat_constant():
+def test_cl_stat_constant():
+    '''
+    Test the imputer learns the most frequent 
+    '''
     imputer = source.DfImputer(strategy='constant', fill_value=5)
     imputer.fit(df)
-    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([5, 5], index=df.columns), check_dtype=False)
+    pd.testing.assert_series_equal(imputer.statistics_, pd.Series([5]*df.shape[1], index=df.columns), check_dtype=False)
 
     
 def test_cl_error():
+    '''
+    Test the imputer raises the right error 
+    '''
     with pytest.raises(ValueError):
         imputer = source.DfImputer(strategy='not the mean')
         
         
 def test_get_feature_names():
-    scaler = source.DfScaler()
-    res = scaler.fit_transform(df)
-    assert scaler.get_feature_names()[0] == 'a'
-    assert scaler.get_feature_names()[1] == 'b'
+    '''
+    Test the transformer still has get_feature_names
+    '''
+    trsf = source.DfImputer()
+    res = trsf.fit_transform(df)
+    assert trsf.get_feature_names()[0] == df.columns[0]
+    assert trsf.get_feature_names()[1] == df.columns[1]
         
