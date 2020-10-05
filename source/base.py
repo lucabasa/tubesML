@@ -3,9 +3,11 @@ __version__ = '0.0.1'
 __status__ = 'development'
 
 from sklearn.base import BaseEstimator, TransformerMixin
+import functools
 
 
 def self_columns(func):
+    @functools.wraps(func)
     def wrapped(self, X):
             X_tr = func(self, X)
             self.columns = X_tr.columns
