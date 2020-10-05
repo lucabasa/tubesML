@@ -22,12 +22,25 @@ def test_scl_robust():
     scaler = source.DfScaler(method='robust')
     res = scaler.fit_transform(df)
     assert res['a'].mean() == 0
+    
+
+def test_scl_minmax():
+    scaler = source.DfScaler(method='minmax')
+    res = scaler.fit_transform(df)
+    assert res['a'].mean() == 0.5
 
 
 def test_scl_scale():
     scaler = source.DfScaler()
     scaler.fit(df)
     pd.testing.assert_series_equal(scaler.scale_, pd.Series([1.414214, 1], index=df.columns), check_dtype=False)
+    
+    
+def test_scl_scale_minmax():
+    scaler = source.DfScaler(method='minmax', feature_range=(0,2))
+    scaler.fit(df)
+    real_scale = (scaler.feature_range[1] - scaler.feature_range[0]) / (df['a'].max() - df['a'].min())
+    assert scaler.scale_[0] == real_scale
     
     
 def test_scl_mean():
@@ -40,6 +53,13 @@ def test_scl_center():
     scaler = source.DfScaler(method='robust')
     scaler.fit(df)
     pd.testing.assert_series_equal(scaler.center_, pd.Series([3, 1], index=df.columns), check_dtype=False)
+    
+    
+def test_scl_min():
+    scaler = source.DfScaler(method='minmax')
+    scaler.fit(df)
+    real_min = scaler.feature_range[0] - df.min(axis=0) * scaler.scale_
+    pd.testing.assert_series_equal(scaler.min_, real_min, check_dtype=False)
 
 
 def test_scl_error():
