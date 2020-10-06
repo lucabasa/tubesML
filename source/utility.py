@@ -3,6 +3,8 @@ __version__ = '0.0.1'
 __status__ = 'development'
 
 from source.base import BaseTransformer, self_columns, reset_columns
+import pandas as pd
+from sklearn.pipeline import FeatureUnion
 
 
 class DtypeSel(BaseTransformer):
