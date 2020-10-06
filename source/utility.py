@@ -5,7 +5,7 @@ __status__ = 'development'
 from source.base import BaseTransformer, self_columns, reset_columns
 
 
-class FeatSel(BaseTransformer):
+class DtypeSel(BaseTransformer):
     '''
     This transformer selects either numerical or categorical features.
     In this way we can build separate pipelines for separate data types.
