@@ -12,9 +12,10 @@ class DtypeSel(BaseTransformer):
     '''
     def __init__(self, dtype='numeric'):
         self.dtype = dtype
+        self._validate_input()
       
     
-    def _validate_input():
+    def _validate_input(self):
         allowed_dtype = ['numeric', 'category']
         if self.dtype not in allowed_dtype:
             raise ValueError(f"Can only use these dtype: {allowed_dtype} got strategy={self.dtype}")
