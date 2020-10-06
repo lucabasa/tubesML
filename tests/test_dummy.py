@@ -3,12 +3,14 @@ import pytest
 import pandas as pd
 import numpy as np
 
+
 def create_data():
     df = pd.DataFrame({'a': ['1', '2', '3', '4', '5'], 
                        'b': [1]*5 })
     return df
 
 df = create_data()
+
 
 def test_dummify():
     '''
@@ -48,6 +50,50 @@ def test_match_columns_remove():
     res_2 = dummifier.fit_transform(df_2)
     res = dummifier.transform(df)
     assert res.shape[1] == res_2.shape[1]
+    
+    
+def test_match_columns_drop_first_add():
+    '''
+    Test match_columns Dummify with drop_first and a category is missing
+    The 2 dataframes should eventually have the same columns
+    They both drop the first value and the second one needs to have a last column of 0s
+    '''
+    dummifier = source.Dummify(drop_first=True)
+    res = dummifier.fit_transform(df)
+    df_2 = df.head(4)
+    res_2 = dummifier.transform(df_2)  # one category less
+    assert set(res.columns) == set(res_2.columns)
+    assert res_2[res_2.columns[-1]].sum() == 0
+
+    
+def test_match_columns_drop_first_remove():
+    '''
+    Test match_columns Dummify with drop_first and a new column is removed
+    The 2 dataframes should eventually have the same columns
+    They both drop the first value and the second one needs to have a column removed
+    No column should be full of 0s
+    '''
+    df_2 = df.head(4)
+    dummifier = source.Dummify(drop_first=True)
+    res = dummifier.fit_transform(df_2)
+    res_2 = dummifier.transform(df)  # one category extra
+    assert set(res.columns) == set(res_2.columns)
+    assert all(res_2.sum() > 0)
+    
+    
+# def test_match_columns_drop_first_equal():  # todo: this test fails, needs to be fixed
+#     '''
+#     Test match_columns Dummify with drop_first, the category missing is the one dropped
+#     The 2 dataframes should eventually have the same columns
+#     They both drop the first value and the second one needs to have a column of 0 with the last value
+#     No column should be full of 0s
+#     '''
+#     dummifier = source.Dummify(drop_first=True)
+#     res = dummifier.fit_transform(df)
+#     df_2 = df.tail(4)  # the first category is missing
+#     res_2 = dummifier.transform(df_2) 
+#     assert set(res.columns) == set(res_2.columns)
+#     assert all(res_2.sum() > 0)
     
     
 def test_verbose():
