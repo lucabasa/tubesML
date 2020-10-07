@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns
@@ -11,12 +11,18 @@ class Dummify(BaseTransformer):
     '''
     Wrapper for pd.get_dummies
     It assures that if some column is missing or is new after the first transform, the pipeline won't break
+    
+    To avoid problems with using both drop_first and match_cols, specifically if the dropped category is
+    missing when dummies are created after the first time, we let match_cols to have the role of drop_first
+    if the transformer has been ran already. See test_match_columns_drop_first_equal for an example
+    
     '''
     def __init__(self, drop_first=False, match_cols=True, verbose=False):
         super().__init__()
         self.drop_first = drop_first
         self.match_cols = match_cols
         self.verbose = verbose
+        self.is_fit = False
         
     
     def _match_columns(self, X):
@@ -43,11 +49,13 @@ class Dummify(BaseTransformer):
     
 
     def transform(self, X):
-        X_tr = pd.get_dummies(X, drop_first=self.drop_first)
-        if (len(self.columns) > 0):
+        if not self.is_fit:  # if it the first time, run it as specified and populate self.columns
+            X_tr = pd.get_dummies(X, drop_first=self.drop_first)
+            self.columns = X_tr.columns
+            self.is_fit = True
+        else:  # if it is not the first time, do not use drop_first and let match_cols work
+            X_tr = pd.get_dummies(X, drop_first=False) 
             if self.match_cols:
                 X_tr = self._match_columns(X_tr)
-        else:
-            self.columns = X_tr.columns
         return X_tr
 

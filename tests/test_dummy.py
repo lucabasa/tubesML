@@ -81,19 +81,19 @@ def test_match_columns_drop_first_remove():
     assert all(res_2.sum() > 0)
     
     
-# def test_match_columns_drop_first_equal():  # todo: this test fails, needs to be fixed
-#     '''
-#     Test match_columns Dummify with drop_first, the category missing is the one dropped
-#     The 2 dataframes should eventually have the same columns
-#     They both drop the first value and the second one needs to have a column of 0 with the last value
-#     No column should be full of 0s
-#     '''
-#     dummifier = tubesml.Dummify(drop_first=True)
-#     res = dummifier.fit_transform(df)
-#     df_2 = df.tail(4)  # the first category is missing
-#     res_2 = dummifier.transform(df_2) 
-#     assert set(res.columns) == set(res_2.columns)
-#     assert all(res_2.sum() > 0)
+def test_match_columns_drop_first_equal(): 
+    '''
+    Test match_columns Dummify with drop_first, the category missing is the one dropped
+    The 2 dataframes should eventually have the same columns
+    They both drop the first value and the second one needs to have a column of 0 with the last value
+    No column should be full of 0s
+    '''
+    dummifier = tubesml.Dummify(drop_first=True)
+    res = dummifier.fit_transform(df)
+    df_2 = df.tail(4)  # the first category is missing
+    res_2 = dummifier.transform(df_2) 
+    assert set(res.columns) == set(res_2.columns)
+    assert all(res_2.sum() > 0)
     
     
 def test_verbose():
