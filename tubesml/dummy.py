@@ -49,11 +49,11 @@ class Dummify(BaseTransformer):
     
 
     def transform(self, X):
-        if not self.is_fit:
+        if not self.is_fit:  # if it the first time, run it as specified and populate self.columns
             X_tr = pd.get_dummies(X, drop_first=self.drop_first)
             self.columns = X_tr.columns
             self.is_fit = True
-        else:
+        else:  # if it is not the first time, do not use drop_first and let match_cols work
             X_tr = pd.get_dummies(X, drop_first=False) 
             if self.match_cols:
                 X_tr = self._match_columns(X_tr)
