@@ -5,7 +5,7 @@ LONG_DESCRIPTION = """\
 A package that allows for flexible ML pipelines, model validation, and model inspection. It builds on top of sklearn and preserves the data structure provided by pandas.
 """
 
-DISTNAME = 'tubesml_lucabasa'
+DISTNAME = 'tubesml'
 MAINTAINER = 'Luca Basanisi'
 MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
 URL = ''
