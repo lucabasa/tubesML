@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.2'
 __status__ = 'development'
 
-from source.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, self_columns, reset_columns
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 import pandas as pd
 

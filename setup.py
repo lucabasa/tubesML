@@ -11,7 +11,7 @@ MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
 URL = ''
 LICENSE = 'Apache 2.0'
 DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 PYTHON_REQUIRES = ">=3.6"
 
 INSTALL_REQUIRES = [
@@ -22,7 +22,7 @@ INSTALL_REQUIRES = [
 
 
 PACKAGES = [
-    'source',
+    'tubesml',
 ]
 
 CLASSIFIERS = [

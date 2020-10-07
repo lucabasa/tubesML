@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.1'
 __status__ = 'development'
 
-from source.base import BaseTransformer, self_columns
+from tubesml.base import BaseTransformer, self_columns
 import pandas as pd
 import warnings
 
