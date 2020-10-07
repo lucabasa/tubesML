@@ -110,6 +110,9 @@ ENV/
 env.bak/
 venv.bak/
 
+pipeML/
+env_test/  # environment to test pip install
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -128,5 +131,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Custom
-pipeML/
