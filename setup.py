@@ -5,7 +5,7 @@ LONG_DESCRIPTION = """\
 A package that allows for flexible ML pipelines, model validation, and model inspection. It builds on top of sklearn and preserves the data structure provided by pandas.
 """
 
-DISTNAME = 'tubesml'
+DISTNAME = 'tubesml_lucabasa'
 MAINTAINER = 'Luca Basanisi'
 MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
 URL = ''
@@ -15,14 +15,14 @@ VERSION = '0.0.1'
 PYTHON_REQUIRES = ">=3.6"
 
 INSTALL_REQUIRES = [
-    'numpy=>1.19.2',
+    'numpy>=1.19.2',
     'pandas>=1.1.2',
     'scikit-learn>=0.23.2',
 ]
 
 
 PACKAGES = [
-    'tubesml',
+    'source',
 ]
 
 CLASSIFIERS = [
