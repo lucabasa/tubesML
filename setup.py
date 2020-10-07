@@ -2,13 +2,14 @@
 
 DESCRIPTION = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 LONG_DESCRIPTION = """\
-A package that allows for flexible ML pipelines, model validation, and model inspection. It builds on top of sklearn and preserves the data structure provided by pandas.
+A package that allows for flexible ML pipelines, model validation, and model inspection. 
+It builds on top of sklearn and preserves the data structure provided by pandas.
 """
 
 DISTNAME = 'tubesml'
 MAINTAINER = 'Luca Basanisi'
 MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
-URL = ''
+URL = 'https://pypi.org/project/tubesml/'
 LICENSE = 'Apache 2.0'
 DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
 VERSION = '0.0.2'
@@ -26,6 +27,8 @@ PACKAGES = [
 ]
 
 CLASSIFIERS = [
+    'Development Status :: 3 - Alpha',
+    
 ]
 
 
