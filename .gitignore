@@ -111,7 +111,8 @@ env.bak/
 venv.bak/
 
 pipeML/
-env_test/  # environment to test pip install
+# environment to test pip install
+env_test/
 
 # Spyder project settings
 .spyderproject

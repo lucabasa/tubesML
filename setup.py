@@ -27,8 +27,15 @@ PACKAGES = [
 ]
 
 CLASSIFIERS = [
-    'Development Status :: 3 - Alpha',
-    
+    'Development Status :: 3 - Alpha', 
+    'Programming Language :: Python', 
+    'Programming Language :: Python :: 3.8', 
+    'Intended Audience :: Science/Research',
+    'Intended Audience :: Developers',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS',
 ]
 
 
