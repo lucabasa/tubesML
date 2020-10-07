@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-DESCRIPTION = "pipeML, a package that allows for flexible ML pipelines, model validation, and model inspection"
+DESCRIPTION = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 LONG_DESCRIPTION = """\
-A package that allows for flexible ML pipelines, model validation, and model inspection
+A package that allows for flexible ML pipelines, model validation, and model inspection. It builds on top of sklearn and preserves the data structure provided by pandas.
 """
 
 DISTNAME = 'pipeml'
@@ -10,7 +10,7 @@ MAINTAINER = 'Luca Basanisi'
 MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
 URL = ''
 LICENSE = 'Apache 2.0'
-DOWNLOAD_URL = 'https://github.com/lucabasa/pipeML'
+DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
 VERSION = '0.0.1'
 PYTHON_REQUIRES = ">=3.6"
 
@@ -22,7 +22,7 @@ INSTALL_REQUIRES = [
 
 
 PACKAGES = [
-    'pipeml',
+    'tubesml',
 ]
 
 CLASSIFIERS = [
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     import sys
     if sys.version_info[:2] < (3, 6):
-        raise RuntimeError("pipeml requires python >= 3.6.")
+        raise RuntimeError("tubesml requires python >= 3.6.")
 
     setup(
         name=DISTNAME,
