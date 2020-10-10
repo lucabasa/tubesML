@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -33,7 +33,7 @@ class DfImputer(BaseTransformer):
         return self
 
     @self_columns
-    def transform(self, X):
+    def transform(self, X, y=None):
         # assumes X is a DataFrame
         Ximp = self.imp.transform(X)
         Xfilled = pd.DataFrame(Ximp, index=X.index, columns=X.columns)

@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -56,7 +56,7 @@ class DfScaler(BaseTransformer):
     
     
     @self_columns
-    def transform(self, X):
+    def transform(self, X, y=None):
         # assumes X is a DataFrame
         Xscl = self.scl.transform(X)
         Xscaled = pd.DataFrame(Xscl, index=X.index, columns=X.columns)
