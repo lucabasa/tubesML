@@ -8,8 +8,8 @@ import functools
 
 def self_columns(func):
     @functools.wraps(func)
-    def wrapped(self, X):
-            X_tr = func(self, X)
+    def wrapped(self, *args, **kwargs):
+            X_tr = func(self, *args, **kwargs)
             self.columns = X_tr.columns
             return X_tr
     return wrapped
@@ -17,10 +17,10 @@ def self_columns(func):
 
 def reset_columns(func):
     @functools.wraps(func)
-    def wrapped(self, X):
-            func(self, X)
+    def wrapped(self, *args, **kwargs):
+            res = func(self, *args, **kwargs)
             self.columns = []
-            return func(self, X)
+            return res
     return wrapped
 
 
