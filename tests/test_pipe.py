@@ -53,10 +53,10 @@ def test_predictions():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('logit', LogisticRegression())])
+                     ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
     
     with pytest.warns(None) as record:
         pipe.fit(df_1, y)
-        res = pipe.predict(df_1, y)
+        res = pipe.predict(df_1)
     assert len(record) == 0
     
