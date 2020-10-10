@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns
@@ -48,7 +48,7 @@ class Dummify(BaseTransformer):
         return X[self.columns]  # preserve original order to avoid problems with some algorithms
     
 
-    def transform(self, X):
+    def transform(self, X, y=None):
         if not self.is_fit:  # if it the first time, run it as specified and populate self.columns
             X_tr = pd.get_dummies(X, drop_first=self.drop_first)
             self.columns = X_tr.columns

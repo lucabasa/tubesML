@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -13,6 +13,7 @@ class DtypeSel(BaseTransformer):
     In this way we can build separate pipelines for separate data types.
     '''
     def __init__(self, dtype='numeric'):
+        super().__init__()
         self.dtype = dtype
         self._validate_input()
       
@@ -42,7 +43,7 @@ class FeatureUnionDf(BaseTransformer):
 
     '''
     def __init__(self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False):
-        super.__init__()
+        super().__init__()
         self.transformer_list = transformer_list
         self.n_jobs = n_jobs
         self.transformer_weights = transformer_weights
