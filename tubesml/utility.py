@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -39,7 +39,7 @@ class FeatureUnionDf(BaseTransformer):
     Wrapper of FeatureUnion but returning a Dataframe, 
     the column order follows the concatenation done by FeatureUnion
 
-    transformer_list: list of Pipelines
+    transformer_list: list of Pipelines or transformers
 
     '''
     def __init__(self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False):
@@ -63,7 +63,10 @@ class FeatureUnionDf(BaseTransformer):
         columns = []
         
         for trsnf in self.transformer_list:
-            cols = trsnf[1].steps[-1][1].get_feature_names()
+            try:
+                cols = trsnf[1].steps[-1][1].get_feature_names()
+            except AttributeError:  # in case it is not a pipeline
+                cols = trsnf[1].get_feature_names()
             columns += list(cols)
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
