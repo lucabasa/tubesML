@@ -33,10 +33,11 @@ def test_transformers():
     '''
     Test a pipeline doesn't break when all the transformers are called in succession
     '''
-    pipe = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify())])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     with pytest.warns(None) as record:
         res = pipe.fit_transform(df)
     assert len(record) == 0
@@ -49,14 +50,17 @@ def test_predictions():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    pipe = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify()), 
-                     ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                     ('dummify', tml.Dummify())])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
+    
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
     
     with pytest.warns(None) as record:
-        pipe.fit(df_1, y)
-        res = pipe.predict(df_1)
+        full_pipe.fit(df_1, y)
+        res = full_pipe.predict(df_1)
     assert len(record) == 0
     
