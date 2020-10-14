@@ -107,3 +107,28 @@ def test_get_feature_names_dtype():
     trsf = tubesml.DtypeSel(dtype='numeric')
     res = trsf.fit_transform(df)
     assert trsf.get_feature_names()[0] == df.columns[1]
+    
+
+def test_dtype_cols_featun():
+    '''
+    Test the attribute columns is well defined
+    '''
+    num_pipe = Pipeline([('num', tubesml.DtypeSel(dtype='numeric'))])
+    cat_pipe = Pipeline([('cat', tubesml.DtypeSel(dtype='category'))])
+    trsf = tubesml.FeatureUnionDf(transformer_list=[('cat', cat_pipe), 
+                                                    ('num', num_pipe)])
+    res = trsf.fit_transform(df)
+    assert trsf.columns[0] == df.columns[0]
+ 
+    
+def test_get_feature_names_featun():
+    '''
+    Test the transformer still has get_feature_names
+    '''
+    num_pipe = Pipeline([('num', tubesml.DtypeSel(dtype='numeric'))])
+    cat_pipe = Pipeline([('cat', tubesml.DtypeSel(dtype='category'))])
+    trsf = tubesml.FeatureUnionDf(transformer_list=[('cat', cat_pipe), 
+                                                    ('num', num_pipe)])
+    res = trsf.fit_transform(df)
+    assert trsf.get_feature_names()[0] == df.columns[0]   
+
