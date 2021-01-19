@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -16,15 +16,13 @@ class DfScaler(BaseTransformer):
         self.method = method
         self._validate_input()
         self.scale_ = None
+        self.feature_range = feature_range
         if self.method == 'standard':
-            self.scl = StandardScaler()
             self.mean_ = None
         elif method == 'robust':
-            self.scl = RobustScaler()
             self.center_ = None
         elif method == 'minmax':
             self.feature_range = feature_range
-            self.scl = MinMaxScaler(feature_range=self.feature_range)
             self.min_ = None
             self.data_min_ = None
             self.data_max_ = None
@@ -40,12 +38,17 @@ class DfScaler(BaseTransformer):
     
     @reset_columns
     def fit(self, X, y=None):
-        self.scl.fit(X)
         if self.method == 'standard':
+            self.scl = StandardScaler()
+            self.scl.fit(X)
             self.mean_ = pd.Series(self.scl.mean_, index=X.columns)
         elif self.method == 'robust':
+            self.scl = RobustScaler()
+            self.scl.fit(X)
             self.center_ = pd.Series(self.scl.center_, index=X.columns)
         elif self.method == 'minmax':
+            self.scl = MinMaxScaler(feature_range=self.feature_range)
+            self.scl.fit(X)
             self.min_ = pd.Series(self.scl.min_, index=X.columns)
             self.data_min_ = pd.Series(self.scl.data_min_, index=X.columns)
             self.data_max_ = pd.Series(self.scl.data_max_, index=X.columns)

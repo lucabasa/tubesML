@@ -42,11 +42,14 @@ def test_gridsearch_bestestimator():
     full_pipe = Pipeline([('pipe', pipe), 
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
     
-    param_grid = {'logit__C': [1, 2, 3]}#, 
-                  #'pipe__transf__sca__method': ['standard', 'robust']}
+    param_grid = {'logit__C': [1, 2, 3], 
+                  'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
+                  'pipe__transf__imp__strategy': ['mean', 'median'], 
+                  'pipe__transf__dummify__drop_first': [True, False], 
+                  'pipe__transf__dummify__match_cols': [True, False]}
     
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
-                                                         param_grid=param_grid, scoring='accuracy', cv=5, random=False)
+                                                         param_grid=param_grid, scoring='accuracy', cv=3, random=False)
     
     with pytest.warns(None) as record:
         res = best_estimator.predict(df_1)

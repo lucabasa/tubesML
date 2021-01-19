@@ -19,7 +19,7 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
         grid = RandomizedSearchCV(estimator=estimator, param_distributions=param_grid, cv=cv, scoring=scoring, 
                                   n_iter=random, n_jobs=-1, random_state=434, iid=False, return_train_score=True)
     else:
-        grid = GridSearchCV(estimator=estimator, param_grid=param_grid, 
+        grid = GridSearchCV(estimator=estimator, param_grid=param_grid, error_score='raise',
                             cv=cv, scoring=scoring, n_jobs=-1, return_train_score=True)
     
     pd.options.mode.chained_assignment = None  # turn on and off a warning of pandas
