@@ -17,7 +17,7 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     
     if random:
         grid = RandomizedSearchCV(estimator=estimator, param_distributions=param_grid, cv=cv, scoring=scoring, 
-                                  n_iter=random, n_jobs=-1, random_state=434, iid=False, return_train_score=True)
+                                  n_iter=random, n_jobs=-1, random_state=434, return_train_score=True, error_score='raise')
     else:
         grid = GridSearchCV(estimator=estimator, param_grid=param_grid, error_score='raise',
                             cv=cv, scoring=scoring, n_jobs=-1, return_train_score=True)
