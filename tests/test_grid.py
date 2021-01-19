@@ -79,7 +79,7 @@ def test_gridsearch_result():
     assert result.shape[1] == 10
 
 
-def test_gridsearch_result():
+def test_gridsearch_params():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -98,7 +98,7 @@ def test_gridsearch_result():
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=False)
     
-    assert len(best_param.keys()) == 2
+    assert len(best_param.keys()) == len(param_grid.keys())
     
 
 def test_randomsearch_bestestimator():
@@ -128,5 +128,53 @@ def test_randomsearch_bestestimator():
     assert len(record) == 0
     
     
+def test_randomsearch_result():
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
     
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('sca', tml.DfScaler(method='standard')), 
+                     ('dummify', tml.Dummify())])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
+    
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    param_grid = {'logit__C': [1, 2], 
+                  'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
+                  'pipe__transf__imp__strategy': ['mean', 'median'], 
+                  'pipe__transf__dummify__drop_first': [True, False], 
+                  'pipe__transf__dummify__match_cols': [True, False]}
+    
+    result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
+                                                         param_grid=param_grid, scoring='accuracy', cv=3, random=5)
+    
+    assert result.shape[0] == 5
+    assert result.shape[1] == 13
+    
+    
+def test_randomsearch_params():
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('sca', tml.DfScaler(method='standard')), 
+                     ('dummify', tml.Dummify())])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
+    
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    param_grid = {'logit__C': [1, 2], 
+                  'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
+                  'pipe__transf__imp__strategy': ['mean', 'median'], 
+                  'pipe__transf__dummify__drop_first': [True, False], 
+                  'pipe__transf__dummify__match_cols': [True, False]}
+    
+    result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
+                                                         param_grid=param_grid, scoring='accuracy', cv=3, random=5)
+    
+    assert len(best_param.keys()) == len(param_grid.keys())
     
