@@ -1,7 +1,7 @@
-from .context import tubesml
 import pytest
 import pandas as pd
 import numpy as np
+import tubesml
 
     
 def create_data():

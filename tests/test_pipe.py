@@ -1,4 +1,4 @@
-from .context import tubesml as tml
+import tubesml as tml
 import pytest
 import pandas as pd
 import numpy as np
