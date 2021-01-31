@@ -3,10 +3,12 @@ __version__ = '0.1.0'
 __status__ = 'development'
 
 import pandas as pd
+import numpy as np
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.base import clone
 
-import report as rp
+from tubesml.report import get_coef, get_feature_importance
 
 
 def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
@@ -56,24 +58,26 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
     
     for n_fold, (train_index, test_index) in enumerate(cv.split(train.values)):
             
-        trn_data = train.iloc[train_index][:]
-        val_data = train.iloc[test_index][:]
+        trn_data = train.iloc[train_index, :]
+        val_data = train.iloc[test_index, :]
         
         trn_target = target.iloc[train_index].values.ravel()
         val_target = target.iloc[test_index].values.ravel()
         
-        estimator.fit(trn_data, trn_target)
+        model = clone(estimator)  # it creates issues with match_cols in dummy otherwise
+        
+        model.fit(trn_data, trn_target)
         
         if predict_proba:
-            oof[test_index] = estimator.predict_proba(val_data)[:,1]
+            oof[test_index] = model.predict_proba(val_data)[:,1]
         else:
-            oof[test_index] = estimator.predict(val_data).ravel()
+            oof[test_index] = model.predict(val_data).ravel()
 
         if imp_coef:
             try:
-                fold_df = rp.get_coef(estimator)
+                fold_df = get_coef(model)
             except (AttributeError, KeyError):
-                fold_df = rp.get_feature_importance(estimator)
+                fold_df = get_feature_importance(model)
                 
             fold_df['fold'] = n_fold + 1
             feat_df = pd.concat([feat_df, fold_df], axis=0)
