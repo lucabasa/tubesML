@@ -30,6 +30,9 @@ df = create_data()
 
 
 def test_gridsearch_bestestimator():
+    '''
+    Test grid_search returns an estimator ready to be used with no warnings
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -57,6 +60,9 @@ def test_gridsearch_bestestimator():
     
     
 def test_gridsearch_result():
+    '''
+    Test grid_search returns a dataframe summarizing the search results
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -80,6 +86,9 @@ def test_gridsearch_result():
 
 
 def test_gridsearch_params():
+    '''
+    Test grid_search returns a dictionary of parameters with the best combination of parameters
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -102,6 +111,9 @@ def test_gridsearch_params():
     
 
 def test_randomsearch_bestestimator():
+    '''
+    Test grid_search returns an estimator ready to be used with no warnings when using random search
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -129,6 +141,9 @@ def test_randomsearch_bestestimator():
     
     
 def test_randomsearch_result():
+    '''
+    Test grid_search returns a dataframe summarizing the search results when using random search
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -155,6 +170,9 @@ def test_randomsearch_result():
     
     
 def test_randomsearch_params():
+    '''
+    Test grid_search returns a dictionary of parameters with the best combination of parameters when using random search
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
