@@ -2,6 +2,8 @@ __author__ = 'lucabasa'
 __version__ = '0.0.1'
 __status__ = 'development'
 
+import pandas as pd
+
 
 def get_coef(pipe):
     '''
