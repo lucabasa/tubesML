@@ -12,13 +12,13 @@ MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
 URL = 'https://pypi.org/project/tubesml/'
 LICENSE = 'Apache 2.0'
 DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
-VERSION = '0.0.3'
+VERSION = '0.1.0'
 PYTHON_REQUIRES = ">=3.6"
 
 INSTALL_REQUIRES = [
-    'numpy>=1.19.2',
-    'pandas>=1.1.2',
-    'scikit-learn>=0.23.2',
+    'numpy>=1.19.5',
+    'pandas>=1.2.0',
+    'scikit-learn>=0.24.1',
 ]
 
 
