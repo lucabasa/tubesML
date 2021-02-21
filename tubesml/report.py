@@ -166,4 +166,31 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
     if title is not None:
         fig.suptitle(f'{title}', fontsize=18)
     
-    plt.show()       
+    plt.show()
+    
+    
+def plot_feat_imp(feat_imp, n=-1, savename=None):
+    '''
+    Plots a barplot with error bars of feature importance.
+    It works with coefficients too
+    '''
+    
+    if 'mean' not in feat_imp.columns or 'std' not in feat_imp.columns:
+        raise KeyError('The input requires a column mean and a column std')
+    
+    if n > 0:
+        fi = feat_imp.head(n)
+    else:
+        fi = feat_imp
+    
+    fig, ax = plt.subplots(1,1, figsize=(13, int(0.3*fi.shape[0])))
+
+    sns.barplot(x=fi['mean'], y=fi.index, xerr=fi['std'], ax=ax)
+    
+    if savename is not None:
+        plt.savefig(savename)
+        plt.show()
+    else:
+        plt.show()
+        
+
