@@ -88,7 +88,7 @@ def plot_regression_predictions(data, true_label, pred_label, hue=None, savename
     
     if savename is not None:
         plt.savefig(savename)
-        plt.show()
+        plt.close()
     else:
         plt.show()
 
@@ -189,7 +189,7 @@ def plot_feat_imp(feat_imp, n=-1, savename=None):
     
     if savename is not None:
         plt.savefig(savename)
-        plt.show()
+        plt.close()
     else:
         plt.show()
         
@@ -239,6 +239,6 @@ def plot_partial_dependence(pdps, savename=None):
 
     if savename is not None:
         plt.savefig(savename)
-        plt.show()
+        plt.close()
     else:
         plt.show()
