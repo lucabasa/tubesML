@@ -38,7 +38,8 @@ def test_cvscore():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -59,7 +60,8 @@ def test_cvscore_predictproba():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -80,7 +82,8 @@ def test_cvscore_coefficients():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -101,7 +104,8 @@ def test_cvscore_importances():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 

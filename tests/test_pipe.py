@@ -36,7 +36,8 @@ def test_transformers():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     with pytest.warns(None) as record:
         res = pipe.fit_transform(df)
@@ -53,7 +54,8 @@ def test_predictions():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
