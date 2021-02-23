@@ -39,7 +39,8 @@ def test_gridsearch_bestestimator():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -49,7 +50,8 @@ def test_gridsearch_bestestimator():
                   'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
                   'pipe__transf__imp__strategy': ['mean', 'median'], 
                   'pipe__transf__dummify__drop_first': [True, False], 
-                  'pipe__transf__dummify__match_cols': [True, False]}
+                  'pipe__transf__dummify__match_cols': [True, False], 
+                  'pipe__transf__pca__n_components': [0.5, 3, 5]}
     
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=False)
@@ -69,7 +71,8 @@ def test_gridsearch_result():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -95,7 +98,8 @@ def test_gridsearch_params():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -120,7 +124,8 @@ def test_randomsearch_bestestimator():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -130,7 +135,8 @@ def test_randomsearch_bestestimator():
                   'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
                   'pipe__transf__imp__strategy': ['mean', 'median'], 
                   'pipe__transf__dummify__drop_first': [True, False], 
-                  'pipe__transf__dummify__match_cols': [True, False]}
+                  'pipe__transf__dummify__match_cols': [True, False], 
+                  'pipe__transf__pca__n_components': [0.5, 3, 5]}
     
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=20)
@@ -150,7 +156,8 @@ def test_randomsearch_result():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -160,13 +167,14 @@ def test_randomsearch_result():
                   'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
                   'pipe__transf__imp__strategy': ['mean', 'median'], 
                   'pipe__transf__dummify__drop_first': [True, False], 
-                  'pipe__transf__dummify__match_cols': [True, False]}
+                  'pipe__transf__dummify__match_cols': [True, False], 
+                  'pipe__transf__pca__n_components': [0.5, 3, 5]}
     
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=5)
     
     assert result.shape[0] == 5
-    assert result.shape[1] == 13
+    assert result.shape[1] == 14
     
     
 def test_randomsearch_params():
@@ -179,7 +187,8 @@ def test_randomsearch_params():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify())])
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.PCADf(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -189,7 +198,8 @@ def test_randomsearch_params():
                   'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
                   'pipe__transf__imp__strategy': ['mean', 'median'], 
                   'pipe__transf__dummify__drop_first': [True, False], 
-                  'pipe__transf__dummify__match_cols': [True, False]}
+                  'pipe__transf__dummify__match_cols': [True, False], 
+                  'pipe__transf__pca__n_components': [0.5, 3, 5]}
     
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=5)
