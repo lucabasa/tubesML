@@ -121,7 +121,7 @@ def test_verbose_change():
     assert len(record) == 0
 
     
-def test_scl_cols():
+def test_dummy_cols():
     '''
     Test the attribute columns is well defined
     '''

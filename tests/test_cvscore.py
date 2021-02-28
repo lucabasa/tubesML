@@ -31,48 +31,30 @@ def create_data():
 df = create_data()
 
 
-def test_cvscore():
+@pytest.mark.parametrize("predict_proba", [True, False])
+def test_cvscore(predict_proba):
+    '''
+    Test it works without warnings with both the normal prediction and the predict_proba
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    
+
     full_pipe = Pipeline([('pipe', pipe), 
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
-    
+
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
-        res = tml.cv_score(df_1, y, full_pipe, cv=kfold)
-    assert len(record) == 0
-    assert len(res) == len(df_1)
-    
-    
-def test_cvscore_predictproba():
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
-                     ('imp', tml.DfImputer(strategy='mean')), 
-                     ('poly', tml.DfPolynomial()), 
-                     ('sca', tml.DfScaler(method='standard')), 
-                     ('dummify', tml.Dummify()), 
-                     ('pca', tml.DfPCA(n_components=0.9))])
-    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    
-    full_pipe = Pipeline([('pipe', pipe), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
-    
-    kfold = KFold(n_splits=3)
-    
-    with pytest.warns(None) as record:
-        res = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
+        res = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(record) == 0
     assert len(res) == len(df_1)
 
@@ -83,17 +65,18 @@ def test_cvscore_coefficients():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
-                     ('poly', tml.DfPolynomial()), 
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('poly', tml.DfPolynomial()),
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    
+
     full_pipe = Pipeline([('pipe', pipe), 
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
-    
+
     kfold = KFold(n_splits=3)
-    
+
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
@@ -107,15 +90,16 @@ def test_cvscore_importances():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')),  
                      ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('sca', tml.DfScaler(method='standard')),   
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
+    kfold = KFold(n_splits=3)
+    
     full_pipe = Pipeline([('pipe', pipe), 
                           ('tree', DecisionTreeClassifier())])
-    
-    kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
