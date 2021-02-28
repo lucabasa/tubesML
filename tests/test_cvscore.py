@@ -30,6 +30,7 @@ def create_data():
 
 df = create_data()
 
+
 @pytest.mark.parametrize("predict_proba", [True, False])
 def test_cvscore(predict_proba):
     '''
@@ -41,14 +42,15 @@ def test_cvscore(predict_proba):
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    
+
     full_pipe = Pipeline([('pipe', pipe), 
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
-    
+
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
@@ -63,17 +65,18 @@ def test_cvscore_coefficients():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
-                     ('poly', tml.DfPolynomial()), 
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('poly', tml.DfPolynomial()),
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    
+
     full_pipe = Pipeline([('pipe', pipe), 
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
-    
+
     kfold = KFold(n_splits=3)
-    
+
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
@@ -87,15 +90,16 @@ def test_cvscore_importances():
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')),  
                      ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('sca', tml.DfScaler(method='standard')),   
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
+    kfold = KFold(n_splits=3)
+    
     full_pipe = Pipeline([('pipe', pipe), 
                           ('tree', DecisionTreeClassifier())])
-    
-    kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
