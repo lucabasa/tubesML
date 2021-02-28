@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -40,5 +40,8 @@ class PolynomialDf(BaseTransformer):
             X_int = self.pol.transform(X[self.to_interact])
             X_int = pd.DataFrame(X_int, columns=self.pol.get_feature_names(self.to_interact), index=X.index)
             X_tr = pd.concat([X[[col for col in X if col not in self.to_interact]], X_int], axis=1)
+            
+        if self.include_bias:
+            X_tr.rename(columns={'1': 'BIAS_TERM'}, inplace=True)
         
         return X_tr
