@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
@@ -27,6 +27,8 @@ class TargetEncoder(BaseTransformer):
     
     @reset_columns
     def fit(self, X, y):
+        if self.agg_func == 'count':
+            raise UserWarning('Frequency encoding not supported')  # TODO: allow this in the future
         # Encode all categorical cols by default
         if self.to_encode is None:
             self.to_encode = [c for c in X if str(X[c].dtype)=='object' or str(X[c].dtype)=='category']
