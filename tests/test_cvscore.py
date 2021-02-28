@@ -60,6 +60,7 @@ def test_cvscore_predictproba():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9))])
@@ -82,6 +83,7 @@ def test_cvscore_coefficients():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
@@ -95,7 +97,7 @@ def test_cvscore_coefficients():
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
-    assert len(coef) == df_1.shape[1]
+    assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
     
 
 def test_cvscore_importances():
@@ -103,7 +105,8 @@ def test_cvscore_importances():
     df_1 = df.drop('target', axis=1)
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
-                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('imp', tml.DfImputer(strategy='mean')),  
+                     ('poly', tml.DfPolynomial()),
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
@@ -117,4 +120,4 @@ def test_cvscore_importances():
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
-    assert len(coef) == df_1.shape[1]
+    assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
