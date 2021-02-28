@@ -31,7 +31,7 @@ def test_pca():
     '''
     Test the transformer works
     '''
-    pca = tubesml.PCADf(n_components=2)
+    pca = tubesml.DfPCA(n_components=2)
     with pytest.warns(None) as record:
         res = pca.fit_transform(df)
     assert len(record) == 0
@@ -41,7 +41,7 @@ def test_pca_columns():
     '''
     Test the transformer columns are called properly
     '''
-    pca = tubesml.PCADf(n_components=0.5)
+    pca = tubesml.DfPCA(n_components=0.5)
     res = pca.fit_transform(df)
     assert 'pca_0' in res.columns
     
@@ -50,7 +50,7 @@ def test_pca_compression():
     '''
     Test pca with compression=True
     '''
-    pca = tubesml.PCADf(n_components=5, compress=True)
+    pca = tubesml.DfPCA(n_components=5, compress=True)
     res = pca.fit_transform(df)
     assert (res.columns == df.columns).all()
     
@@ -59,7 +59,7 @@ def test_inverse_transform():
     '''
     Test if the inverse transform works
     '''
-    pca = tubesml.PCADf(n_components=2)
+    pca = tubesml.DfPCA(n_components=2)
     res = pca.fit_transform(df)
     res_2 = pca.inverse_transform(res)
     assert (res_2.columns == df.columns).all()
@@ -69,7 +69,7 @@ def test_get_feature_names():
     '''
     Test the transformer still has get_feature_names
     '''
-    trsf = tubesml.PCADf(n_components=4)
+    trsf = tubesml.DfPCA(n_components=4)
     res = trsf.fit_transform(df)
     assert trsf.get_feature_names()[0] == 'pca_0'
     assert trsf.get_feature_names()[1] == 'pca_1'

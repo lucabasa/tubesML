@@ -40,7 +40,7 @@ def test_gridsearch_bestestimator():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -72,7 +72,7 @@ def test_gridsearch_result():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -99,7 +99,7 @@ def test_gridsearch_params():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -125,7 +125,7 @@ def test_randomsearch_bestestimator():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -157,7 +157,7 @@ def test_randomsearch_result():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -188,7 +188,7 @@ def test_randomsearch_params():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 

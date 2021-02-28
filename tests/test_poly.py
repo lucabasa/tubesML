@@ -31,7 +31,7 @@ def test_poly_all():
     '''
     Test if the interactions are created
     '''
-    poly = tubesml.PolynomialDf()
+    poly = tubesml.DfPolynomial()
     res = poly.fit_transform(df)
     
     assert len(res.columns) == 9  # 3 columns in total, all pairs of 2, inclunding squares and singles
@@ -41,7 +41,7 @@ def test_poly_interact():
     '''
     Test if the to_interact attribute works
     '''
-    poly = tubesml.PolynomialDf(to_interact=[col for col in df if 'target' not in col])
+    poly = tubesml.DfPolynomial(to_interact=[col for col in df if 'target' not in col])
     res = poly.fit_transform(df)
     
     assert len(res.columns) == 6 # do not use target in the interactions, so as above but without 3
@@ -51,7 +51,7 @@ def test_include_bias():
     '''
     Test if we can include a bias term
     '''
-    poly = tubesml.PolynomialDf(include_bias=True)
+    poly = tubesml.DfPolynomial(include_bias=True)
     res = poly.fit_transform(df)
     
     assert len(res.columns) == 10 
@@ -62,7 +62,7 @@ def test_interaction_only():
     '''
     Test if we can include only the interaction
     '''
-    poly = tubesml.PolynomialDf(interaction_only=True)
+    poly = tubesml.DfPolynomial(interaction_only=True)
     res = poly.fit_transform(df)
     
     assert len(res.columns) == 6
@@ -73,7 +73,7 @@ def test_get_feature_names():
     '''
     Test the transformer still has get_feature_names
     '''
-    trsf = tubesml.PolynomialDf()
+    trsf = tubesml.DfPolynomial()
     res = trsf.fit_transform(df)
     assert trsf.get_feature_names()[0] == df.columns[0]
     assert trsf.get_feature_names()[1] == df.columns[1]

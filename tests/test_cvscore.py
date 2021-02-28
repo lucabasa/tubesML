@@ -37,9 +37,10 @@ def test_cvscore():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()),
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -61,7 +62,7 @@ def test_cvscore_predictproba():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9))])
+                     ('pca', tml.DfPCA(n_components=0.9))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -83,7 +84,7 @@ def test_cvscore_coefficients():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
+                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
@@ -105,7 +106,7 @@ def test_cvscore_importances():
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
+                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 

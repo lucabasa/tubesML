@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 import pandas as pd
 
 
-class PCADf(BaseTransformer):
+class DfPCA(BaseTransformer):
     '''
     Wrapper around PCA to keep the dataframe structure
     It can also return the same dataframe in a compressed form, e.g. by doing and undoing pca

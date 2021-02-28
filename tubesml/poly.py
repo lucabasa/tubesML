@@ -7,7 +7,7 @@ from sklearn.preprocessing import PolynomialFeatures
 import pandas as pd
 
 
-class PolynomialDf(BaseTransformer):
+class DfPolynomial(BaseTransformer):
     def __init__(self, degree=2, interaction_only=False, include_bias=False, to_interact='all'):
         super().__init__()
         self.degree = degree
