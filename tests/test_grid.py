@@ -31,7 +31,8 @@ df = create_data()
 pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
                      ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()), 
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9))])
 pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
@@ -52,6 +53,7 @@ def test_grid_bestestimator(random):
                   'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
                   'pipe__transf__imp__strategy': ['mean', 'median'], 
                   'pipe__transf__poly__degree': [1, 2, 3], 
+                  'pipe__transf__tarenc__agg_func': ['mean', 'median'],
                   'pipe__transf__dummify__drop_first': [True, False], 
                   'pipe__transf__dummify__match_cols': [True, False], 
                   'pipe__transf__pca__n_components': [0.5, 3, 5]}
