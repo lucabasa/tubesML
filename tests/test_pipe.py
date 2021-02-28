@@ -35,6 +35,7 @@ def test_transformers():
     '''
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
@@ -53,6 +54,7 @@ def test_predictions():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
