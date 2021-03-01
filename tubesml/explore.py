@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.1.0'
+__version__ = '1.1.2'
 __status__ = 'development'
 
 
@@ -124,7 +124,11 @@ def find_cats(data, target, thrs=0.1, agg_func='mean', critical=0.05, ks=True, f
                                         normalize=True)
         tmp = data.loc[data[col].isin(counts[counts > thrs].index),:]
         if ks:
-            res = ks_test(tmp, col, target, critical=critical)
+            try:
+                res = ks_test(tmp, col, target, critical=critical)
+            except ValueError as e:
+                print(f'Column {col} throws the following error: {e}')
+                continue
             if res:
                 cats.append(col)
         else:
@@ -145,9 +149,6 @@ def segm_target(data, cat, target):
     sns.boxplot(cat, target, data=data, ax=ax[0])
     for val in data[cat].unique():
         tmp = data[data[cat] == val]
-        sns.distplot(tmp[target], hist=False, kde=True,
-                 kde_kws = {'linewidth': 3},
-                 label = val, ax=ax[1])  
+        sns.kdeplot(tmp[target], linewidth=3, alpha=0.7,
+                 label=val, ax=ax[1])  
     return df
-
- 
