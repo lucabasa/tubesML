@@ -92,7 +92,7 @@ def corr_target(data, target, cols, x_estimator=None):
             sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator)
             i = i+1
 
-def ks_test(data, col, target, critical=0.05):
+def _ks_test(data, col, target, critical=0.05):
     '''
     It takes a categorical feature and makes dummies.
     For each dummy, it performs a Kolmogorov-Smirnov test between the distribution of the target 
@@ -125,7 +125,7 @@ def find_cats(data, target, thrs=0.1, agg_func='mean', critical=0.05, ks=True, f
         tmp = data.loc[data[col].isin(counts[counts > thrs].index),:]
         if ks:
             try:
-                res = ks_test(tmp, col, target, critical=critical)
+                res = _ks_test(tmp, col, target, critical=critical)
             except ValueError as e:
                 print(f'Column {col} throws the following error: {e}')
                 continue
