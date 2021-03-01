@@ -14,7 +14,7 @@ import warnings
 def get_coef(pipe):
     '''
     Get dataframe with coefficients of a model in Pipeline
-    The step before the model has to have a get_feature_name method
+    The step before the model has to have a get_feature_names method
     '''
     imp = pipe.steps[-1][1].coef_.ravel().tolist()
     feats = pipe.steps[-2][1].get_feature_names()
@@ -28,7 +28,7 @@ def get_coef(pipe):
 def get_feature_importance(pipe):
     '''
     Get dataframe with the feature importance of a model in Pipeline
-    The step before the model has to have a get_feature_name method
+    The step before the model has to have a get_feature_names method
     '''
     imp = pipe.steps[-1][1].feature_importances_.tolist() # it's a pipeline
     feats = pipe.steps[-2][1].get_feature_names()
