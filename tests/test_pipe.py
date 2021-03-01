@@ -35,12 +35,14 @@ def test_transformers():
     '''
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')), 
+                     ('tarenc', tml.TargetEncoder()), 
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
+                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     with pytest.warns(None) as record:
-        res = pipe.fit_transform(df)
+        res = pipe.fit_transform(df, df['target'])
     assert len(record) == 0
     
 
@@ -53,9 +55,11 @@ def test_predictions():
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean')), 
-                     ('sca', tml.DfScaler(method='standard')), 
+                     ('poly', tml.DfPolynomial()), 
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()), 
-                     ('pca', tml.PCADf(n_components=0.9, compress=True))])
+                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
