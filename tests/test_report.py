@@ -1,5 +1,6 @@
 import tubesml as tml
 import pytest
+from unittest.mock import patch 
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -8,6 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
 
 import pandas as pd
+import numpy as np
 
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
@@ -87,7 +89,7 @@ def test_feat_imp_xgb():
     assert len(coef) == df_1.shape[1]
     
     
-def test_feat_imp_xgb():
+def test_feat_imp_lgb():
     '''
     Test if the method works for LGBM
     (Version 3.1.1, not in package requirements)
@@ -105,4 +107,58 @@ def test_feat_imp_xgb():
         coef = tml.get_feature_importance(full_pipe)
     assert len(record) == 0
     assert len(coef) == df_1.shape[1]
+
+
+@patch("matplotlib.pyplot.show")
+def test_learning_curves(mock_show):
+    '''
+    Test learning curves can be plotted
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
     
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    kfold = KFold(n_splits=3)
+    with pytest.warns(None) as record:
+        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
+                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+    assert len(record) == 0
+    
+    
+# @patch("matplotlib.pyplot.show")  # todo: somewhat slow
+# def test_learning_curves_xgb(mock_show):
+#     '''
+#     Test learning curves can be plotted with xbgboost
+#     '''
+#     y = df['target']
+#     df_1 = df.drop('target', axis=1)
+    
+#     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+#                           ('xgb', XGBClassifier(objective='binary:logistic', 
+#                                                 use_label_encoder=False))])
+    
+#     kfold = KFold(n_splits=3)
+#     with pytest.warns(None) as record:
+#         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
+#                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+#     assert len(record) == 0   
+    
+    
+@patch("matplotlib.pyplot.show")
+def test_learning_curves_lgb(mock_show):
+    '''
+    Test learning curves can be plotted with xbgboost
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('lgb', LGBMClassifier())])
+    
+    kfold = KFold(n_splits=3)
+    with pytest.warns(None) as record:
+        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
+                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+    assert len(record) == 0  
