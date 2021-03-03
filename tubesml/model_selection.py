@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __status__ = 'development'
 
 import pandas as pd
@@ -87,6 +87,7 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
         feat_df = feat_df.groupby('feat')['score'].agg(['mean', 'std'])
         feat_df['abs_sco'] = (abs(feat_df['mean']))
         feat_df = feat_df.sort_values(by=['abs_sco'],ascending=False)
+        feat_df['std'] = feat_df['std'] / np.sqrt(cv.get_n_splits() - 1)  # std of the mean, unbiased
         del feat_df['abs_sco']
         return oof, feat_df
     else:    
