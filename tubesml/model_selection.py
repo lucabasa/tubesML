@@ -1,11 +1,12 @@
 __author__ = 'lucabasa'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __status__ = 'development'
 
 import pandas as pd
 import numpy as np
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 from sklearn.base import clone
 
 from tubesml.report import get_coef, get_feature_importance
@@ -90,3 +91,21 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
         return oof, feat_df
     else:    
         return oof
+    
+    
+def make_test(train, test_size, random_state, strat_feat=None):
+    '''
+    Creates a train and test, stratified on a feature or on a list of features
+    '''
+    if strat_feat:
+        
+        split = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
+
+        for train_index, test_index in split.split(train, train[strat_feat]):
+            train_set = train.iloc[train_index, :]
+            test_set = train.iloc[test_index, :]
+            
+    else:
+        train_set, test_set = train_test_split(train, test_size=test_size, random_state=random_state)
+            
+    return train_set, test_set
