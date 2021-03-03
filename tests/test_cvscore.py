@@ -105,3 +105,9 @@ def test_cvscore_importances():
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
     assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
+    
+    
+def test_make_test():
+    with pytest.warns(None) as record:
+        train, test = tml.make_test(df, 0.2, 452)
+    assert len(record) == 0
