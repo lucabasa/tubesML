@@ -111,3 +111,12 @@ def test_make_test():
     with pytest.warns(None) as record:
         train, test = tml.make_test(df, 0.2, 452)
     assert len(record) == 0
+
+def test_strat_test():
+    df_1 = df.copy()
+    df['cat'] = ['a']*50 + ['b']*50
+    with pytest.warns(None) as record:
+        train, test = tml.make_test(df, 0.2, 452, strat_feat='cat')
+    assert len(record) == 0
+    assert len(train[train['cat']=='a']) == len(train) / 2
+    
