@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 __status__ = 'development'
 
 
@@ -39,7 +39,9 @@ def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
     plt.figure(figsize=figsize)
     ax = sns.heatmap(corr, cmap='RdBu_r', **kwargs)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-    return cor_target
+    plt.show()
+    if target:
+        return cor_target
 
 
 def plot_distribution(data, column, bins=50, correlation=None):
@@ -54,6 +56,7 @@ def plot_distribution(data, column, bins=50, correlation=None):
         column = column + f' - {round(value,2)}'
     plt.title(f'Distribution of {column}', fontsize=18)
     plt.grid(False)
+    plt.show()
 
 
 def plot_bivariate(data, x, y, hue=None, **kwargs):
@@ -66,6 +69,7 @@ def plot_bivariate(data, x, y, hue=None, **kwargs):
         plt.title(f'{x} vs {y}, by {hue}', fontsize=18)
     else:
         plt.title(f'{x} vs {y}', fontsize=18)
+    plt.show()
 
 
 def corr_target(data, target, cols, x_estimator=None):
@@ -91,6 +95,8 @@ def corr_target(data, target, cols, x_estimator=None):
         else:
             sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator)
             i = i+1
+    plt.show()
+    
 
 def _ks_test(data, col, target, critical=0.05):
     '''
