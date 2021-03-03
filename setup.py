@@ -12,7 +12,7 @@ MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
 URL = 'https://pypi.org/project/tubesml/'
 LICENSE = 'Apache 2.0'
 DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 PYTHON_REQUIRES = ">=3.6"
 
 INSTALL_REQUIRES = [
@@ -27,7 +27,7 @@ PACKAGES = [
 ]
 
 CLASSIFIERS = [
-    'Development Status :: 3 - Alpha', 
+    'Development Status :: 4 - Beta', 
     'Programming Language :: Python', 
     'Programming Language :: Python :: 3.8', 
     'Intended Audience :: Science/Research',
