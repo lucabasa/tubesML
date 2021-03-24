@@ -110,7 +110,7 @@ def test_feat_imp_lgb():
 
 
 @patch("matplotlib.pyplot.show")
-def test_learning_curves(mock_show):
+def test_learning_curves(_):
     '''
     Test learning curves can be plotted
     '''
@@ -147,7 +147,7 @@ def test_learning_curves(mock_show):
     
     
 @patch("matplotlib.pyplot.show")
-def test_learning_curves_lgb(mock_show):
+def test_learning_curves_lgb(_):
     '''
     Test learning curves can be plotted with xbgboost
     '''
@@ -165,7 +165,7 @@ def test_learning_curves_lgb(mock_show):
 
 
 @patch("matplotlib.pyplot.show")
-def test_plot_feat_imp(mock_show):
+def test_plot_feat_imp(_):
     '''
     Test if plot feat importance works
     '''
@@ -181,5 +181,4 @@ def test_plot_feat_imp(mock_show):
 
     with pytest.warns(None) as record:
         tml.plot_feat_imp(coef)
-    assert len(record) == 0        
-    
+    assert len(record) == 0
