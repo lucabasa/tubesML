@@ -169,7 +169,7 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
     plt.show()
     
     
-def plot_feat_imp(feat_imp, n=-1, savename=None):
+def plot_feat_imp(data, n=-1, savename=None):
     '''
     Plots a barplot with error bars of feature importance.
     It works with coefficients too
@@ -179,9 +179,9 @@ def plot_feat_imp(feat_imp, n=-1, savename=None):
         raise KeyError('data must contain the columns feat, mean, and std')
     
     if n > 0:
-        fi = feat_imp.head(n)
+        fi = data.head(n)
     else:
-        fi = feat_imp
+        fi = data
     
     fig, ax = plt.subplots(1,1, figsize=(13, int(0.3*fi.shape[0])))
 
