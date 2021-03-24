@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __status__ = 'development'
 
 import pandas as pd
@@ -234,7 +234,7 @@ def plot_partial_dependence(pdps, savename=None):
             j = (j+1)%2
             i = i + 1 - j
         else:
-            sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator)
+            ax[i] = plot_pdp(pdps, feat, feat, ax[i])
             i = i+1
 
     if savename is not None:
