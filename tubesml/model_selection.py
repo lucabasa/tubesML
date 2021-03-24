@@ -82,7 +82,7 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
                 
             fold_df['fold'] = n_fold + 1
             feat_df = pd.concat([feat_df, fold_df], axis=0)
-       
+    
     if imp_coef:
         feat_df = feat_df.groupby('feat')['score'].agg(['mean', 'std'])
         feat_df['abs_sco'] = (abs(feat_df['mean']))

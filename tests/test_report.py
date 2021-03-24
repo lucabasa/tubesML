@@ -161,4 +161,25 @@ def test_learning_curves_lgb(mock_show):
     with pytest.warns(None) as record:
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
-    assert len(record) == 0  
+    assert len(record) == 0
+
+
+@patch("matplotlib.pyplot.show")
+def test_plot_feat_imp(mock_show):
+    '''
+    Test if plot feat importance works
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('lgb', LGBMClassifier())])
+    
+    kfold = KFold(n_splits=3)
+    full_pipe.fit(df_1, y)
+    oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
+
+    with pytest.warns(None) as record:
+        tml.plot_feat_imp(coef)
+    assert len(record) == 0        
+    
