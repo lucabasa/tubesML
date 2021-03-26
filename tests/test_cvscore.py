@@ -60,23 +60,6 @@ def test_cvscore(predict_proba):
         res = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(record) == 0
     assert len(res) == len(df_1)
-    
-    
-def test_cvscore_nopipeline():
-    '''
-    Test cv score works for simple models, without being it a pipeline
-    '''
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    model = LogisticRegression(solver='lbfgs', multi_class='auto')
-    
-    kfold = KFold(n_splits=3)
-    
-    with pytest.warns(None) as record:
-        res = tml.cv_score(df_1, y, model, cv=kfold)
-    assert len(record) == 0
-    assert len(res) == len(df_1)
 
 
 @pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False), LGBMClassifier()])
@@ -136,6 +119,24 @@ def test_cvscore_coef_imp(model):
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
     assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
+
+
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])   
+def test_cvscore_nopipeline(model):
+    '''
+    Test cv score works for simple models, without being it a pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(None) as record:
+        res= tml.cv_score(df_1, y, model, cv=kfold)
+    assert len(record) == 0
+    assert len(res) == len(df_1)
 
     
 def test_make_test():
