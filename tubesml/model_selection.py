@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.2.1'
+__version__ = '1.0.0'
 __status__ = 'development'
 
 import pandas as pd
@@ -7,6 +7,7 @@ import numpy as np
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
+from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 
 from tubesml.report import get_coef, get_feature_importance
@@ -44,7 +45,7 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     return result, grid.best_params_, grid.best_estimator_
 
 
-def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
+def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, early_stopping=None, eval_metric=None, verbose=False):
     '''
     Train and test a pipeline in kfold cross validation
     Returns the oof predictions for the entire train set and a dataframe with the
@@ -57,6 +58,11 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
     
     feat_df = pd.DataFrame()
     
+    try:  # If estimator is not a pipeline, make a pipeline
+        estimator.steps
+    except AttributeError:
+        estimator = Pipeline([('model', estimator)])
+    
     for n_fold, (train_index, test_index) in enumerate(cv.split(train.values)):
             
         trn_data = train.iloc[train_index, :]
@@ -65,9 +71,22 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False):
         trn_target = target.iloc[train_index].values.ravel()
         val_target = target.iloc[test_index].values.ravel()
         
-        model = clone(estimator)  # it creates issues with match_cols in dummy otherwise
-        
-        model.fit(trn_data, trn_target)
+        if early_stopping:
+            # create model and transform pipelines
+            transf_pipe = clone(Pipeline(estimator.steps[:-1]))
+            model = clone(estimator.steps[-1][1])
+            # Transform the data for the model
+            trn_data = transf_pipe.fit_transform(trn_data, trn_target)
+            val_data = transf_pipe.transform(val_data)
+            # Fit the model with early stopping
+            model.fit(trn_data, trn_target, 
+                      eval_set=[(trn_data, trn_target), (val_data, val_target)], 
+                      early_stopping_rounds=early_stopping,
+                      eval_metric=eval_metric,
+                      verbose=verbose)
+        else:
+            model = clone(estimator)  # it creates issues with match_cols in dummy otherwise
+            model.fit(trn_data, trn_target)
         
         if predict_proba:
             oof[test_index] = model.predict_proba(val_data)[:,1]
