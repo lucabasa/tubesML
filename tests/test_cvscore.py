@@ -7,6 +7,9 @@ from sklearn.datasets import make_classification
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
 
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+
 import pandas as pd
 
 import string
@@ -59,7 +62,42 @@ def test_cvscore(predict_proba):
     assert len(res) == len(df_1)
 
 
-def test_cvscore_coefficients():
+@pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False), LGBMClassifier()])
+def test_earlystopping(model):
+    '''
+    Test early stopping for XGBoost and LGBM
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()),
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.DfPCA(n_components=0.9))])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
+
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('model', model)])
+
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(None) as record:
+        res = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc')
+    assert len(record) == 0
+    assert len(res) == len(df_1)
+
+    
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+                                   DecisionTreeClassifier(), 
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])
+def test_cvscore_coef_imp(model):
+    '''
+    Test coefficient and feature importances for a few models
+    '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
@@ -73,7 +111,7 @@ def test_cvscore_coefficients():
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
 
     full_pipe = Pipeline([('pipe', pipe), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('model', model)])
 
     kfold = KFold(n_splits=3)
 
@@ -81,36 +119,13 @@ def test_cvscore_coefficients():
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
     assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
-    
 
-def test_cvscore_importances():
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
-                     ('imp', tml.DfImputer(strategy='mean')),  
-                     ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')),   
-                     ('tarenc', tml.TargetEncoder()),
-                     ('dummify', tml.Dummify()), 
-                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
-    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    
-    kfold = KFold(n_splits=3)
-    
-    full_pipe = Pipeline([('pipe', pipe), 
-                          ('tree', DecisionTreeClassifier())])
-    
-    with pytest.warns(None) as record:
-        res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
-    assert len(record) == 0
-    assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
-    
     
 def test_make_test():
     with pytest.warns(None) as record:
         train, test = tml.make_test(df, 0.2, 452)
     assert len(record) == 0
+
 
 def test_strat_test():
     df_1 = df.copy()
