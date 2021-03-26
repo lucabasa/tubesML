@@ -11,6 +11,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 
 from tubesml.report import get_coef, get_feature_importance
+from tubesml.base import BaseTransformer
 
 
 def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
@@ -61,7 +62,7 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
     try:  # If estimator is not a pipeline, make a pipeline
         estimator.steps
     except AttributeError:
-        estimator = Pipeline([('model', estimator)])
+        estimator = Pipeline([('transf', BaseTransformer()), ('model', estimator)])
     
     for n_fold, (train_index, test_index) in enumerate(cv.split(train.values)):
             

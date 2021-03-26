@@ -134,7 +134,7 @@ def test_cvscore_nopipeline(model):
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
-        res= tml.cv_score(df_1, y, model, cv=kfold)
+        res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
     assert len(record) == 0
     assert len(res) == len(df_1)
 
