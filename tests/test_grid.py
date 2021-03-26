@@ -6,6 +6,7 @@ from sklearn.datasets import make_classification
 from sklearn.pipeline import Pipeline
 
 import pandas as pd
+import numpy as np
 
 import string
 import random
@@ -100,4 +101,20 @@ def test_gridsearch_params(random):
     
     assert len(best_param.keys()) == len(param_grid.keys())
 
+@pytest.mark.parametrize("random", [False, 5])
+def test_gridsearch_nopipeline(random):
+    '''
+    Test grid_search when provided with a simple estimator without the pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    model = LogisticRegression(solver='lbfgs', multi_class='auto')
+    
+    param_grid = {'C': np.arange(1, 10)}
+    
+    with pytest.warns(None) as record:
+        result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=model, 
+                                                         param_grid=param_grid, scoring='accuracy', cv=3, random=random)
+    assert len(record) == 0
     
