@@ -50,55 +50,22 @@ def test_get_coef():
         coef = tml.get_coef(full_pipe)
     assert len(record) == 0
     assert len(coef) == df_1.shape[1]
-    
-    
-def test_feat_imp():
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('tree', DecisionTreeClassifier())])
-    
-    kfold = KFold(n_splits=3)
-    full_pipe.fit(df_1, y)
 
-    with pytest.warns(None) as record:
-        coef = tml.get_feature_importance(full_pipe)
-    assert len(record) == 0
-    assert len(coef) == df_1.shape[1]
 
-    
-def test_feat_imp_xgb():
+@pytest.mark.parametrize('model', [DecisionTreeClassifier(), 
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])    
+def test_feat_imp(model):
     '''
-    Test if the method works for XGB
-    (Version 1.3.3, not in package requirements)
+    Test if we can get the feature importance for various models
+    XGB - Version 1.3.3, not in package requirements
+    LGB - Version 3.1.1, not in package requirements
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('xgb', XGBClassifier(objective='binary:logistic', 
-                                                use_label_encoder=False))])
-    
-    kfold = KFold(n_splits=3)
-    full_pipe.fit(df_1, y)
-
-    with pytest.warns(None) as record:
-        coef = tml.get_feature_importance(full_pipe)
-    assert len(record) == 0
-    assert len(coef) == df_1.shape[1]
-    
-    
-def test_feat_imp_lgb():
-    '''
-    Test if the method works for LGBM
-    (Version 3.1.1, not in package requirements)
-    '''
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('lgb', LGBMClassifier())])
+                          ('model', model)])
     
     kfold = KFold(n_splits=3)
     full_pipe.fit(df_1, y)
