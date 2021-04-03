@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __status__ = 'development'
 
 import pandas as pd
@@ -95,10 +95,14 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
             oof[test_index] = model.predict(val_data).ravel()
 
         if imp_coef:
+            if early_stopping:
+                feats = trn_data.columns
+            else:
+                feats = None
             try:
-                fold_df = get_coef(model)
+                fold_df = get_coef(model, feats)
             except (AttributeError, KeyError):
-                fold_df = get_feature_importance(model)
+                fold_df = get_feature_importance(model, feats)
                 
             fold_df['fold'] = n_fold + 1
             feat_df = pd.concat([feat_df, fold_df], axis=0)
