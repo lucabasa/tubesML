@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __status__ = 'development'
 
 import pandas as pd
@@ -7,17 +7,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import learning_curve
+from sklearn.pipeline import Pipeline
+
+from tubesml.base import BaseTransformer
 
 import warnings
 
 
-def get_coef(pipe):
+def get_coef(pipe, feats=None):
     '''
     Get dataframe with coefficients of a model in Pipeline
     The step before the model has to have a get_feature_names method
     '''
+    try:  # If estimator is not a pipeline, make a pipeline
+        feats = pipe.steps[-2][1].get_feature_names()
+    except AttributeError:
+        pipe = Pipeline([('transf', BaseTransformer()), ('model', pipe)])
+        feats = feats
     imp = pipe.steps[-1][1].coef_.ravel().tolist()
-    feats = pipe.steps[-2][1].get_feature_names()
     result = pd.DataFrame({'feat':feats,'score':imp})
     result['abs_res'] = abs(result['score'])
     result = result.sort_values(by=['abs_res'],ascending=False)
@@ -25,13 +32,17 @@ def get_coef(pipe):
     return result
 
 
-def get_feature_importance(pipe):
+def get_feature_importance(pipe, feats=None):
     '''
     Get dataframe with the feature importance of a model in Pipeline
     The step before the model has to have a get_feature_names method
     '''
+    try:  # If estimator is not a pipeline, make a pipeline
+        feats = pipe.steps[-2][1].get_feature_names()
+    except AttributeError:
+        pipe = Pipeline([('transf', BaseTransformer()), ('model', pipe)])
+        feats = feats
     imp = pipe.steps[-1][1].feature_importances_.tolist() # it's a pipeline
-    feats = pipe.steps[-2][1].get_feature_names()
     result = pd.DataFrame({'feat':feats,'score':imp})
     result = result.sort_values(by=['score'],ascending=False)
     return result
