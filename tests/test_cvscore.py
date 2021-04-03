@@ -85,7 +85,7 @@ def test_earlystopping(model):
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
-        res = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc')
+        res, imp = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc', imp_coef=True)
     assert len(record) == 0
     assert len(res) == len(df_1)
 
