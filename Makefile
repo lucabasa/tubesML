@@ -5,7 +5,7 @@ test:
 	coverage run -m pytest tests
     
 coverage:
-	coverage report -m --include=tubesml/*
+	coverage report -m --include=tubesml/* --skip-covered
 
 release:
 	pip install --upgrade setuptools wheel && python setup.py sdist bdist_wheel
