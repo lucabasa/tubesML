@@ -51,8 +51,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         Method to train the transformer.
         It also reset the columns attribute
         
-        Parameters:
-        -----------
+        :Parameters:
+        ------------
 
         X : {array-like} of shape (n_samples, n_features)
             The training input samples.
@@ -67,8 +67,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         Method to transform the input data
         It populates the columns attribute with the columns of the output data
         
-        Parameters:
-        -----------
+        :Parameters:
+        ------------
 
         X : {array-like} of shape (n_samples, n_features)
             The input samples.
