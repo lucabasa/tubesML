@@ -1,8 +1,7 @@
 Welcome to tubesML's documentation!
 ===================================
 
-.. automodule:: tubesml.base
-    :members:
+This is text I want to write
 
 .. toctree::
    :maxdepth: 2
@@ -10,6 +9,7 @@ Welcome to tubesML's documentation!
    :titlesonly:
    
    intro
+   base
 
 
 
