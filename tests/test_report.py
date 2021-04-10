@@ -3,8 +3,8 @@ import pytest
 from unittest.mock import patch 
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.datasets import make_classification
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.datasets import make_classification, make_regression
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
 
@@ -18,8 +18,11 @@ import string
 import random
 
 
-def create_data():
-    df, target = make_classification(n_features=10)
+def create_data(classification=True):
+    if classification:
+        df, target = make_classification(n_features=10)
+    else:
+        df, target = make_regression(n_features=10)
     
     i = 0
     random_names = []
@@ -34,6 +37,7 @@ def create_data():
     return df
 
 df = create_data()
+df_r = create_data(classification=False)
 
 
 def test_get_coef():
@@ -87,29 +91,29 @@ def test_learning_curves(_):
     
     kfold = KFold(n_splits=3)
     with pytest.warns(None) as record:
-        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
+                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title='Title')
     assert len(record) == 0
     
     
-@patch("matplotlib.pyplot.show")  # todo: somewhat slow
-def test_learning_curves_xgb(mock_show):
-    '''
-    Test learning curves can be plotted with xbgboost
-    '''
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
+# @patch("matplotlib.pyplot.show")  
+# def test_learning_curves_xgb(mock_show):
+#     '''
+#     Test learning curves can be plotted with xbgboost
+#     '''
+#     y = df['target']
+#     df_1 = df.drop('target', axis=1)
     
-    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('xgb', XGBClassifier(objective='binary:logistic', 
-                                                n_estimators=2, n_jobs=-1,
-                                                use_label_encoder=False))])
+#     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+#                           ('xgb', XGBClassifier(objective='binary:logistic', 
+#                                                 n_estimators=2, n_jobs=-1,
+#                                                 use_label_encoder=False))])
     
-    kfold = KFold(n_splits=3)
-    with pytest.warns(None) as record:
-        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
-    assert len(record) == 0   
+#     kfold = KFold(n_splits=3)
+#     with pytest.warns(None) as record:
+#         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
+#                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+#     assert len(record) == 0   
     
     
 @patch("matplotlib.pyplot.show")
@@ -146,5 +150,78 @@ def test_plot_feat_imp(_):
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
 
     with pytest.warns(None) as record:
-        tml.plot_feat_imp(coef)
+        tml.plot_feat_imp(coef, n=10)
     assert len(record) == 0
+    
+
+def test_plot_feat_imp_warning():
+    '''
+    Test if plot feat importance works
+    '''
+    wrong_input = pd.DataFrame({'a': [1,2,3], 
+                                'b': [2,3,4]})
+
+    with pytest.raises(KeyError):
+        tml.plot_feat_imp(wrong_input, n=10)
+
+
+@patch("matplotlib.pyplot.show") 
+def test_plot_regression_pred_nohue(_):
+    '''
+    Test plot_regression_predictions with different no hue
+    '''
+    y = df_r['target']
+    df_1 = df_r.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('dummier', tml.Dummify()), 
+                          ('tree', DecisionTreeRegressor())])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold)
+    
+    with pytest.warns(None) as record:
+        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof)
+    assert len(record) == 0
+
+    
+@patch("matplotlib.pyplot.show") 
+def test_plot_regression_pred_hue(_):
+    '''
+    Test plot_regression_predictions with different normal hue
+    '''
+    y = df_r['target']
+    df_1 = df_r.drop('target', axis=1)
+    df_1['cat'] = ['a']*len(df_1)
+    
+    full_pipe = Pipeline([('dummier', tml.Dummify()), 
+                          ('tree', DecisionTreeRegressor())])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold)
+    
+    with pytest.warns(None) as record:
+        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='cat')
+    assert len(record) == 0
+    
+
+@patch("matplotlib.pyplot.show") 
+def test_plot_regression_pred_huemany(_):
+    '''
+    Test plot_regression_predictions with different hue that has to be ignored after a warning
+    '''
+    y = df_r['target']
+    df_1 = df_r.drop('target', axis=1)
+    df_1['many_cat'] = df_1[random.choice(df_1.columns)]
+    
+    full_pipe = Pipeline([('dummier', tml.Dummify()), 
+                          ('tree', DecisionTreeRegressor())])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold)
+    
+    with pytest.warns(UserWarning):
+        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='many_cat')
+    
