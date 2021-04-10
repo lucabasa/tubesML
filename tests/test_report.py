@@ -96,24 +96,24 @@ def test_learning_curves(_):
     assert len(record) == 0
     
     
-# @patch("matplotlib.pyplot.show")  
-# def test_learning_curves_xgb(mock_show):
-#     '''
-#     Test learning curves can be plotted with xbgboost
-#     '''
-#     y = df['target']
-#     df_1 = df.drop('target', axis=1)
+@patch("matplotlib.pyplot.show")  
+def test_learning_curves_xgb(mock_show):
+    '''
+    Test learning curves can be plotted with xbgboost
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
     
-#     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-#                           ('xgb', XGBClassifier(objective='binary:logistic', 
-#                                                 n_estimators=2, n_jobs=-1,
-#                                                 use_label_encoder=False))])
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('xgb', XGBClassifier(objective='binary:logistic', 
+                                                n_estimators=2, n_jobs=-1,
+                                                use_label_encoder=False))])
     
-#     kfold = KFold(n_splits=3)
-#     with pytest.warns(None) as record:
-#         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
-#                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
-#     assert len(record) == 0   
+    kfold = KFold(n_splits=3)
+    with pytest.warns(None) as record:
+        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
+                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+    assert len(record) == 0   
     
     
 @patch("matplotlib.pyplot.show")
