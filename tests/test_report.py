@@ -312,6 +312,27 @@ def test_plot_classification_probs_hue(_):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='cat')
     assert len(record) == 0
     
+
+@patch("matplotlib.pyplot.show")
+def test_plot_classification_probs_manyhue(_):
+    '''
+    Test plotting the classification prediction with hue
+    Hue has many values, so it should raise a warning and ignore it
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    df_1['many_cat'] = df_1[random.choice(df_1.columns)]
+
+    full_pipe = Pipeline([('scaler', tml.DfScaler()),
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+
+    kfold = KFold(n_splits=3)
+
+    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+
+    with pytest.warns(UserWarning):
+        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='many_cat')
+
     
 @patch("matplotlib.pyplot.show")       
 def test_plot_classification_probs_wronghue(_):
