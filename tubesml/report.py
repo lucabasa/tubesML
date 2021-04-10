@@ -299,6 +299,10 @@ def plot_classification_probs(data, true_label, pred_label, thrs=0.5, sample=Non
     if feat is None:  
         tmp['DUMMY_FEAT'] = np.arange(0, len(tmp))
         feat = 'DUMMY_FEAT'
+    elif feat not in tmp.columns:
+        warnings.warn(f'The feature {feat} is not in the provided data, it will be ignored', UserWarning)
+        tmp['DUMMY_FEAT'] = np.arange(0, len(tmp))
+        feat = 'DUMMY_FEAT'
     
     fig, ax = plt.subplots(2,2, figsize=(15,12))
     
