@@ -150,7 +150,7 @@ def test_plot_feat_imp(_):
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
 
     with pytest.warns(None) as record:
-        tml.plot_feat_imp(coef, n=10)
+        tml.plot_feat_imp(coef)
     assert len(record) == 0
     
 
@@ -224,4 +224,73 @@ def test_plot_regression_pred_huemany(_):
     
     with pytest.warns(UserWarning):
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='many_cat')
+        
+
+@patch("matplotlib.pyplot.show")       
+def test_plot_confusion_matrix_binary(_):
+    '''
+    Test plotting confusion matrix with ax=None and binary input
+    '''
+    pred = df['target']
+    true = df['target']
     
+    with pytest.warns(None) as record:
+        tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
+
+        
+@patch("matplotlib.pyplot.show")       
+def test_plot_confusion_matrix_nonbinary(_):
+    '''
+    Test plotting confusion matrix with ax=None and nonbinary input
+    '''
+    pred = df_r['target']
+    true = df['target']
+    
+    with pytest.warns(None) as record:
+        tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
+    assert len(record) == 0
+    
+    
+@patch("matplotlib.pyplot.show")       
+def test_plot_classification_probs(_):
+    '''
+    Test plotting the classification prediction without hue
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    
+    with pytest.warns(None) as record:
+        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof)
+    assert len(record) == 0
+    
+    
+@patch("matplotlib.pyplot.show")       
+def test_plot_classification_probs(_):
+    '''
+    Test plotting the classification prediction without hue, 
+    try to plot against a non-existing feature and get a warning 
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    
+    with pytest.warns(UserWarning):
+        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, feat='non_existing_feat')
+
+    
+    
+    
+        
