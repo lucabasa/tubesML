@@ -70,9 +70,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-conf.py
-make.bat
-index.rst
 
 # PyBuilder
 target/
