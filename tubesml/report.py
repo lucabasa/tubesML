@@ -296,11 +296,11 @@ def plot_classification_probs(data, true_label, pred_label, thrs=0.5, sample=Non
     tmp['True Label'] = true_label
     # the x axis of the third plot has to be a continuos feature
     # If missing, make one
+    if feat is not None:
+        if feat not in tmp.columns:
+            warnings.warn(f'The feature {feat} is not in the provided data, it will be ignored', UserWarning)
+            feat = None
     if feat is None:  
-        tmp['DUMMY_FEAT'] = np.arange(0, len(tmp))
-        feat = 'DUMMY_FEAT'
-    elif feat not in tmp.columns:
-        warnings.warn(f'The feature {feat} is not in the provided data, it will be ignored', UserWarning)
         tmp['DUMMY_FEAT'] = np.arange(0, len(tmp))
         feat = 'DUMMY_FEAT'
     
@@ -320,8 +320,12 @@ def plot_classification_probs(data, true_label, pred_label, thrs=0.5, sample=Non
     # This is to allow for segmenting the data by a categorical feature
     addition=''
     if hue_feat is not None:
-        if tmp[hue_feat].nunique() > 5:
-            warnings.warn(f'{hue_feat} has more than 5 unique values, hue will be ignored', UserWarning)
+        if hue_feat not in tmp.columns:
+            warnings.warn(f'{hue_feat} not in the provided data, it will be ignored', UserWarning)
+            hue_feat = None
+            sizes = None
+        elif tmp[hue_feat].nunique() > 5:
+            warnings.warn(f'{hue_feat} has more than 5 unique values, it will be ignored', UserWarning)
             hue_feat = None
             sizes = None
         else:

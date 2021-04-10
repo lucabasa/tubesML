@@ -272,7 +272,7 @@ def test_plot_classification_probs(_):
     
     
 @patch("matplotlib.pyplot.show")       
-def test_plot_classification_probs(_):
+def test_plot_classification_probs_wronginput(_):
     '''
     Test plotting the classification prediction without hue, 
     try to plot against a non-existing feature and get a warning 
@@ -290,7 +290,46 @@ def test_plot_classification_probs(_):
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, feat='non_existing_feat')
 
+
+@patch("matplotlib.pyplot.show")       
+def test_plot_classification_probs_hue(_):
+    '''
+    Test plotting the classification prediction with hue
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    df_1['cat'] = ['a', 'b'] * int(len(df_1) / 2)
+    
+    full_pipe = Pipeline([('dummier', tml.Dummify()), 
+                          ('scaler', tml.DfScaler()), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    
+    with pytest.warns(None) as record:
+        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='cat')
+    assert len(record) == 0
     
     
+@patch("matplotlib.pyplot.show")       
+def test_plot_classification_probs_wronghue(_):
+    '''
+    Test plotting the classification prediction with hue, 
+    the hue colums is non-existing so get a warning and ignore it
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    
+    with pytest.warns(UserWarning):
+        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='non_existing_feat')  
     
         
