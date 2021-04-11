@@ -13,7 +13,10 @@ This is text I want to write
    clean
    process
    feat_en
-   
+   utility
+   model_selection
+   data_exploration
+   report
 
 
 
