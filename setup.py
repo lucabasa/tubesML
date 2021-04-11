@@ -1,17 +1,20 @@
 #! /usr/bin/env python
 
 DESCRIPTION = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
-LONG_DESCRIPTION = """\
-A package that allows for flexible ML pipelines, model validation, and model inspection. 
-It builds on top of sklearn and preserves the data structure provided by pandas.
-"""
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
 
 DISTNAME = 'tubesml'
 MAINTAINER = 'Luca Basanisi'
 MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
-URL = 'https://pypi.org/project/tubesml/'
+URL = 'https://tubesml.readthedocs.io/'
 LICENSE = 'Apache 2.0'
 DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
+PROJECT_URLS = {
+    #'Bug Tracker': ,
+    'Documentation': 'https://tubesml.readthedocs.io/',
+    'Source Code': 'https://github.com/lucabasa/tubesML'
+}
 VERSION = '0.4.0'
 PYTHON_REQUIRES = ">=3.6"
 
@@ -59,6 +62,7 @@ if __name__ == "__main__":
         url=URL,
         version=VERSION,
         download_url=DOWNLOAD_URL,
+        project_urls=PROJECT_URLS,
         python_requires=PYTHON_REQUIRES,
         install_requires=INSTALL_REQUIRES,
         packages=PACKAGES,
