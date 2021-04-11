@@ -86,7 +86,6 @@ class DfPolynomial(BaseTransformer):
             The input samples.
         y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
-
         '''
         if self.to_interact == 'all':
             X_tr = self.pol.transform(X)
