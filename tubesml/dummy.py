@@ -13,9 +13,11 @@ class Dummify(BaseTransformer):
     
     It assures that if some column is missing or is new after the first transform, the pipeline won't break
     
-    To avoid problems with using both drop_first and match_cols, specifically if the dropped category is
+    To avoid problems with using both ``drop_first`` and ``match_cols``, specifically if the dropped category is
     missing when dummies are created after the first time, we let match_cols to have the role of drop_first
-    if the transformer has been ran already. See test_match_columns_drop_first_equal for an example
+    if the transformer has been ran already. See test_match_columns_drop_first_equal for an example.
+    
+    The fit method simply passes the data as in the ``BaseTransformer``
     
     :Attributes:
     ------------
@@ -64,6 +66,23 @@ class Dummify(BaseTransformer):
     
 
     def transform(self, X, y=None):
+        '''
+        Method to transform the input data and create dummy columns. 
+        If ``match_cols=True``, it also calls the ``_match_columns`` method to make sure the data shape stays consistent
+        across runs. This is not done the first time the transform method is called.
+        
+        It populates the ``columns`` attribute with the columns of the output data. This is done only the first time
+        the transformer is called and not every time it outputs new data.
+        
+        :Parameters:
+        ------------
+
+        X : pandas DataFrame of shape (n_samples, n_features)
+            The input samples.
+        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+            The target values (class labels) as integers or strings.
+
+        '''
         if not self.is_fit:  # if it the first time, run it as specified and populate self.columns
             X_tr = pd.get_dummies(X, drop_first=self.drop_first)
             self.columns = X_tr.columns

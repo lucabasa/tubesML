@@ -10,7 +10,8 @@ import pandas as pd
 class DfScaler(BaseTransformer):
     '''
     Wrapper of several sklearn scalers that keeps the dataframe structure.
-    Inherits from BaseTransformer
+    
+    Inherits from ``BaseTransformer``
     
     :Attributes:
     ------------
@@ -50,8 +51,10 @@ class DfScaler(BaseTransformer):
     def fit(self, X, y=None):
         '''
         Method to train the scaler.
-        Depending on the method attribute, it calls a different sklearn scaler
-        It also reset the columns attribute
+        
+        Depending on the ``method`` attribute, it calls a different sklearn scaler
+        
+        It also reset the ``columns`` attribute
         
         :Parameters:
         ------------
@@ -86,7 +89,8 @@ class DfScaler(BaseTransformer):
     def transform(self, X, y=None):
         '''
         Method to transform the input data
-        It populates the columns attribute with the columns of the output data
+        
+        It populates the ``columns`` attribute with the columns of the output data
         
         :Parameters:
         ------------

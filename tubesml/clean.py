@@ -11,7 +11,8 @@ import pandas as pd
 class DfImputer(BaseTransformer):
     '''
     Just a wrapper for the SimpleImputer that keeps the dataframe structure.
-    Inherits from BaseTransformer
+    
+    Inherits from ``BaseTransformer``
     
     :Attributes:
     ------------
@@ -19,7 +20,7 @@ class DfImputer(BaseTransformer):
     stragegy : str, the strategy to impute the missing values, default "mean"
               Allowed values: "mean", "median", "most_frequent", "constant"
 
-    fill_value :  value to use to impute the missing values when the strategy is "constant"
+    fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
                 It is ignored by any other strategy
 
     '''
@@ -31,7 +32,7 @@ class DfImputer(BaseTransformer):
         stragegy : str, the strategy to impute the missing values, default "mean"
                   Allowed values: "mean", "median", "most_frequent", "constant"
         
-        fill_value :  value to use to impute the missing values when the strategy is "constant"
+        fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
                     It is ignored by any other strategy
 
         '''
@@ -52,7 +53,8 @@ class DfImputer(BaseTransformer):
     def fit(self, X, y=None):
         '''
         Method to train the imputer.
-        It also reset the columns attribute
+        
+        It also reset the ``columns`` attribute
         
         :Parameters:
         ------------
@@ -71,7 +73,8 @@ class DfImputer(BaseTransformer):
     def transform(self, X, y=None):
         '''
         Method to transform the input data
-        It populates the columns attribute with the columns of the output data
+        
+        It populates the ``columns`` attribute with the columns of the output data
         
         :Parameters:
         ------------
