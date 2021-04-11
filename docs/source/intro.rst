@@ -1,2 +1,1 @@
-This is an introduction
-=======================
+.. include:: ../../README.rst
