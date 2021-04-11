@@ -46,7 +46,7 @@ class DfPolynomial(BaseTransformer):
     @reset_columns
     def fit(self, X, y=None):
         '''
-        Method to train the scaler.
+        Method to train the transformer.
         
         Depending on the ``to_interact`` attribute, if fits considering different slices of the
         input DataFrame
