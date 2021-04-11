@@ -7,7 +7,7 @@ with open('README.rst') as f:
 DISTNAME = 'tubesml'
 MAINTAINER = 'Luca Basanisi'
 MAINTAINER_EMAIL = 'luca.basanisi@gmail.com'
-URL = 'https://tubesml.readthedocs.io/'
+URL = 'https://pypi.org/project/tubesml/'
 LICENSE = 'Apache 2.0'
 DOWNLOAD_URL = 'https://github.com/lucabasa/tubesML'
 PROJECT_URLS = {
@@ -15,7 +15,7 @@ PROJECT_URLS = {
     'Documentation': 'https://tubesml.readthedocs.io/',
     'Source Code': 'https://github.com/lucabasa/tubesML'
 }
-VERSION = '0.4.1'
+VERSION = '0.4.2'
 PYTHON_REQUIRES = ">=3.6"
 
 INSTALL_REQUIRES = [

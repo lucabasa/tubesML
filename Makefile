@@ -11,4 +11,4 @@ release:
 	pip install --upgrade setuptools wheel && python setup.py sdist bdist_wheel
 
 publish:
-	pip install --upgrade twine && twine upload dist/*
+	pip install --upgrade twine && twine upload dist/* --skip-existing
