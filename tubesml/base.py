@@ -31,14 +31,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     :Attributes:
     ------------
 
-    - columns: an empty list that gets reset by the fit method, populated by the transform method, returned by the get_feature_names method
-    
-    :Methods:
-    ---------
-
-    - fit
-    - transform
-    - get_feature_names
+    columns: an empty list that gets reset by the fit method, populated by the transform method, 
+            returned by the get_feature_names method
 
     '''
     
@@ -49,7 +43,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         '''
         Method to train the transformer.
-        It also reset the columns attribute
+        
+        It also reset the ``columns`` attribute
         
         :Parameters:
         ------------
@@ -64,8 +59,9 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     @self_columns    
     def transform(self, X, y=None):
         '''
-        Method to transform the input data
-        It populates the columns attribute with the columns of the output data
+        Method to transform the input data.
+        
+        It populates the ``columns`` attribute with the columns of the output data
         
         :Parameters:
         ------------
@@ -80,7 +76,6 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         
     def get_feature_names(self):
         '''
-        Returns the columns attribute, useful to well behave with other sklearn methods
+        Returns the ``columns`` attribute, useful to well behave with other sklearn methods
         '''
         return self.columns
-
