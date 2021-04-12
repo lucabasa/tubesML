@@ -29,7 +29,6 @@ class TargetEncoder(BaseTransformer):
                 
     agg_func : str, default='mean'.
                 Aggregation function to use for the target encoding
-    
     '''
 
     def __init__(self, to_encode=None, prior_weight=100, agg_func='mean'):
@@ -52,13 +51,10 @@ class TargetEncoder(BaseTransformer):
         If ``to_encode`` is None, it will encode all the non-numerical columns
         
         It also reset the ``columns`` attribute
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs).
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs).
             The target values (or class labels) as integers or floats.
         '''
         if self.agg_func == 'count':
@@ -95,15 +91,13 @@ class TargetEncoder(BaseTransformer):
         For each column to encode, it replaces each value with the posterior computed in the ``fit`` method
         If there are missing values, those are filled in with the prior (e.g. the statistic of the target 
         determined by `agg_func`)
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
-
+        
+        :return: pandas DataFrame with encoded features
         '''
         X_tr = X.copy()
         

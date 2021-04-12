@@ -32,7 +32,6 @@ class Dummify(BaseTransformer):
     
     verbose : bool, default False.
              If True, it raises a UserWarning when the _match_columns method is invoked
-    
     '''
     def __init__(self, drop_first=False, match_cols=True, verbose=False):
         super().__init__()
@@ -73,15 +72,13 @@ class Dummify(BaseTransformer):
         
         It populates the ``columns`` attribute with the columns of the output data. This is done only the first time
         the transformer is called and not every time it outputs new data.
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
-
+            
+        :return: pandas DataFrame with dummified columns
         '''
         if not self.is_fit:  # if it the first time, run it as specified and populate self.columns
             X_tr = pd.get_dummies(X, drop_first=self.drop_first)

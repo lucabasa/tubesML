@@ -32,7 +32,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     ------------
 
     columns: an empty list that gets reset by the fit method, populated by the transform method, 
-            returned by the get_feature_names method
+            returned by the ``get_feature_names`` method
 
     '''
     
@@ -45,13 +45,10 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         Method to train the transformer.
         
         It also reset the ``columns`` attribute
-        
-        :Parameters:
-        ------------
 
-        X : {array-like} of shape (n_samples, n_features)
+        :param X: {array-like} of shape (n_samples, n_features)
             The training input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), optional
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), optional
             The target values (class labels) as integers or strings.
         '''
         return self
@@ -62,13 +59,10 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         Method to transform the input data.
         
         It populates the ``columns`` attribute with the columns of the output data
-        
-        :Parameters:
-        ------------
 
-        X : {array-like} of shape (n_samples, n_features)
+        :param X: {array-like} of shape (n_samples, n_features)
             The input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), optional
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), optional
             The target values (class labels) as integers or strings.
         '''
         return X

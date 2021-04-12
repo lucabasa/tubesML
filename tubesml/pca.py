@@ -74,13 +74,10 @@ class DfPCA(BaseTransformer):
         Method to train the transformer.
         
         It also reset the ``columns`` attribute
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         '''
         self.PCA.fit(X)
@@ -99,14 +96,14 @@ class DfPCA(BaseTransformer):
         
         If ``compress=True``, the ``inverse_transform`` method is called and the original
         columns are restored.
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
+            
+        :return: pandas DataFrame with pca columns or, if ``compress=True``, pandas DataFrame
+                with original columns
         '''     
         X_tr = self.PCA.transform(X)
         X_tr = pd.DataFrame(X_tr, columns=[f'pca_{i}' for i in range(self.n_components_)])

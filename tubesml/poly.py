@@ -52,13 +52,10 @@ class DfPolynomial(BaseTransformer):
         input DataFrame
         
         It also reset the ``columns`` attribute
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         '''
         if self.to_interact == 'all':
@@ -78,14 +75,13 @@ class DfPolynomial(BaseTransformer):
         It populates the ``columns`` attribute with the columns of the output data
         
         If a bias term is inclued, it will be called ``BIAS_TERM``
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
+            
+        :return: pandas DataFrame with polynomial features
         '''
         if self.to_interact == 'all':
             X_tr = self.pol.transform(X)

@@ -19,8 +19,7 @@ class DfScaler(BaseTransformer):
     method : str, the method to scale the data, default "standard"
               Allowed values: "standard", 'robust', 'minmax'
 
-    feature_range : Range to scale the data to when the method is 'minmax'
-                
+    feature_range : Range to scale the data to when the method is 'minmax'   
     '''
     def __init__(self, method='standard', feature_range=(0,1)):
         super().__init__()
@@ -55,15 +54,11 @@ class DfScaler(BaseTransformer):
         Depending on the ``method`` attribute, it calls a different sklearn scaler
         
         It also reset the ``columns`` attribute
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
-
         '''
         if self.method == 'standard':
             self.scl = StandardScaler()
@@ -91,15 +86,13 @@ class DfScaler(BaseTransformer):
         Method to transform the input data
         
         It populates the ``columns`` attribute with the columns of the output data
-        
-        :Parameters:
-        ------------
 
-        X : pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
-        y : array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
-
+            
+        :return: pandas DataFrame with scaled data
         '''
         Xscl = self.scl.transform(X)
         Xscaled = pd.DataFrame(Xscl, index=X.index, columns=X.columns)
