@@ -15,11 +15,12 @@ class DfScaler(BaseTransformer):
     
     :Attributes:
     ------------
-        
+    
     method : str, the method to scale the data, default "standard"
               Allowed values: "standard", 'robust', 'minmax'
-
-    feature_range : Range to scale the data to when the method is 'minmax'   
+    
+    feature_range : tuple, the range to scale the data to.
+                    Relevant only if ``method=='minmax'``
     '''
     def __init__(self, method='standard', feature_range=(0,1)):
         super().__init__()
