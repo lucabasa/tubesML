@@ -17,9 +17,27 @@ from tubesml.base import BaseTransformer
 def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     '''
     Calls a grid or a randomized search over a parameter grid
-    Returns a dataframe with the results for each configuration
-    Returns a dictionary with the best parameters
-    Returns the best (fitted) estimator
+    
+    :param data: pandas DataFrame.
+           Data to tune the hyperparameters
+    :param target: numpy array or pandas Series.
+            Target column
+    :param estimator: sklearn compatible estimator.
+            It must have a ``predict`` method and a ``get_params`` method.
+            It can be a Pipeline
+    :param param_grid: dict.
+            Dictionary of the parameter space to explore
+            In case the ``estimator`` is a pipeline, provide the keys in the format ``step__param``
+    :param scoring: string.
+            Scoring metric for the grid search, see the sklearn documentation for the available options
+    :param cv: KFold object or int.
+            For cross-validation
+    :param random: bool, default=False.
+            If True, runs a RandomSearch instead of a GridSearch
+    
+    :return: a dataframe with the results for each configuration
+    :return: a dictionary with the best parameters
+    :return: the best (fitted) estimator
     '''
     
     if random:
@@ -49,10 +67,29 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
 def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, early_stopping=None, eval_metric=None, verbose=False):
     '''
     Train and test a pipeline in kfold cross validation
-    Returns the oof predictions for the entire train set and a dataframe with the
-    coefficients or feature importances, averaged across the folds, with standard deviation
-
-    todo: report on the average score and variance too
+    
+    :param data: pandas DataFrame.
+           Data to tune the hyperparameters
+    :param target: numpy array or pandas Series.
+            Target column
+    :param estimator: sklearn compatible estimator.
+            It must have a ``predict`` method and a ``get_params`` method.
+            It can be a Pipeline. If it is not a Pipeline, it will be made one for compatibility with other functionalities
+    :param cv: KFold object.
+            For cross-validation, the estimates will be done across these folds
+    :param imp_coef: bool, default=False.
+            If True, returns the feature importance or the coefficient values averaged across the folds, with standard deviation on the mean.
+    :param predict_proba: bool, default=False.
+            If True, calls the ``predict_proba`` method instead of the ``predict`` one.
+    :param early_stopping: bool, default=False.
+                        If True, uses early stopping within the folds for the estimators that support it
+    :param eval_metric: str, default=None.
+                        The evaluation metric to use for early stopping
+    :param verbose: bool or int, default=False.
+                        Level of verbosity for early stopping.
+    
+    :return: the oof predictions for the entire train set and a dataframe with the
+            coefficients or feature importances, averaged across the folds, with standard deviation
     '''
     oof = np.zeros(len(data))
     train = data.copy()
@@ -121,6 +158,16 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
 def make_test(train, test_size, random_state, strat_feat=None):
     '''
     Creates a train and test, stratified on a feature or on a list of features
+    
+    :param train: dataframe
+    :param test_size: float.
+                        The size of the test set. It must be between 0 and 1
+    :param random_state: int.
+                        Random state used to split the data
+    :param strat_feat: str or list, default=None.
+                        The feature or features to use to stratify the split
+            
+    :return: A train set and a test set
     '''
     if strat_feat:
         
