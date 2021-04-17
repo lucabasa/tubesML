@@ -19,6 +19,38 @@ def test_clean():
     res = imputer.fit_transform(df)
     assert res.isna().any().any() == 0
     
+    
+def test_add_indicator():
+    '''
+    Test if the indicator is created appropriately
+    '''
+    imputer = tubesml.DfImputer(strategy='mean', add_indicator=True)
+    res = imputer.fit_transform(df)
+    assert 'missing_a' in res.columns
+    
+    
+def test_add_indicator_nomissing():
+    '''
+    Test the indicator is not used when not necessary
+    '''
+    imputer = tubesml.DfImputer(strategy='mean', add_indicator=True)
+    res = imputer.fit_transform(df[['b']])
+    assert len(res.columns) == 1
+    
+    
+def test_add_indicator_newmissing():  #FIXME: this test fails and it should not
+    '''
+    Test it is not adding new columns when new missing values are found
+    '''
+    df_1 = pd.DataFrame({'b': [1, np.nan, 5], 
+                       'a': [3, 2, 1] })
+    imputer = tubesml.DfImputer(strategy='mean', add_indicator=True)
+    imputer.fit(df)
+    res = imputer.transform(df_1)
+    assert 'missing_a' in res.columns
+    assert res['missing_a'].sum() == 0
+    assert 'missing_b' not in res.columns
+    
 
 def test_cl_stats():
     '''
