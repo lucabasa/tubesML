@@ -43,6 +43,8 @@ class DfImputer(BaseTransformer):
         self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value, add_indicator=self.add_indicator)
         self.statistics_ = None
         self.indicator_ = None
+        self._to_add = []  # columns to add with the add_indicator turned on
+        self._missing_cols = []
         
         
     def _validate_input(self):
@@ -50,7 +52,7 @@ class DfImputer(BaseTransformer):
         if self.strategy not in allowed_strategies:
             raise ValueError(f"Can only use these strategies: {allowed_strategies} got strategy={self.strategy}")
 
-            
+    
     @reset_columns
     def fit(self, X, y=None):
         '''
@@ -65,12 +67,28 @@ class DfImputer(BaseTransformer):
         self.imp.fit(X)
         self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
         self.indicator_ = self.imp.indicator_
+        if self.add_indicator:
+            self._to_add = self.indicator_.features_
+            self._missing_cols = self._get_indicator_names(X)
         return self
+    
+    
+    def _match_columns(self, X):
+        miss_train = list(set(X.columns) - set(self.columns))
+        miss_test = list(set(self.columns) - set(X.columns))
+        
+        if len(miss_test) > 0:
+            for col in miss_test:
+                X[col] = 0  # insert a column for the missing indicator
+        if len(miss_train) > 0:
+            for col in miss_train:
+                del X[col]  # delete the column of the extra indicator
+            
+        return X[self.columns]  # preserve original order to avoid problems with some algorithms
     
 
     def _get_indicator_names(self, X):
-        missing = self.indicator_.features_
-        missing = list(np.array(X.columns)[missing])
+        missing = list(np.array(X.columns)[self._to_add])
         return [f'missing_{col}' for col in missing]
 
     
@@ -88,13 +106,9 @@ class DfImputer(BaseTransformer):
         :return: pandas DataFrame with no missing values
         '''
         Ximp = self.imp.transform(X)
-        if self.add_indicator:
-            mis_cols = self._get_indicator_names(X)
-            columns = list(X.columns) + mis_cols
-        else:
-            columns = X.columns
+        columns = list(X.columns) + self._missing_cols
         Xfilled = pd.DataFrame(Ximp, index=X.index, columns=columns)
         if self.add_indicator:
-            for col in mis_cols:
+            for col in self._missing_cols:
                 Xfilled[col] = Xfilled[col].astype(int)
         return Xfilled
