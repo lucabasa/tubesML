@@ -25,6 +25,8 @@ def create_data():
     df = pd.DataFrame(df, columns=random_names)
     df['target'] = target
     
+    df.loc[df.sample(30).index, df.columns[0]] = np.nan
+    
     return df
 
 df = create_data()
@@ -52,7 +54,7 @@ def test_grid_bestestimator(random):
     
     param_grid = {'logit__C': [1, 2], 
                   'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
-                  'pipe__transf__imp__strategy': ['mean', 'median'], 
+                  'pipe__transf__imp__strategy': ['mean', 'median'],
                   'pipe__transf__poly__degree': [1, 2, 3], 
                   'pipe__transf__tarenc__agg_func': ['mean', 'median'],
                   'pipe__transf__dummify__drop_first': [True, False], 
@@ -101,6 +103,7 @@ def test_gridsearch_params(random):
     
     assert len(best_param.keys()) == len(param_grid.keys())
 
+
 @pytest.mark.parametrize("random", [False, 5])
 def test_gridsearch_nopipeline(random):
     '''
@@ -108,6 +111,7 @@ def test_gridsearch_nopipeline(random):
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
+    df_1 = tml.DfImputer('mean').fit_transform(df_1)
     
     model = LogisticRegression(solver='lbfgs', multi_class='auto')
     

@@ -1,11 +1,12 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.2'
+__version__ = '0.1.0'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
 
 from sklearn.impute import SimpleImputer
 import pandas as pd
+import numpy as np
 
 
 class DfImputer(BaseTransformer):
@@ -22,8 +23,12 @@ class DfImputer(BaseTransformer):
 
     fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
                 It is ignored by any other strategy
+                
+    add_indicator : bool, default=False. 
+                    If True, a new column with binary values is created whenever missing values are found when
+                    the fit method is called. The column will be called ``missing_<column_name>``
     '''
-    def __init__(self, strategy='mean', fill_value=None):
+    def __init__(self, strategy='mean', fill_value=None, add_indicator=False):
         '''
         :Attributes:
         ------------
@@ -33,13 +38,19 @@ class DfImputer(BaseTransformer):
         
         fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
                     It is ignored by any other strategy
+                    
+        add_indicator : bool, default=False. 
+                    If True, a new column with binary values is created whenever missing values are found when
+                    the fit method is called. The column will be called ``missing_<column_name>``
         '''
         super().__init__()
         self.strategy = strategy
         self.fill_value = fill_value
+        self.add_indicator = add_indicator
         self._validate_input()
         self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value)
         self.statistics_ = None
+        self._missing_cols = []
         
         
     def _validate_input(self):
@@ -47,13 +58,13 @@ class DfImputer(BaseTransformer):
         if self.strategy not in allowed_strategies:
             raise ValueError(f"Can only use these strategies: {allowed_strategies} got strategy={self.strategy}")
 
+    
     @reset_columns
     def fit(self, X, y=None):
         '''
         Method to train the imputer.
         
         It also reset the ``columns`` attribute
-
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
@@ -61,15 +72,17 @@ class DfImputer(BaseTransformer):
         '''
         self.imp.fit(X)
         self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
+        if self.add_indicator:
+            self._missing_cols = list(X.columns[X.isna().any()])
         return self
-
+    
+    
     @self_columns
     def transform(self, X, y=None):
         '''
         Method to transform the input data
         
         It populates the ``columns`` attribute with the columns of the output data
-
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
@@ -79,4 +92,7 @@ class DfImputer(BaseTransformer):
         '''
         Ximp = self.imp.transform(X)
         Xfilled = pd.DataFrame(Ximp, index=X.index, columns=X.columns)
+        if self.add_indicator:
+            for col in self._missing_cols:
+                Xfilled[f'missing_{col}'] = np.where(X[col].isna(), 1, 0)
         return Xfilled
