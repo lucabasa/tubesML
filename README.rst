@@ -41,4 +41,5 @@ Important links
 
 - Official source code repo: https://github.com/lucabasa/tubesML
 - Download releases: https://pypi.org/project/tubesml/
+- Documentation: https://tubesml.readthedocs.io/en/latest/
     
