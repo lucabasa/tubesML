@@ -55,6 +55,8 @@ def test_add_indicator_newmissing():
 def test_add_indicator_newmissing_inverseorder(): 
     '''
     Test it is not adding new columns when new missing values are found
+    and the column order is not the same. This test is necessary in case we try to
+    use sklearn MissingIndicator, which is somewhat sensitive towards column order
     '''
     df_1 = pd.DataFrame({'b': [1, np.nan, 5], 
                          'a': [3, 2, 1]})

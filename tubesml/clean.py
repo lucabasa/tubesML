@@ -23,6 +23,10 @@ class DfImputer(BaseTransformer):
 
     fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
                 It is ignored by any other strategy
+                
+    add_indicator : bool, default=False. 
+                    If True, a new column with binary values is created whenever missing values are found when
+                    the fit method is called. The column will be called ``missing_<column_name>``
     '''
     def __init__(self, strategy='mean', fill_value=None, add_indicator=False):
         '''
@@ -34,16 +38,18 @@ class DfImputer(BaseTransformer):
         
         fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
                     It is ignored by any other strategy
+                    
+        add_indicator : bool, default=False. 
+                    If True, a new column with binary values is created whenever missing values are found when
+                    the fit method is called. The column will be called ``missing_<column_name>``
         '''
         super().__init__()
         self.strategy = strategy
         self.fill_value = fill_value
         self.add_indicator = add_indicator
         self._validate_input()
-        self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value, add_indicator=self.add_indicator)
+        self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value)
         self.statistics_ = None
-        self.indicator_ = None
-        self._to_add = []  # columns to add with the add_indicator turned on
         self._missing_cols = []
         
         
@@ -66,31 +72,10 @@ class DfImputer(BaseTransformer):
         '''
         self.imp.fit(X)
         self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
-        self.indicator_ = self.imp.indicator_
         if self.add_indicator:
-            self._to_add = self.indicator_.features_
-            self._missing_cols = self._get_indicator_names(X)
+            self._missing_cols = list(X.columns[X.isna().any()])
         return self
     
-    
-    def _match_columns(self, X):
-        miss_train = list(set(X.columns) - set(self.columns))
-        miss_test = list(set(self.columns) - set(X.columns))
-        
-        if len(miss_test) > 0:
-            for col in miss_test:
-                X[col] = 0  # insert a column for the missing indicator
-        if len(miss_train) > 0:
-            for col in miss_train:
-                del X[col]  # delete the column of the extra indicator
-            
-        return X[self.columns]  # preserve original order to avoid problems with some algorithms
-    
-
-    def _get_indicator_names(self, X):
-        missing = list(np.array(X.columns)[self._to_add])
-        return [f'missing_{col}' for col in missing]
-
     
     @self_columns
     def transform(self, X, y=None):
@@ -106,9 +91,8 @@ class DfImputer(BaseTransformer):
         :return: pandas DataFrame with no missing values
         '''
         Ximp = self.imp.transform(X)
-        columns = list(X.columns) + self._missing_cols
-        Xfilled = pd.DataFrame(Ximp, index=X.index, columns=columns)
+        Xfilled = pd.DataFrame(Ximp, index=X.index, columns=X.columns)
         if self.add_indicator:
             for col in self._missing_cols:
-                Xfilled[col] = Xfilled[col].astype(int)
+                Xfilled[f'missing_{col}'] = np.where(X[col].isna(), 1, 0)
         return Xfilled

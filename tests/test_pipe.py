@@ -24,17 +24,20 @@ def create_data():
     df = pd.DataFrame(df, columns=random_names)
     df['target'] = target
     
+    df.loc[df.sample(30).index, df.columns[0]] = np.nan
+    
     return df
 
 df = create_data()
 
 
-def test_transformers():
+@pytest.mark.parametrize("add_indicator", [True, False])
+def test_transformers(add_indicator):
     '''
     Test a pipeline doesn't break when all the transformers are called in succession
     '''
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
-                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('imp', tml.DfImputer(strategy='mean', add_indicator=add_indicator)), 
                      ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')), 
                      ('tarenc', tml.TargetEncoder()), 
@@ -46,7 +49,8 @@ def test_transformers():
     assert len(record) == 0
     
 
-def test_predictions():
+@pytest.mark.parametrize("add_indicator", [True, False])
+def test_predictions(add_indicator):
     '''
     Test a pipeline doesn't break when all the transformers are called in succession
     '''
@@ -54,7 +58,7 @@ def test_predictions():
     df_1 = df.drop('target', axis=1)
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
-                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('imp', tml.DfImputer(strategy='mean', add_indicator=add_indicator)), 
                      ('poly', tml.DfPolynomial()), 
                      ('sca', tml.DfScaler(method='standard')),  
                      ('tarenc', tml.TargetEncoder()),
