@@ -10,6 +10,9 @@ from sklearn.model_selection import KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
+
 import string
 import random
 
@@ -36,7 +39,7 @@ df = create_data()
 df_r = create_data(classification=False)
 
 
-def test_stacker():
+def test_stacker_cls():
     '''
     Test the model works for classification
     '''
@@ -44,13 +47,35 @@ def test_stacker():
     df_1 = df.drop('target', axis=1)
     
     estm = [('tree1', DecisionTreeClassifier(max_depth=3)), 
-                  ('tree2', DecisionTreeClassifier(max_depth=5))]
+            ('tree2', DecisionTreeClassifier(max_depth=5))]
     
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
         stk = tubesml.Stacker(estimators=estm, 
                               final_estimator=LogisticRegression(), 
+                              cv=kfold)
+        stk.fit(df_1, y)
+        _ = stk.predict(df_1)
+        _ = stk.predict_proba(df_1)
+    assert len(record) == 0
+    
+    
+def test_stacker_reg():
+    '''
+    Test the model works for regression
+    '''
+    y = df_r['target']
+    df_1 = df_r.drop('target', axis=1)
+    
+    estm = [('tree1', DecisionTreeRegressor(max_depth=3)), 
+            ('tree2', DecisionTreeRegressor(max_depth=5))]
+    
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(None) as record:
+        stk = tubesml.Stacker(estimators=estm, 
+                              final_estimator=DecisionTreeRegressor(), 
                               cv=kfold)
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
@@ -61,28 +86,98 @@ def test_stacker_pipelines():
     '''
     Test it works when pipelines are provided
     '''
-    pass
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    pipe1 = Pipeline([('scl', tubesml.DfScaler()), ('model', DecisionTreeClassifier())])
+    pipe2 = Pipeline([('scl', tubesml.DfScaler()), ('model', LogisticRegression())])
+    
+    estm = [('model1', pipe1), ('model2', pipe2)]
+    
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(None) as record:
+        stk = tubesml.Stacker(estimators=estm, 
+                              final_estimator=pipe2, 
+                              cv=kfold)
+        stk.fit(df_1, y)
+        _ = stk.predict(df_1)
+        _ = stk.predict_proba(df_1)
+    assert len(record) == 0
 
 
 def test_importances():
     '''
-    test it returns the feature importances
+    Test it returns the feature importances
     '''
-    pass
-
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold)
+    stk.fit(df_1, y)
+    
+    imps = stk.meta_importances_
+    
+    assert imps.shape == (2, 2)
+    
+    
+def test_hybrid_params():
+    '''
+    Test it runs for different settings
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(None) as record:
+        stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+        stk.fit(df_1, y)
+        _ = stk.predict(df_1)
+        _ = stk.predict_proba(df_1)
+        
+    assert len(record) == 0
+    
 
 def test_early_stopping():
     '''
     Test early stopping works and it stops earlier
     '''
-    pass
-
-
-def test_hybrid_params():
-    '''
-    Test it runs for different settings
-    '''
-    pass
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False)), 
+            ('lgb', LGBMClassifier(n_estimators=10000))]
+    
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(None) as record:
+        stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 
+                                                           'early_stopping': 100, 
+                                                           'eval_metric': 'logloss'}, 
+                                                   'lgb': {'early_stopping': 100, 
+                                                           'eval_metric': 'accuracy'}})
+        stk.fit(df_1, y)
+        _ = stk.predict(df_1)
+        _ = stk.predict_proba(df_1)
+        
+    assert len(record) == 0
+    assert stk._estimators[0].n_estimators < 10000
+    assert stk._estimators[1].n_estimators < 10000
+    
 
 
 def test_passthrough():

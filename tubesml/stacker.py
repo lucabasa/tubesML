@@ -18,7 +18,7 @@ class Stacker(BaseTransformer):
         self.final_estimator = final_estimator
         self.cv = cv
         self._lay1_kwargs_input(lay1_kwargs)
-        self.feature_importances_ = None
+        self.meta_importances_ = None
         self.passthrough = passthrough
         
         
@@ -56,17 +56,14 @@ class Stacker(BaseTransformer):
             out_of_fold_predictions[:, i] = oof
             
             if self.lay1_kwargs[self.estimators[i][0]]['early_stopping']:
-                self._estimators[i].set_params(**{n_estimators: np.mean(res['iterations']).astype(int)})
+                self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int)})
                 
             self._estimators[i].fit(X, y)
         
         final_train = pd.DataFrame(out_of_fold_predictions, columns=self.est_names)
         self.final_estimator.fit(final_train, y)
         
-        try:
-            self.feature_importances_ = self.final_estimator.feature_importances_
-        except (AttributeError, KeyError):
-            self.feature_importances_ = self.final_estimator.coef_
+        self.meta_importances_ = self.return_feature_importances()
         
         return self
     
