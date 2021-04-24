@@ -191,7 +191,25 @@ def test_gridsearch_stacker():
     '''
     Test tml.grid_search works on this 
     '''
-    pass
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+    
+    param_grid = {'final_estimator__max_depth': [3,4,5]}
+    
+    with pytest.warns(None) as record:
+        result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=stk, 
+                                                         param_grid=param_grid, scoring='accuracy', cv=3)
+        
+    assert len(record) == 0
 
 
 def test_cv_score_stacker():
