@@ -11,9 +11,10 @@ from tubesml.report import (get_coef, get_feature_importance, plot_regression_pr
                             plot_confusion_matrix, plot_classification_probs, eval_classification)
 from tubesml.explore import (list_missing, plot_correlations, plot_distribution, plot_bivariate, 
                              corr_target, find_cats, segm_target)
+from tubesml.stacker import Stacker
 
 __all__ = ['DfImputer', 'DfScaler', 'Dummify', 'TargetEncoder', 'DfPCA', 'DfPolynomial',
            'DtypeSel', 'FeatureUnionDf', 'grid_search', 'cv_score', 'make_test', 'get_coef', 'get_feature_importance', 
            'plot_regression_predictions', 'plot_learning_curve', 'plot_feat_imp, plot_pdp', 'plot_partial_dependence', 
            'list_missing', 'plot_correlations', 'plot_distribution', 'plot_bivariate', 'corr_target', 'find_cats', 'segm_target', 
-           'plot_confusion_matrix', 'plot_classification_probs', 'eval_classification']
+           'plot_confusion_matrix', 'plot_classification_probs', 'eval_classification', 'Stacker']
