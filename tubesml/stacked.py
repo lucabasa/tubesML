@@ -8,6 +8,7 @@ from tubesml.report import get_coef, get_feature_importance
 from tubesml.model_selection import cv_score
 
 import pandas as pd
+import numpy as np
 
 
 class Stacker(BaseTransformer):
@@ -29,10 +30,11 @@ class Stacker(BaseTransformer):
         for est in estimators:
             if est[0] not in self.lay1_kwargs.keys():
                 self.lay1_kwargs[est[0]] = {}
-            try:
-                _ = self.lay1_kwargs[est[0]]['predict_proba']
-            except KeyError:
-                self.lay1_kwargs[est[0]]['predict_proba'] = False
+            for key in ['predict_proba', 'early_stopping']:
+                try:
+                    _ = self.lay1_kwargs[est[0]][key]
+                except KeyError:
+                    self.lay1_kwargs[est[0]][key] = False
                 
                 
     def return_feature_importances(self):
@@ -48,15 +50,22 @@ class Stacker(BaseTransformer):
         
         out_of_fold_predictions = np.zeros((X.shape[0], len(self.estimators)))
         for i, est in enumerate(self._estimators):
-            oof = cv_score(data=X, target=y, estimator=est, cv=self.cv, 
+            oof, res = cv_score(data=X, target=y, estimator=est, cv=self.cv, 
                                **self.lay1_kwargs[self.estimators[i][0]])
             out_of_fold_predictions[:, i] = oof
+            
+            if self.lay1_kwargs[self.estimators[i][0]]['early_stopping']:
+                self._estimators[i].set_params(**{n_estimators: np.mean(res['iterations']).astype(int)})
+                
             self._estimators[i].fit(X, y)
         
         final_train = pd.DataFrame(out_of_fold_predictions, columns=self.est_names)
         self.final_estimator.fit(final_train, y)
         
-        self.feature_importances_ = self.return_feature_importances()
+        try:
+            self.feature_importances_ = self.final_estimator.feature_importances_
+        except (AttributeError, KeyError):
+            self.feature_importances_ = self.final_estimator.coef_
         
         return self
     
