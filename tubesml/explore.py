@@ -14,6 +14,15 @@ import seaborn as sns
 
 
 def list_missing(data, verbose=True):
+    """
+    Find all the columns with missing values and report on the percentage of missing values
+    
+    :param data: pandas Dataframe
+    :param verbose: bool, default=True.
+                If True, it prints the percentage of missing values in each column with missing values
+                
+    :return mis_cols: A list of column names with missing values.
+    """
     mis_cols = [col for col in data.columns if data[col].isna().any()]
     if not verbose:
         return mis_cols
@@ -25,9 +34,19 @@ def list_missing(data, verbose=True):
 
 def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
     '''
-    This function  plots the correlation matrix of a dataframe
+    This function plots the correlation matrix of a dataframe
     If a target feature is provided, it will display only a certain amount of features, the ones correlated the most
     with the target. The number of features displayed is controlled by the parameter limit
+    
+    :param data: pandas DataFrame
+    :param target: str, default=None.
+                If not None, it displays the correlation matrix in order from the most correlated to the target column
+                to the least. It must be present in `data`.
+    :param limit: int, number of feature to display, default=50.
+    :param figsize: tuple, size of the output figure, default=(12,10)
+    :param **kwargs: kwargs to be passed to ``sns.heatmap``
+    
+    :return cor_target: Only if ``target`` is provided, correlation matrix
     '''
     corr = data.corr()
     if target:

@@ -98,7 +98,7 @@ def test_dtype_cols_dtype():
     trsf = tubesml.DtypeSel(dtype='numeric')
     res = trsf.fit_transform(df)
     assert trsf.columns[0] == df.columns[1]
- 
+
     
 def test_get_feature_names_dtype():
     '''
@@ -119,8 +119,8 @@ def test_dtype_cols_featun():
                                                     ('num', num_pipe)])
     res = trsf.fit_transform(df)
     assert trsf.columns[0] == df.columns[0]
- 
-    
+
+
 def test_get_feature_names_featun():
     '''
     Test the transformer still has get_feature_names
