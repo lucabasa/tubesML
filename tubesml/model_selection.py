@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 __status__ = 'development'
 
 import pandas as pd
@@ -88,13 +88,18 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
     :param verbose: bool or int, default=False.
                         Level of verbosity for early stopping.
     
-    :return: the oof predictions for the entire train set and a dataframe with the
-            coefficients or feature importances, averaged across the folds, with standard deviation
+    :return oof: pd.Series with the out of fold predictions for the entire train set
+    :return rep_res: A dictionary with additional results. If ``imp_coef=True``, it contains a pd.DataFrame with the coefficients or 
+                    feature importances of the estimator, it can be found under the key ``feat_imp``. If ``early_stopping=True``, it contains a list 
+                    with the best iteration number per fold, it can be found under the key ``iterations``
     '''
     oof = np.zeros(len(data))
     train = data.copy()
     
+    rep_res = {}
+    
     feat_df = pd.DataFrame()
+    iteration = []
     
     try:  # If estimator is not a pipeline, make a pipeline
         estimator.steps
@@ -122,6 +127,11 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
                       early_stopping_rounds=early_stopping,
                       eval_metric=eval_metric,
                       verbose=verbose)
+            #store iteration used
+            try:
+                iteration.append(model.best_iteration)
+            except AttributeError:
+                iteration.append(model.best_iteration_)
         else:
             model = clone(estimator)  # it creates issues with match_cols in dummy otherwise
             model.fit(trn_data, trn_target)
@@ -150,9 +160,11 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
         feat_df = feat_df.sort_values(by=['abs_sco'],ascending=False)
         feat_df['std'] = feat_df['std'] / np.sqrt(cv.get_n_splits() - 1)  # std of the mean, unbiased
         del feat_df['abs_sco']
-        return oof, feat_df
-    else:    
-        return oof
+        rep_res['feat_imp'] = feat_df
+    if early_stopping:
+        rep_res['iterations'] = iteration
+        
+    return oof, rep_res
     
     
 def make_test(train, test_size, random_state, strat_feat=None):
