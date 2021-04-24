@@ -9,6 +9,7 @@ from tubesml.model_selection import cv_score
 
 import pandas as pd
 import numpy as np
+from sklearn.base import clone
 
 
 class Stacker(BaseTransformer):
@@ -27,7 +28,7 @@ class Stacker(BaseTransformer):
         else:
             self.lay1_kwargs = lay1_kwargs
             
-        for est in estimators:
+        for est in self.estimators:
             if est[0] not in self.lay1_kwargs.keys():
                 self.lay1_kwargs[est[0]] = {}
             for key in ['predict_proba', 'early_stopping']:
