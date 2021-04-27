@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 
@@ -62,6 +62,11 @@ class Stacker(BaseTransformer):
         
         final_train = pd.DataFrame(out_of_fold_predictions, columns=self.est_names)
         self.final_estimator.fit(final_train, y)
+        
+        try:  # this is useful to well behave with other sklearn methods
+            self.classes_ = self.final_estimator.classes_
+        except AttributeError:  # if the final_estimator does not have classes, we don't care
+            pass
         
         self.meta_importances_ = self.return_feature_importances()
         
