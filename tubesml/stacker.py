@@ -91,4 +91,4 @@ class Stacker(BaseTransformer):
         
         final_predict = self._make_predict_test(X)
         preds = self.final_estimator.predict_proba(final_predict)
-        return preds[:, 1]
+        return preds

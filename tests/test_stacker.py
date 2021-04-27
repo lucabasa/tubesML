@@ -187,9 +187,9 @@ def test_passthrough():
     pass
 
 
-def test_gridsearch_stacker():
+def test_gridsearch_stacker_simple():
     '''
-    Test tml.grid_search works on this 
+    Test tml.grid_search works on this
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
@@ -210,10 +210,52 @@ def test_gridsearch_stacker():
                                                          param_grid=param_grid, scoring='accuracy', cv=3)
         
     assert len(record) == 0
+    
+    
+def test_gridsearch_stacker_pipeline():
+    '''
+    Test tml.grid_search works on this when in a pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+    
+    pipe = Pipeline([('scl', tubesml.DfScaler()), ('model', stk)])
+    
+    param_grid = {'model__final_estimator__max_depth': [3,4,5]}
+    
+    with pytest.warns(None) as record:
+        result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
+                                                         param_grid=param_grid, scoring='accuracy', cv=3)
+        
+    assert len(record) == 0
 
-
-def test_cv_score_stacker():
+    
+@pytest.mark.parametrize("predict_proba", [True, False])
+def test_cv_score_stacker_simple(predict_proba):
     '''
     Test tml.cv_score works on this
     '''
-    pass
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+    
+    with pytest.warns(None) as record:
+        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
+    assert len(record) == 0
