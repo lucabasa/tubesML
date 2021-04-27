@@ -256,6 +256,37 @@ def test_gridsearch_stacker_pipeline(scoring):
                                                          param_grid=param_grid, scoring=scoring, cv=3)
         
     assert len(record) == 0
+    
+    
+@pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])   
+def test_gridsearch_stacker_passthrough(passthrough):
+    '''
+    Test tml.grid_search works on this when in a pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    if passthrough == 'hybrid':
+        passthrough = list(df_1.columns[:3])
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}}, passthrough=passthrough)
+    
+    pipe = Pipeline([('scl', tubesml.DfScaler()), ('model', stk)])
+    
+    param_grid = {'model__final_estimator__max_depth': [3,4,5]}
+    
+    with pytest.warns(None) as record:
+        result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
+                                                         param_grid=param_grid, scoring='neg_log_loss', cv=3)
+        
+    assert len(record) == 0
 
     
 @pytest.mark.parametrize("predict_proba", [True, False])
