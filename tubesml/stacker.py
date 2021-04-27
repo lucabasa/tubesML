@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __status__ = 'development'
 
 
@@ -45,12 +45,12 @@ class Stacker(BaseTransformer):
                     
                     
     def _get_passthrough_features(self, X, final_train):
-        
+
         if self.passthrough and type(self.passthrough) is bool:
-            final_train = pd.concat([final_train, X], axis=1)
+            final_train = pd.concat([final_train, X.reset_index(drop=True)], axis=1)
         elif self.passthrough and type(self.passthrough) is list:
-            final_train = pd.concat([final_train, X[self.passthrough]], axis=1)
-        
+            final_train = pd.concat([final_train, X[self.passthrough].reset_index(drop=True)], axis=1)
+
         return final_train
                 
                 
@@ -105,7 +105,7 @@ class Stacker(BaseTransformer):
             else:
                 first_layer_predictions[:, i] = self._estimators[i].predict(X)
         
-        return pd.DataFrame(first_layer_predictions, columns=self.est_names)
+        return self._get_passthrough_features(X, pd.DataFrame(first_layer_predictions, columns=self.est_names))
     
     
     def predict(self, X, y=None):
