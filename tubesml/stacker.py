@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 from sklearn.base import clone
 
+import warnings
+
 
 class Stacker(BaseTransformer):
     def __init__(self, estimators, final_estimator, cv, lay1_kwargs=None, passthrough=False):
@@ -20,6 +22,10 @@ class Stacker(BaseTransformer):
         self._lay1_kwargs_input(lay1_kwargs)
         self.meta_importances_ = None
         self.passthrough = passthrough
+        
+        if not type(self.passthrough) in [list, bool]:
+            warnings.warn(f'passthrough must be a list or a boolean, we got {type(self.passthrough)} it will be ignored', UserWarning)
+            self.passthrough = False
         
         
     def _lay1_kwargs_input(self, lay1_kwargs):
@@ -36,13 +42,29 @@ class Stacker(BaseTransformer):
                     _ = self.lay1_kwargs[est[0]][key]
                 except KeyError:
                     self.lay1_kwargs[est[0]][key] = False
+                    
+                    
+    def _get_passthrough_features(self, X, final_train):
+        
+        if self.passthrough and type(self.passthrough) is bool:
+            final_train = pd.concat([final_train, X], axis=1)
+        elif self.passthrough and type(self.passthrough) is list:
+            final_train = pd.concat([final_train, X[self.passthrough]], axis=1)
+        
+        return final_train
                 
                 
-    def return_feature_importances(self):
+    def return_feature_importances(self, X):
+        if self.passthrough and type(self.passthrough) is bool:
+            feats = self.est_names + list(X.columns)
+        elif self.passthrough and type(self.passthrough) is list:
+            feats = self.est_names + self.passthrough
+        else:
+            feats = self.est_names
         try:
-            return get_coef(self.final_estimator, self.est_names)
+            return get_coef(self.final_estimator, feats)
         except (AttributeError, KeyError):
-            return get_feature_importance(self.final_estimator, self.est_names)
+            return get_feature_importance(self.final_estimator, feats)
         
         
     def fit(self, X, y):
@@ -61,6 +83,7 @@ class Stacker(BaseTransformer):
             self._estimators[i].fit(X, y)
         
         final_train = pd.DataFrame(out_of_fold_predictions, columns=self.est_names)
+        final_train = self._get_passthrough_features(X, final_train)
         self.final_estimator.fit(final_train, y)
         
         try:  # this is useful to well behave with other sklearn methods
@@ -68,7 +91,7 @@ class Stacker(BaseTransformer):
         except AttributeError:  # if the final_estimator does not have classes, we don't care
             pass
         
-        self.meta_importances_ = self.return_feature_importances()
+        self.meta_importances_ = self.return_feature_importances(X)
         
         return self
     
