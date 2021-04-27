@@ -196,7 +196,7 @@ def test_passthrough(passthrough, n_feats):
     kfold = KFold(n_splits=3)
     stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold)
+                            cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
     
     imps = stk.meta_importances_
