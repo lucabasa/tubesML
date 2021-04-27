@@ -179,15 +179,19 @@ def test_early_stopping():
     assert stk._estimators[1].n_estimators < 10000
     
 
-
-def test_passthrough():
+@pytest.mark.parametrize("passthrough", [False, True, 'hybrid'])
+def test_passthrough(passthrough):
     '''
     Test we can have the meta model learn over more features
     '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
     pass
 
 
-def test_gridsearch_stacker_simple():
+@pytest.mark.parametrize("scoring", ['accuracy', 'neg_log_loss'])
+def test_gridsearch_stacker_simple(scoring):
     '''
     Test tml.grid_search works on this
     '''
@@ -207,12 +211,13 @@ def test_gridsearch_stacker_simple():
     
     with pytest.warns(None) as record:
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=stk, 
-                                                         param_grid=param_grid, scoring='accuracy', cv=3)
+                                                         param_grid=param_grid, scoring=scoring, cv=3)
         
     assert len(record) == 0
     
     
-def test_gridsearch_stacker_pipeline():
+@pytest.mark.parametrize("scoring", ['accuracy', 'neg_log_loss'])   
+def test_gridsearch_stacker_pipeline(scoring):
     '''
     Test tml.grid_search works on this when in a pipeline
     '''
@@ -234,7 +239,7 @@ def test_gridsearch_stacker_pipeline():
     
     with pytest.warns(None) as record:
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
-                                                         param_grid=param_grid, scoring='accuracy', cv=3)
+                                                         param_grid=param_grid, scoring=scoring, cv=3)
         
     assert len(record) == 0
 
@@ -255,6 +260,31 @@ def test_cv_score_stacker_simple(predict_proba):
     stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
                             cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+    
+    with pytest.warns(None) as record:
+        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
+    assert len(record) == 0
+    
+    
+@pytest.mark.parametrize("predict_proba", [True, False])
+def test_cv_score_stacker_simple(predict_proba):
+    '''
+    Test tml.cv_score works on this when in a pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=Pipeline([('scl', tubesml.DfScaler()), 
+                                                      ('logit', LogisticRegression())]), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+    
+    pipe = Pipeline([('scl', tubesml.DfScaler()), ('model', stk)])
     
     with pytest.warns(None) as record:
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
