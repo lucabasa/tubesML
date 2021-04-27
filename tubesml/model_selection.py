@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __status__ = 'development'
 
 import pandas as pd
@@ -111,8 +111,8 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
         trn_data = train.iloc[train_index, :]
         val_data = train.iloc[test_index, :]
         
-        trn_target = target.iloc[train_index].values.ravel()
-        val_target = target.iloc[test_index].values.ravel()
+        trn_target = pd.Series(target.iloc[train_index].values.ravel())
+        val_target = pd.Series(target.iloc[test_index].values.ravel())
         
         if early_stopping:
             # create model and transform pipelines
