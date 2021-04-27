@@ -68,6 +68,32 @@ def test_grid_bestestimator(random):
         res = best_estimator.predict(df_1)
     assert len(record) == 0
     
+    
+@pytest.mark.parametrize("random", [False, 20])
+def test_grid_bestestimator_proba(random):
+    '''
+    Test grid_search returns an estimator ready to be used with no warnings, with and without random search
+    This test uses the predict_proba method
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    param_grid = {'logit__C': [1, 2], 
+                  'pipe__transf__sca__method': ['standard', 'robust', 'minmax'], 
+                  'pipe__transf__imp__strategy': ['mean', 'median'],
+                  'pipe__transf__poly__degree': [1, 2, 3], 
+                  'pipe__transf__tarenc__agg_func': ['mean', 'median'],
+                  'pipe__transf__dummify__drop_first': [True, False], 
+                  'pipe__transf__dummify__match_cols': [True, False], 
+                  'pipe__transf__pca__n_components': [0.5, 3, 5]}
+    
+    result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
+                                                         param_grid=param_grid, scoring='neg_log_loss', cv=3, random=random)
+    
+    with pytest.warns(None) as record:
+        res = best_estimator.predict(df_1)
+    assert len(record) == 0
+    
 
 @pytest.mark.parametrize("random, n_res", [(False, 6), (5, 5)])   
 def test_gridsearch_result(random, n_res):
