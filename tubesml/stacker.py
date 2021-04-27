@@ -15,13 +15,14 @@ import warnings
 
 
 class Stacker(BaseTransformer):
-    def __init__(self, estimators, final_estimator, cv, lay1_kwargs=None, passthrough=False):
+    def __init__(self, estimators, final_estimator, cv, lay1_kwargs=None, passthrough=False, verbose=False):
         self.estimators = estimators
         self.final_estimator = final_estimator
         self.cv = cv
         self._lay1_kwargs_input(lay1_kwargs)
         self.meta_importances_ = None
         self.passthrough = passthrough
+        self.verbose = verbose
         
         if not type(self.passthrough) in [list, bool]:
             warnings.warn(f'passthrough must be a list or a boolean, we got {type(self.passthrough)} it will be ignored', UserWarning)
@@ -67,6 +68,11 @@ class Stacker(BaseTransformer):
             return get_feature_importance(self.final_estimator, feats)
         
         
+    def _check_correlated_predictions(self, final_train):
+        if ((final_train.corr() > 0.8).sum() > 1).any():
+            warnings.warn('The predictions are highly correlated, this is not ideal. Check the ``corr_`` attribute for details', UserWarning)
+        
+        
     def fit(self, X, y):
         self._estimators = [clone(model[1]) for model in self.estimators]
         self.est_names = [f'preds_{model[0]}' for model in self.estimators]
@@ -83,6 +89,9 @@ class Stacker(BaseTransformer):
             self._estimators[i].fit(X, y)
         
         final_train = pd.DataFrame(out_of_fold_predictions, columns=self.est_names)
+        self.corr_ = final_train.corr()
+        if self.verbose:
+            self._check_correlated_predictions(final_train)
         final_train = self._get_passthrough_features(X, final_train)
         self.final_estimator.fit(final_train, y)
         

@@ -198,10 +198,26 @@ def test_passthrough(passthrough, n_feats):
                             final_estimator=DecisionTreeClassifier(), 
                             cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
+    _ = stk.predict(df_1)
     
     imps = stk.meta_importances_
     
     assert imps.shape == (n_feats, 2)
+        
+        
+def test_high_correlation_warning():
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    with pytest.warns(UserWarning):
+        stk = tubesml.Stacker(estimators=estm, 
+                                final_estimator=DecisionTreeClassifier(), 
+                                cv=kfold, verbose=True)
 
 
 @pytest.mark.parametrize("scoring", ['accuracy', 'neg_log_loss'])
