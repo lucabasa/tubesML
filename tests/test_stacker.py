@@ -334,3 +334,31 @@ def test_cv_score_stacker_simple(predict_proba):
     with pytest.warns(None) as record:
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
     assert len(record) == 0
+    
+    
+@pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])
+def test_cv_score_stacker_passthrough(passthrough):
+    '''
+    Test tml.cv_score works on this when in a pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    if passthrough == 'hybrid':
+        passthrough = list(df_1.columns[:3])
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=Pipeline([('scl', tubesml.DfScaler()), 
+                                                      ('logit', LogisticRegression())]), 
+                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}}, passthrough=passthrough)
+    
+    pipe = Pipeline([('scl', tubesml.DfScaler()), ('model', stk)])
+    
+    with pytest.warns(None) as record:
+        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=True)
+    assert len(record) == 0
