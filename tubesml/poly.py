@@ -9,26 +9,23 @@ import pandas as pd
 
 class DfPolynomial(BaseTransformer):
     '''
-    Wrapper around PolynomialFeatures
+    Wrapper around PolynomialFeatures.
     
-    Inherits from ``BaseTransformer``
-    
-    :Attributes:
-    ------------
-        
-    degree : int, default=2
+    Inherits from ``BaseTransformer``.
+
+    :param degree: int, default=2
               The degree of the polynomial features.
 
-    interaction_only : bool, default=False.
+    :param interaction_only: bool, default=False.
                 If True, only interaction features are produced: features that are products of at most 
                 degree distinct input features (so not ``x[1] ** 2``, ``x[0] * x[2] ** 3``, etc.).
                 
-    include_bias : bool, default=False
+    :param include_bias: bool, default=False
                 If True, then include a bias column, the feature in which
                 all polynomial powers are zero (i.e. a column of ones - acts as an
                 intercept term in a linear model). The column is added with the name BIAS_TERM
                 
-    to_interact : str or list of strings, default='all'.
+    :param to_interact: str or list of strings, default='all'.
                 Columns to consider for the interactions. If 'all', then all the columns of the DataFrame
                 will be used. If a list of columns is provided, only those columns will be used for creating
                 the interactions. All the other columns will still be in the output DataFrame.
@@ -55,6 +52,7 @@ class DfPolynomial(BaseTransformer):
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         '''
@@ -70,14 +68,15 @@ class DfPolynomial(BaseTransformer):
     @self_columns
     def transform(self, X, y=None):
         '''
-        Method to transform the input data
+        Method to transform the input data.
         
-        It populates the ``columns`` attribute with the columns of the output data
+        It populates the ``columns`` attribute with the columns of the output data.
         
-        If a bias term is inclued, it will be called ``BIAS_TERM``
+        If a bias term is inclued, it will be called ``BIAS_TERM``.
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
             

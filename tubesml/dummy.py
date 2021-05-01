@@ -14,24 +14,22 @@ class Dummify(BaseTransformer):
     It assures that if some column is missing or is new after the first transform, the pipeline won't break
     
     To avoid problems with using both ``drop_first`` and ``match_cols``, specifically if the dropped category is
-    missing when dummies are created after the first time, we let match_cols to have the role of drop_first
+    missing when dummies are created after the first time, we let ``match_cols`` to have the role of ``drop_first``
     if the transformer has been ran already. See test_match_columns_drop_first_equal for an example.
     
     The fit method simply passes the data as in the ``BaseTransformer``
     
-    :Attributes:
-    ------------
         
-    drop_first : bool, default False.
+    :param drop_first: bool, default False.
                 If True, the first dummy column is dropped
 
-    match_col : bool, default False.
+    :param match_col: bool, default False.
                 If True, it makes sure that all the columns found calling the transformer the first time are found 
                 every other time the transform method is called. It thus adds the missing columns (with all 0 values)
                 and removes the columns not previously found.
-    
-    verbose : bool, default False.
-             If True, it raises a UserWarning when the _match_columns method is invoked
+
+    :param verbose: bool, default False.
+             If True, it raises a UserWarning when the ``_match_columns`` method is invoked
     '''
     def __init__(self, drop_first=False, match_cols=True, verbose=False):
         super().__init__()
@@ -75,6 +73,7 @@ class Dummify(BaseTransformer):
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
             

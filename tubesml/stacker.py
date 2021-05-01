@@ -3,7 +3,7 @@ __version__ = '0.0.3'
 __status__ = 'development'
 
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer
 from tubesml.report import get_coef, get_feature_importance
 from tubesml.model_selection import cv_score
 
@@ -22,17 +22,7 @@ class Stacker(BaseTransformer):
     
     The meta estimator trains on the predicitions made by the estimators. It is possible to train the meta estimator on
     other features of the initial dataset.
-
-    :Attributes:
-    ------------
     
-    `meta_importances_` : pandas DataFrame with the feature importances (or the coefficients) of the final estimator. 
-                            Note: this estimator doesn't have a ``coef_`` or ``feature_importances_`` attribute, it won't thus work with methods that
-                            leverage these attritbutes.
-
-    `corr_` :  pandas DataFrame.
-                Returns the correlation between the first set of estimator's predictions.
-                
     
     :param estimators: list of tuples (name, estimator) (including pipelines).
                         These estimators will generate the first layer of predictions.
@@ -54,6 +44,16 @@ class Stacker(BaseTransformer):
             
     :param verbose: bool, default=False.
                     If True, it warns the user if the correlation of the first layer of predictions is higher than 0.9.
+
+    :Attributes:
+    ------------
+    
+        `meta_importances_` : pandas DataFrame with the feature importances (or the coefficients) of the final estimator. 
+                                Note: this estimator doesn't have a ``coef_`` or ``feature_importances_`` attribute, 
+                                it won't thus work with methods that leverage these attritbutes.
+
+        `corr_` :  pandas DataFrame.
+                    Returns the correlation between the first set of estimator's predictions.
 
     '''
     def __init__(self, estimators, final_estimator, cv, lay1_kwargs=None, passthrough=False, verbose=False):

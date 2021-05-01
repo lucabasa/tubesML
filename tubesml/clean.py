@@ -13,36 +13,29 @@ class DfImputer(BaseTransformer):
     '''
     Just a wrapper for the SimpleImputer that keeps the dataframe structure.
     
-    Inherits from ``BaseTransformer``
+    Inherits from ``BaseTransformer``.
+    
+    :param strategy: str, the strategy to impute the missing values, default "mean".
+              Allowed values: "mean", "median", "most_frequent", "constant"
+
+    :param fill_value:  value to use to impute the missing values when the ``strategy`` is "constant".
+                It is ignored by any other strategy
+                
+    :param add_indicator: bool, default=False. 
+                    If True, a new column with binary values is created whenever missing values are found when
+                    the fit method is called. The column will be called ``missing_<column_name>``
     
     :Attributes:
     ------------
-        
-    strategy : str, the strategy to impute the missing values, default "mean"
-              Allowed values: "mean", "median", "most_frequent", "constant"
+    
+        `statistics_` : pandas Series. The statistics per column, depending on the ``strategy`` chosen.
+                        The index of the series is the ``columns`` attribute of the input dataframe.
 
-    fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
-                It is ignored by any other strategy
-                
-    add_indicator : bool, default=False. 
-                    If True, a new column with binary values is created whenever missing values are found when
-                    the fit method is called. The column will be called ``missing_<column_name>``
+        `imp` : ``sklearn.impute.SimpleImputer``
+                Core transformer. Its ``fit`` and ``transform`` methods are used here.
+
     '''
     def __init__(self, strategy='mean', fill_value=None, add_indicator=False):
-        '''
-        :Attributes:
-        ------------
-        
-        strategy : str, the strategy to impute the missing values, default "mean"
-                  Allowed values: "mean", "median", "most_frequent", "constant"
-        
-        fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
-                    It is ignored by any other strategy
-                    
-        add_indicator : bool, default=False. 
-                    If True, a new column with binary values is created whenever missing values are found when
-                    the fit method is called. The column will be called ``missing_<column_name>``
-        '''
         super().__init__()
         self.strategy = strategy
         self.fill_value = fill_value
@@ -65,8 +58,10 @@ class DfImputer(BaseTransformer):
         Method to train the imputer.
         
         It also reset the ``columns`` attribute
+        
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         '''
@@ -83,8 +78,10 @@ class DfImputer(BaseTransformer):
         Method to transform the input data
         
         It populates the ``columns`` attribute with the columns of the output data
+        
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
             

@@ -11,11 +11,8 @@ class DtypeSel(BaseTransformer):
     '''
     This transformer selects either numerical or categorical features.
     In this way we can build separate pipelines for separate data types.
-    
-    :Attributes:
-    ------------
         
-    dtype : str, the type of data to select, default='numeric'.
+    :param dtype: str, the type of data to select, default='numeric'.
             Allowed values: 'numeric', 'category'
     '''
     def __init__(self, dtype='numeric'):
@@ -38,6 +35,7 @@ class DtypeSel(BaseTransformer):
         
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
             
@@ -56,26 +54,23 @@ class FeatureUnionDf(BaseTransformer):
     '''
     Wrapper of `FeatureUnion` but returning a Dataframe, 
     the column order follows the concatenation done by FeatureUnion
-    
-    :Attributes:
-    ------------
 
-    transformer_list : list of (string, transformer) tuples
+    :param transformer_list: list of (string, transformer) tuples
         List of transformer objects to be applied to the data. The first
         half of each tuple is the name of the transformer.
     
-    n_jobs : int, default=None
+    :param n_jobs: int, default=None
         Number of jobs to run in parallel.
         ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
         ``-1`` means using all processors. See :term:`Glossary <n_jobs>`
         for more details.
     
-    transformer_weights : dict, default=None
+    :param transformer_weights: dict, default=None
         Multiplicative weights for features per transformer.
         Keys are transformer names, values the weights.
         Raises ValueError if key not present in ``transformer_list``.
         
-    verbose : bool, default=False
+    :param verbose: bool, default=False
         If True, the time elapsed while fitting each transformer will be
         printed as it is completed.
     '''
@@ -95,10 +90,11 @@ class FeatureUnionDf(BaseTransformer):
         '''
         Method to fit all the transformers.
         
-        It also reset the ``columns`` attribute
+        It also reset the ``columns`` attribute.
         
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs).
             The target values (class labels) as integers or strings.
         '''
@@ -115,6 +111,7 @@ class FeatureUnionDf(BaseTransformer):
         
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
             
