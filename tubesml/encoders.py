@@ -12,23 +12,21 @@ class TargetEncoder(BaseTransformer):
     
     Encodes categorical features with statistics of the target variable. For example, by using the mean target value.
     
-    It allows for other aggregating functions, for now it is assumed this is provided as a string for the agg method of pandas
+    It allows for other aggregating functions, for now it is assumed this is provided as a string for the agg method of pandas.
     
-    Inherits from ``BaseTransformer``
-    
-    :Attributes:
-    ------------
-    
-    to_encode : str, list, None. default=None
+    Inherits from ``BaseTransformer``.
+
+
+    :param to_encode: str, list, None. default=None.
                 (list of) column(s) to encode according to the ``agg_func``.
-                If None, it will encode all the non-numerical columns
+                If None, it will encode all the non-numerical columns.
                 
-    prior_weight : int, float. default=100.
+    :param prior_weight: int, float. default=100.
                 Value to weight the prior. The higher, the more important the prior is.
-                The prior is the statistic of the target determined by ``agg_func``
+                The prior is the statistic of the target determined by ``agg_func``.
                 
-    agg_func : str, default='mean'.
-                Aggregation function to use for the target encoding
+    :param agg_func: str, default='mean'.
+                Aggregation function to use for the target encoding.
     '''
 
     def __init__(self, to_encode=None, prior_weight=100, agg_func='mean'):
@@ -54,6 +52,7 @@ class TargetEncoder(BaseTransformer):
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs).
             The target values (or class labels) as integers or floats.
         '''
@@ -94,6 +93,7 @@ class TargetEncoder(BaseTransformer):
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         

@@ -17,6 +17,7 @@ This is text I want to write
    model_selection
    data_exploration
    report
+   models
 
 
 

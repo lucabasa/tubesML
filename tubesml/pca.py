@@ -10,14 +10,11 @@ import pandas as pd
 class DfPCA(BaseTransformer):
     '''
     Wrapper around PCA to keep the dataframe structure.
-    It can also return the same dataframe in a compressed form, e.g. by doing and undoing pca
+    It can also return the same dataframe in a compressed form, e.g. by doing and undoing pca.
     
-    Inherits from ``BaseTransformer``
+    Inherits from ``BaseTransformer``.
     
-    :Attributes:
-    ------------
-    
-    n_components : int, float or 'mle'.
+    :param n_components: int, float or 'mle'.
         Number of components to keep.
         if n_components is not set all components are kept::
             n_components == min(n_samples, n_features)
@@ -32,7 +29,7 @@ class DfPCA(BaseTransformer):
         Hence, the None case results in::
             n_components == min(n_samples, n_features) - 1
             
-    svd_solver : {'auto', 'full', 'arpack', 'randomized'}, default='auto'
+    :param svd_solver: {'auto', 'full', 'arpack', 'randomized'}, default='auto'
         If auto :
             The solver is selected by a default policy based on ``X.shape`` and
             ``n_components``: if the input data is larger than 500x500 and the
@@ -50,11 +47,11 @@ class DfPCA(BaseTransformer):
         If randomized :
             run randomized SVD by the method of Halko et al.
             
-    random_state : int, RandomState instance or None, default=24
+    :param random_state: int, RandomState instance or None, default=24
         Used when the 'arpack' or 'randomized' solvers are used. Pass an int
         for reproducible results across multiple function calls.
         
-    compress : bool, default=False.
+    :param compress: bool, default=False.
             If True, it reverses the PCA via ``inverse_transform`` and returns a DataFrame with the original structure
             It can be useful to remove noise from the data by compressing the information.
     '''
@@ -73,10 +70,11 @@ class DfPCA(BaseTransformer):
         '''
         Method to train the transformer.
         
-        It also reset the ``columns`` attribute
+        It also reset the ``columns`` attribute.
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         '''
@@ -88,9 +86,9 @@ class DfPCA(BaseTransformer):
     @self_columns
     def transform(self, X, y=None):
         '''
-        Method to transform the input data
+        Method to transform the input data.
         
-        It populates the ``columns`` attribute with the columns of the output data
+        It populates the ``columns`` attribute with the columns of the output data.
         
         The resulting columns will have name ``pca_{int}``. 
         
@@ -99,6 +97,7 @@ class DfPCA(BaseTransformer):
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
             

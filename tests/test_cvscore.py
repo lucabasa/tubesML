@@ -57,7 +57,7 @@ def test_cvscore(predict_proba):
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
-        res = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
+        res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(record) == 0
     assert len(res) == len(df_1)
 
@@ -85,9 +85,10 @@ def test_earlystopping(model):
     kfold = KFold(n_splits=3)
     
     with pytest.warns(None) as record:
-        res, imp = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc', imp_coef=True)
+        res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc', imp_coef=True)
     assert len(record) == 0
     assert len(res) == len(df_1)
+    assert len(res_dict['iterations']) == 3
 
     
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
@@ -118,7 +119,7 @@ def test_cvscore_coef_imp(model):
     with pytest.warns(None) as record:
         res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(record) == 0
-    assert len(coef) == df_1.shape[1]  * 2 + 45  # to account for the combinations
+    assert len(coef['feat_imp']) == df_1.shape[1]  * 2 + 45  # to account for the combinations
 
 
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 

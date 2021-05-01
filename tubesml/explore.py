@@ -15,9 +15,11 @@ import seaborn as sns
 
 def list_missing(data, verbose=True):
     """
-    Find all the columns with missing values and report on the percentage of missing values
+    Find all the columns with missing values and report on the percentage of missing values.
     
-    :param data: pandas Dataframe
+    :param data: pandas Dataframe.
+                The input dataframe
+                
     :param verbose: bool, default=True.
                 If True, it prints the percentage of missing values in each column with missing values
                 
@@ -34,19 +36,28 @@ def list_missing(data, verbose=True):
 
 def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
     '''
-    This function plots the correlation matrix of a dataframe
+    This function plots the correlation matrix of a dataframe.
     If a target feature is provided, it will display only a certain amount of features, the ones correlated the most
-    with the target. The number of features displayed is controlled by the parameter limit
+    with the target. The number of features displayed is controlled by the parameter limit.
     
-    :param data: pandas DataFrame
+    :param data: pandas DataFrame.
+                The input dataframe.
+                
     :param target: str, default=None.
                 If not None, it displays the correlation matrix in order from the most correlated to the target column
                 to the least. It must be present in `data`.
+                
     :param limit: int, number of feature to display, default=50.
-    :param figsize: tuple, size of the output figure, default=(12,10)
-    :param **kwargs: kwargs to be passed to ``sns.heatmap``
+                This is to avoid plots that are difficult to read.
     
-    :return cor_target: Only if ``target`` is provided, correlation matrix
+    :param figsize: tuple, default=(12,10).
+                Size of the output figure.
+                
+    :param **kwargs: kwargs to be passed to ``sns.heatmap``.
+                For example, to display annotations. See the documentation of Seaborn for more options.
+    
+    :return cor_target: Only if ``target`` is provided, 
+                correlation matrix of the features in ``data``
     '''
     corr = data.corr()
     if target:
@@ -65,8 +76,19 @@ def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
 
 def plot_distribution(data, column, bins=50, correlation=None):
     '''
-    Plots a histogram of a given column
+    Plots a histogram of a given column.
     If a Pandas Series is provided with the correlation values, it will be displayed in the title.
+    
+    :param data: pandas DataFrame.
+                The input dataframe.
+    
+    :param column: str, name of the column to plot.
+            if ``correlation`` is provided, make sure this column is among the indexes of that input
+    
+    :param bins: int, number of bins.
+    
+    :param correlation: (optional) pandas Series.
+                        Ideally the output of ``tubesml.plot_correlations``
     '''
     plt.figure(figsize=(12,8))
     data[column].hist(bins=bins)
@@ -80,7 +102,18 @@ def plot_distribution(data, column, bins=50, correlation=None):
 
 def plot_bivariate(data, x, y, hue=None, **kwargs):
     '''
-    Scatterplot of the feature x vs the feature y with the possibility of adding a hue
+    Scatterplot of the feature x vs the feature y with the possibility of adding a hue.
+    
+    :param data: pandas DataFrame.
+                The input dataframe.
+    
+    :param x: str, name of the feature to plot on the x-axis
+    
+    :param y: str, name of the feature to plot on the y-axis
+    
+    :param hue: (optional) str, feature to use as hue.
+    
+    :param **kwargs: additional key arguments to pass to ``sns.scatterplot``
     '''
     plt.figure(figsize=(12,8))
     sns.scatterplot(data=data, x=x, y=y, hue=hue, **kwargs)
@@ -96,6 +129,15 @@ def corr_target(data, target, cols, x_estimator=None):
     Scatterplot + linear regression of a list of columns against the target.
     A correlation matrix is also printed.
     It is possible to pass an estimator.
+    
+    :param data: pandas DataFrame.
+                The input dataframe.
+    
+    :param target: str, name of the target column
+    
+    :param cols: list of columns to consider for the plot against the target.
+    
+    :param x_estimator: (optional) additional input for ``sns.regplot``.
     '''
     print(data[cols+[target]].corr())
     num = len(cols)

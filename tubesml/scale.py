@@ -11,16 +11,40 @@ class DfScaler(BaseTransformer):
     '''
     Wrapper of several sklearn scalers that keeps the dataframe structure.
     
-    Inherits from ``BaseTransformer``
+    Inherits from ``BaseTransformer``,
+    
+    :param method: str, the method to scale the data, default "standard"
+              Allowed values: "standard", 'robust', 'minmax'
+    
+    :param feature_range: tuple, the range to scale the data to.
+                    Relevant only if ``method=='minmax'``
     
     :Attributes:
     ------------
     
-    method : str, the method to scale the data, default "standard"
-              Allowed values: "standard", 'robust', 'minmax'
-    
-    feature_range : tuple, the range to scale the data to.
-                    Relevant only if ``method=='minmax'``
+        `mean_` : pandas Series with the mean of each feature in the input data.
+                    It is relevant only if ``method=Standard``. 
+                    The index of the series is the ``columns`` attribute of the input dataframe.
+
+        `center_` : pandas Series with the median of each feature in the input data.
+                    It is relevant only if ``method=Robust``. 
+                    The index of the series is the ``columns`` attribute of the input dataframe.
+
+        `min_` : pandas Series with the min of each feature in the input data.
+                It is relevant only if ``method=minmax``. 
+                The index of the series is the ``columns`` attribute of the input dataframe.
+
+        `data_min_` : pandas Series with the min of each feature in the input data.
+                It is relevant only if ``method=minmax``. 
+                The index of the series is the ``columns`` attribute of the input dataframe.  
+
+        `data_max_` : pandas Series with the max of each feature in the input data.
+                It is relevant only if ``method=minmax``. 
+                The index of the series is the ``columns`` attribute of the input dataframe.
+
+        `feature_range_` : pandas Series with the difference between max and min of each feature in the input data.
+                It is relevant only if ``method=minmax``. 
+                The index of the series is the ``columns`` attribute of the input dataframe.
     '''
     def __init__(self, method='standard', feature_range=(0,1)):
         super().__init__()
@@ -58,6 +82,7 @@ class DfScaler(BaseTransformer):
 
         :param X: pandas DataFrame of shape (n_samples, n_features)
             The training input samples.
+            
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
             The target values (class labels) as integers or strings.
         '''
@@ -84,16 +109,17 @@ class DfScaler(BaseTransformer):
     @self_columns
     def transform(self, X, y=None):
         '''
-        Method to transform the input data
+        Method to transform the input data.
         
-        It populates the ``columns`` attribute with the columns of the output data
+        It populates the ``columns`` attribute with the columns of the output data.
 
-        :param X: pandas DataFrame of shape (n_samples, n_features)
+        :param X: pandas DataFrame of shape (n_samples, n_features).
             The input samples.
-        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used
+            
+        :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), Not used.
             The target values (class labels) as integers or strings.
             
-        :return: pandas DataFrame with scaled data
+        :return: pandas DataFrame with scaled data.
         '''
         Xscl = self.scl.transform(X)
         Xscaled = pd.DataFrame(Xscl, index=X.index, columns=X.columns)

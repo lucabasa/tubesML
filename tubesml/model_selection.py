@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.1'
+__version__ = '1.1.1'
 __status__ = 'development'
 
 import pandas as pd
@@ -20,20 +20,26 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     
     :param data: pandas DataFrame.
            Data to tune the hyperparameters
+           
     :param target: numpy array or pandas Series.
             Target column
+            
     :param estimator: sklearn compatible estimator.
             It must have a ``predict`` method and a ``get_params`` method.
-            It can be a Pipeline
+            It can be a Pipeline.
+            
     :param param_grid: dict.
-            Dictionary of the parameter space to explore
-            In case the ``estimator`` is a pipeline, provide the keys in the format ``step__param``
+            Dictionary of the parameter space to explore.
+            In case the ``estimator`` is a pipeline, provide the keys in the format ``step__param``.
+            
     :param scoring: string.
-            Scoring metric for the grid search, see the sklearn documentation for the available options
+            Scoring metric for the grid search, see the sklearn documentation for the available options.
+            
     :param cv: KFold object or int.
-            For cross-validation
+            For cross-validation.
+            
     :param random: bool, default=False.
-            If True, runs a RandomSearch instead of a GridSearch
+            If True, runs a RandomSearch instead of a GridSearch.
     
     :return: a dataframe with the results for each configuration
     :return: a dictionary with the best parameters
@@ -69,32 +75,46 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
     Train and test a pipeline in kfold cross validation
     
     :param data: pandas DataFrame.
-           Data to tune the hyperparameters
+           Data to tune the hyperparameters.
+           
     :param target: numpy array or pandas Series.
-            Target column
+            Target column.
+            
     :param estimator: sklearn compatible estimator.
             It must have a ``predict`` method and a ``get_params`` method.
-            It can be a Pipeline. If it is not a Pipeline, it will be made one for compatibility with other functionalities
+            It can be a Pipeline. If it is not a Pipeline, it will be made one for compatibility with other functionalities.
+            
     :param cv: KFold object.
-            For cross-validation, the estimates will be done across these folds
+            For cross-validation, the estimates will be done across these folds.
+            
     :param imp_coef: bool, default=False.
             If True, returns the feature importance or the coefficient values averaged across the folds, with standard deviation on the mean.
+            
     :param predict_proba: bool, default=False.
             If True, calls the ``predict_proba`` method instead of the ``predict`` one.
+            
     :param early_stopping: bool, default=False.
-                        If True, uses early stopping within the folds for the estimators that support it
+                        If True, uses early stopping within the folds for the estimators that support it.
+                        
     :param eval_metric: str, default=None.
-                        The evaluation metric to use for early stopping
+                        The evaluation metric to use for early stopping.
+                        
     :param verbose: bool or int, default=False.
                         Level of verbosity for early stopping.
     
-    :return: the oof predictions for the entire train set and a dataframe with the
-            coefficients or feature importances, averaged across the folds, with standard deviation
+    :return oof: pd.Series with the out of fold predictions for the entire train set.
+    
+    :return rep_res: A dictionary with additional results. If ``imp_coef=True``, it contains a pd.DataFrame with the coefficients or 
+                    feature importances of the estimator, it can be found under the key ``feat_imp``. If ``early_stopping=True``, it contains a list 
+                    with the best iteration number per fold, it can be found under the key ``iterations``.
     '''
     oof = np.zeros(len(data))
     train = data.copy()
     
+    rep_res = {}
+    
     feat_df = pd.DataFrame()
+    iteration = []
     
     try:  # If estimator is not a pipeline, make a pipeline
         estimator.steps
@@ -106,8 +126,8 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
         trn_data = train.iloc[train_index, :]
         val_data = train.iloc[test_index, :]
         
-        trn_target = target.iloc[train_index].values.ravel()
-        val_target = target.iloc[test_index].values.ravel()
+        trn_target = pd.Series(target.iloc[train_index].values.ravel())
+        val_target = pd.Series(target.iloc[test_index].values.ravel())
         
         if early_stopping:
             # create model and transform pipelines
@@ -122,6 +142,11 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
                       early_stopping_rounds=early_stopping,
                       eval_metric=eval_metric,
                       verbose=verbose)
+            #store iteration used
+            try:
+                iteration.append(model.best_iteration)
+            except AttributeError:
+                iteration.append(model.best_iteration_)
         else:
             model = clone(estimator)  # it creates issues with match_cols in dummy otherwise
             model.fit(trn_data, trn_target)
@@ -150,24 +175,29 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
         feat_df = feat_df.sort_values(by=['abs_sco'],ascending=False)
         feat_df['std'] = feat_df['std'] / np.sqrt(cv.get_n_splits() - 1)  # std of the mean, unbiased
         del feat_df['abs_sco']
-        return oof, feat_df
-    else:    
-        return oof
+        rep_res['feat_imp'] = feat_df
+    if early_stopping:
+        rep_res['iterations'] = iteration
+        
+    return oof, rep_res
     
     
 def make_test(train, test_size, random_state, strat_feat=None):
     '''
-    Creates a train and test, stratified on a feature or on a list of features
+    Creates a train and test, stratified on a feature or on a list of features.
     
-    :param train: dataframe
+    :param train: pandas DataFrame.
+    
     :param test_size: float.
-                        The size of the test set. It must be between 0 and 1
+                        The size of the test set. It must be between 0 and 1.
+                        
     :param random_state: int.
-                        Random state used to split the data
+                        Random state used to split the data.
+                        
     :param strat_feat: str or list, default=None.
-                        The feature or features to use to stratify the split
+                        The feature or features to use to stratify the split.
             
-    :return: A train set and a test set
+    :return: A train set and a test set.
     '''
     if strat_feat:
         

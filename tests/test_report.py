@@ -150,7 +150,7 @@ def test_plot_feat_imp(_):
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
 
     with pytest.warns(None) as record:
-        tml.plot_feat_imp(coef)
+        tml.plot_feat_imp(coef['feat_imp'])
     assert len(record) == 0
     
 
@@ -178,7 +178,7 @@ def test_plot_regression_pred_nohue(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
     
     with pytest.warns(None) as record:
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof)
@@ -199,7 +199,7 @@ def test_plot_regression_pred_hue(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
     
     with pytest.warns(None) as record:
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='cat')
@@ -220,7 +220,7 @@ def test_plot_regression_pred_huemany(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
     
     with pytest.warns(UserWarning):
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='many_cat')
@@ -264,7 +264,7 @@ def test_plot_classification_probs(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
     
     with pytest.warns(None) as record:
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof)
@@ -285,7 +285,7 @@ def test_plot_classification_probs_wronginput(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
     
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, feat='non_existing_feat')
@@ -306,7 +306,7 @@ def test_plot_classification_probs_hue(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
     
     with pytest.warns(None) as record:
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='cat')
@@ -328,7 +328,7 @@ def test_plot_classification_probs_manyhue(_):
 
     kfold = KFold(n_splits=3)
 
-    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
 
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='many_cat')
@@ -348,7 +348,7 @@ def test_plot_classification_probs_wronghue(_):
     
     kfold = KFold(n_splits=3)
     
-    oof = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
     
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='non_existing_feat')  
