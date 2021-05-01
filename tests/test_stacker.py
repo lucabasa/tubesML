@@ -206,8 +206,13 @@ def test_passthrough(passthrough, n_feats):
         
         
 def test_high_correlation_warning():
+    '''
+    Test if the stacker raises a warning when the predictions are highly correlated
+    We don't drop the target feature from the training set to be sure both classifiers
+    predict perfectly
+    '''
     y = df['target']
-    df_1 = df.drop('target', axis=1)
+    df_1 = df 
     
     estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
             ('logit', LogisticRegression())]
@@ -218,6 +223,7 @@ def test_high_correlation_warning():
         stk = tubesml.Stacker(estimators=estm, 
                                 final_estimator=DecisionTreeClassifier(), 
                                 cv=kfold, verbose=True)
+        stk.fit(df_1, y)
 
 
 @pytest.mark.parametrize("scoring", ['accuracy', 'neg_log_loss'])
