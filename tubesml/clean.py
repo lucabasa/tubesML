@@ -18,7 +18,7 @@ class DfImputer(BaseTransformer):
     :Attributes:
     ------------
         
-    stragegy : str, the strategy to impute the missing values, default "mean"
+    strategy : str, the strategy to impute the missing values, default "mean"
               Allowed values: "mean", "median", "most_frequent", "constant"
 
     fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
@@ -33,7 +33,7 @@ class DfImputer(BaseTransformer):
         :Attributes:
         ------------
         
-        stragegy : str, the strategy to impute the missing values, default "mean"
+        strategy : str, the strategy to impute the missing values, default "mean"
                   Allowed values: "mean", "median", "most_frequent", "constant"
         
         fill_value :  value to use to impute the missing values when the ``strategy`` is "constant"
