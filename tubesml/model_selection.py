@@ -10,7 +10,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 
-from tubesml.report import get_coef, get_feature_importance
+from tubesml.model_inspection import get_coef, get_feature_importance
 from tubesml.base import BaseTransformer
 
 

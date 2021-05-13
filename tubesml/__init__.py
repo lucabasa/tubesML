@@ -6,8 +6,9 @@ from tubesml.pca import DfPCA
 from tubesml.poly import DfPolynomial
 from tubesml.utility import DtypeSel, FeatureUnionDf
 from tubesml.model_selection import grid_search, cv_score, make_test
-from tubesml.report import (get_coef, get_feature_importance, plot_regression_predictions, 
-                            plot_learning_curve, plot_feat_imp, plot_pdp, plot_partial_dependence, 
+from tubesml.model_inspection import (get_coef, get_feature_importance, plot_learning_curve, plot_feat_imp, 
+                                      plot_pdp, plot_partial_dependence,)
+from tubesml.report import (plot_regression_predictions, 
                             plot_confusion_matrix, plot_classification_probs, eval_classification)
 from tubesml.explore import (list_missing, plot_correlations, plot_distribution, plot_bivariate, 
                              corr_target, find_cats, segm_target)
