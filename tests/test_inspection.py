@@ -162,21 +162,27 @@ def test_plot_feat_imp_warning():
     with pytest.raises(KeyError):
         tml.plot_feat_imp(wrong_input, n=10)
         
-
-def test_get_pdp():
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+                                   DecisionTreeRegressor(),
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])
+def test_get_pdp(model):
     """
-    Test basic functioning
+    Test basic functioning for various models
+    XGB - Version 1.3.3, not in package requirements
+    LGB - Version 3.1.1, not in package requirements
     """
     feat = df.columns[0]
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('model', model)])
     
     full_pipe.fit(df_1, y)
     
     with pytest.warns(None) as record:
         pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'y'} == set(pdp.columns)
+    assert pdp.shape == (100, 3)
     

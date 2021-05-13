@@ -212,14 +212,15 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
     plt.show()
     
     
-def get_pdp(estimator, feature, data):
+def get_pdp(estimator, feature, data, grid_resolution=100):
     """
     Calculates the partial dependence of the model to a variable
     """
     
-    val, exes = partial_dependence(estimator, features=feature, 
-                                   X=data, grid_resolution=50)
-    df_pdp = pd.DataFrame({'x': exes[0], 'y': val[0]})
+    pdp = partial_dependence(estimator, features=feature, 
+                                   X=data, grid_resolution=grid_resolution, 
+                                   kind='average')
+    df_pdp = pd.DataFrame({'x': pdp['values'][0], 'y': pdp['average'][0]})
     df_pdp['feat'] = feature
     
     return df_pdp
