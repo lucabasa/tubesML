@@ -210,3 +210,14 @@ def test_get_pdp_interaction():
     assert pdp['x'].nunique() == 50
     assert pdp['x_1'].nunique() == 50
     
+    
+def test_get_pdp_list():
+    """
+    Test the function raises a TypeError if a list is in the input
+    """
+    full_pipe = 1
+    df_1 = 2
+    feat = ['a', 'b']
+    with pytest.raises(TypeError):
+        pdp = tml.get_pdp(full_pipe, feat, df_1)
+    
