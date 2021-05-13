@@ -265,9 +265,23 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
 
 def plot_pdp(data, feature, title, axes):
     '''
-    Plot partial dependence of a feature in an ax.
+    Plot partial dependence of a feature in an ax. If available, uncertainty plotted around it.
     
-    Uncertainty plotted around it.
+    :param data: pandas Dataframe with the partial dependence
+                It must contain a ``feat``, a ``x``, and either a ``y`` or a ``mean`` columns
+                If there is an ``std`` column, it will be plotted as uncertainty aroudn the mean
+                
+    :param feature: string.
+                The feature to plot as x axis in the partial dependence
+    
+    :param title: string.
+                The title on top of the plot
+                
+    :param axes: matplotlib axes
+                The plot will take place in this axes
+                
+    :return: matplotlib axes with the plot.
+    
     '''
     if not {'feat', 'x'} <= set(data.columns):
         raise KeyError('data must contain the columns feat, x')
@@ -283,8 +297,8 @@ def plot_pdp(data, feature, title, axes):
         
     if 'std' in data.columns:
         axes.fill_between(data[data.feat==feature].x, 
-                          (data[data.feat==feature][pl_feat] - data[data.feat==feature]['std']).astype(float),
-                          (data[data.feat==feature][pl_feat] + data[data.feat==feature]['std']).astype(float), 
+                          (data[data.feat==feature][pl_feat] - data[data.feat==feature]['std'] / 2).astype(float),
+                          (data[data.feat==feature][pl_feat] + data[data.feat==feature]['std'] / 2).astype(float), 
                           alpha=0.3, color='r')
     axes.set_title(title, fontsize=14)
     axes.legend().set_visible(False)
@@ -295,6 +309,10 @@ def plot_pdp(data, feature, title, axes):
 def plot_partial_dependence(pdps, savename=None):
     '''
     Plot all the pdps in the dataframe in a plot with 2 columns and as many rows as necessary.
+    The function is a wrapper around ``tubesml.plot_pdp``
+    
+    :param pdps: pandas DataFrame with the partial dependences
+                It must contain a ``feat``, a ``x``
     '''
     
     if not {'feat', 'x'} <= set(pdps.columns):
