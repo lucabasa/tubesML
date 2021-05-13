@@ -186,3 +186,23 @@ def test_get_pdp(model):
     assert {'feat', 'x', 'y'} == set(pdp.columns)
     assert pdp.shape == (100, 3)
     
+    
+def test_get_pdp_interaction():
+    """
+    Test if passing a tuple of features is possible
+    """
+    feat = (df.columns[0], df.columns[1])
+    
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('model', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    full_pipe.fit(df_1, y)
+    
+    with pytest.warns(None) as record:
+        pdp = tml.get_pdp(full_pipe, feat, df_1)
+    assert {'feat', 'x', 'y'} == set(pdp.columns)
+    assert pdp.shape == (100, 3)
+    
