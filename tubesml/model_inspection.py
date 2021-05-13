@@ -220,7 +220,10 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
     pdp = partial_dependence(estimator, features=feature, 
                                    X=data, grid_resolution=grid_resolution, 
                                    kind='average')
-    df_pdp = pd.DataFrame({'x': pdp['values'][0], 'y': pdp['average'][0]})
+    if isinstance(feature, tuple):
+        df_pdp = pd.DataFrame({'x': pdp['values'][0], 'x_1': pdp['values'][1], 'y': pdp['average'][0]})
+    elif isinstance(feature, str):
+        df_pdp = pd.DataFrame({'x': pdp['values'][0], 'x_1': [np.nan]*grid_resolution, 'y': pdp['average'][0]})
     df_pdp['feat'] = feature
     
     return df_pdp
