@@ -161,7 +161,8 @@ def test_plot_feat_imp_warning():
 
     with pytest.raises(KeyError):
         tml.plot_feat_imp(wrong_input, n=10)
-        
+
+
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
                                    DecisionTreeRegressor(),
                                    XGBClassifier(use_label_encoder=False), 
@@ -186,9 +187,13 @@ def test_get_pdp(model):
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (100, 4)
     assert pdp['x_1'].isna().all()
-    
-    
-def test_get_pdp_interaction():
+
+
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+                                   DecisionTreeRegressor(),
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])    
+def test_get_pdp_interaction(model):
     """
     Test if passing a tuple of features is possible
     """
@@ -198,7 +203,7 @@ def test_get_pdp_interaction():
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('model', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('model', model)])
     
     full_pipe.fit(df_1, y)
     

@@ -240,6 +240,9 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
         grid_resolution = 50
     elif isinstance(feature, list):  # TODO: allow for this in the future.
         raise TypeError('This function does not support the calculation over multiple features. You can use directly the sklearn function for that.')
+        
+    # TODO: if the feature is not in the original data but created by the estimator, it breaks
+    # In the future, it should not break
     
     pdp = partial_dependence(estimator, features=feature, 
                                    X=data, grid_resolution=grid_resolution, 
@@ -266,14 +269,23 @@ def plot_pdp(data, feature, title, axes):
     
     Uncertainty plotted around it.
     '''
-    if not set(['feat', 'mean', 'std']).issubset(data.columns):
-        raise KeyError('data must contain the columns feat, mean, and std')
+    if not {'feat', 'x'} <= set(data.columns):
+        raise KeyError('data must contain the columns feat, x')
     
-    data[data.feat==feature].plot(ax=axes, x='x', y='mean', color='k')
-    axes.fill_between(data[data.feat==feature].x, 
-                      (data[data.feat==feature]['mean'] - data[data.feat==feature]['std']).astype(float),
-                      (data[data.feat==feature]['mean'] + data[data.feat==feature]['std']).astype(float), 
-                      alpha=0.3, color='r')
+    if 'mean' in data.columns:
+        data[data.feat==feature].plot(ax=axes, x='x', y='mean', color='k')
+        pl_feat = 'mean'
+    elif 'y' in data.columns:
+        data[data.feat==feature].plot(ax=axes, x='x', y='y', color='k')
+        pl_feat = 'y'
+    else:
+        raise KeyError('The input data must have either a y column or a mean column')
+        
+    if 'std' in data.columns:
+        axes.fill_between(data[data.feat==feature].x, 
+                          (data[data.feat==feature][pl_feat] - data[data.feat==feature]['std']).astype(float),
+                          (data[data.feat==feature][pl_feat] + data[data.feat==feature]['std']).astype(float), 
+                          alpha=0.3, color='r')
     axes.set_title(title, fontsize=14)
     axes.legend().set_visible(False)
     axes.set_xlabel('')
@@ -285,8 +297,8 @@ def plot_partial_dependence(pdps, savename=None):
     Plot all the pdps in the dataframe in a plot with 2 columns and as many rows as necessary.
     '''
     
-    if not set(['feat', 'mean', 'std']).issubset(pdps.columns):
-        raise KeyError('data must contain the columns feat, mean, and std')
+    if not {'feat', 'x'} <= set(pdps.columns):
+        raise KeyError('data must contain the columns feat and x')
     
     num = pdps.feat.nunique()
     rows = int(num/2) + (num % 2 > 0)

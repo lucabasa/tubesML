@@ -88,7 +88,7 @@ def test_earlystopping(model):
         res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc', imp_coef=True)
     assert len(record) == 0
     assert len(res) == len(df_1)
-    assert len(res_dict['iterations']) == 3
+    assert len(res_dict['iterations']) == 3  # one per fold
 
     
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
@@ -138,6 +138,37 @@ def test_cvscore_nopipeline(model):
         res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
     assert len(record) == 0
     assert len(res) == len(df_1)
+    assert len(coef['feat_imp']) == df_1.shape[1]
+    
+
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+                                   DecisionTreeClassifier(), 
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])    
+def test_cvscore_pdp(model):
+    """
+    Test partial dependence of a few models
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    kfold = KFold(n_splits=3)
+    
+    pdp = df_1.columns[:3].to_list()
+    
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+                     ('imp', tml.DfImputer(strategy='mean'))])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
+
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('model', model)])
+    
+    with pytest.warns(None) as record:
+        res, pdp_res = tml.cv_score(df_1, y, full_pipe, cv=kfold, pdp=pdp)
+    assert len(record) == 0
+    assert set(pdp_res['pdp']['feat']) == set(pdp)
+    assert pdp_res['pdp']['mean'].notna().all()
+    assert pdp_res['pdp']['std'].notna().all()
 
     
 def test_make_test():
