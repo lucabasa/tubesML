@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import learning_curve
+from sklearn.inspection import partial_dependence
 from sklearn.pipeline import Pipeline
 
 from tubesml.base import BaseTransformer
@@ -209,6 +210,19 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
         fig.suptitle(f'{title}', fontsize=18)
     
     plt.show()
+    
+    
+def get_pdp(estimator, feature, data):
+    """
+    Calculates the partial dependence of the model to a variable
+    """
+    
+    val, exes = partial_dependence(estimator, features=feature, 
+                                   X=data, grid_resolution=50)
+    df_pdp = pd.DataFrame({'x': exes[0], 'y': val[0]})
+    df_pdp['feat'] = feature
+    
+    return df_pdp
             
 
 def plot_pdp(data, feature, title, axes):
