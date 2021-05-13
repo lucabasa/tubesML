@@ -214,10 +214,32 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
     
 def get_pdp(estimator, feature, data, grid_resolution=100):
     """
-    Calculates the partial dependence of the model to a variable
+    Calculates the partial dependence of the model to a variable.
+    It is a wrapper around ``sklearn.inspect.partial_dependence`` 
+    
+    :param estimator: model or pipeline with a predict method.
+                If the ``fit`` method was not previously called, it will throw an error.
+                
+    :param feature: string or tuple of 2 strings.
+                The feature for which to create the partial dependence. If it is a tuple, 
+                a 2-way partial dependence will be created.
+    
+    :param data: pandas DataFrame.
+                It must contain the features the ``estimator`` uses to generate predictions.
+                If ``feature`` is not present in this dataframe, an error will be raised.
+                
+    :param grid_resolution: Integer, default 100.
+                The number of equally spaced points on the grid.
+                
+    :return: pandas DataFrame with columns ``x`` (the ``feature`` values in the grid), 
+                ``feat`` (the ``feature`` name), ``y`` (the values of the partial dependence). 
+                If ``feature`` is a tuple, there is also another column ``x_1`` with the values in the 
+                grid of the second feature of the tuple. If ``feature`` is a string, ``x_1`` is empty.
     """
     if isinstance(feature, tuple):
         grid_resolution = 50
+    elif isinstance(feature, list):  # TODO: allow for this in the future.
+        raise TypeError('This function does not support the calculation over multiple features. You can use directly the sklearn function for that.')
     
     pdp = partial_dependence(estimator, features=feature, 
                                    X=data, grid_resolution=grid_resolution, 
