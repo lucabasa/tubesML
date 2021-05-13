@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
@@ -154,7 +155,7 @@ def test_plot_feat_imp(_):
 
 def test_plot_feat_imp_warning():
     '''
-    Test if plot feat importance works
+    Test if plot feat throws the right error
     '''
     wrong_input = pd.DataFrame({'a': [1,2,3], 
                                 'b': [2,3,4]})
@@ -225,4 +226,67 @@ def test_get_pdp_list():
     feat = ['a', 'b']
     with pytest.raises(TypeError):
         pdp = tml.get_pdp(full_pipe, feat, df_1)
+
+
+@patch("matplotlib.pyplot.show")      
+def test_plot_pdp(_):
+    """
+    Test if plotting the partial dependence works
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('imputer', tml.DfImputer()), 
+                          ('lgb', LGBMClassifier())])
+    pdp = df_1.columns[:3].to_list()
+    
+    kfold = KFold(n_splits=3)
+    oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=pdp)
+
+    with pytest.warns(None) as record:
+        tml.plot_partial_dependence(res['pdp'])
+    assert len(record) == 0
+    
+
+@patch("matplotlib.pyplot.show")      
+def test_plot_pdp_singleplot_y(_):
+    """
+    Test if plotting the partial dependence works
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('imputer', tml.DfImputer()), 
+                          ('lgb', LGBMClassifier())])
+    
+    fig, ax = plt.subplots(1, 1, figsize=(12, 5))
+    
+    full_pipe.fit(df_1, y)
+    pdp = tml.get_pdp(full_pipe, df_1.columns[0], df_1)
+
+    with pytest.warns(None) as record:
+        ax = tml.plot_pdp(pdp, df_1.columns[0], '', ax)
+    assert len(record) == 0
+    
+    
+@patch("matplotlib.pyplot.show")      
+def test_plot_pdp_singleplot_mean(_):
+    """
+    Test if plotting the partial dependence works
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('imputer', tml.DfImputer()), 
+                          ('lgb', LGBMClassifier())])
+    
+    fig, ax = plt.subplots(1, 1, figsize=(12, 5))
+    
+    
+    kfold = KFold(n_splits=3)
+    oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=df_1.columns[0])
+
+    with pytest.warns(None) as record:
+        ax = tml.plot_pdp(res['pdp'], df_1.columns[0], '', ax)
+    assert len(record) == 0
     
