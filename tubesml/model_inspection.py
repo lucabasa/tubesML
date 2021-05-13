@@ -216,15 +216,24 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
     """
     Calculates the partial dependence of the model to a variable
     """
+    if isinstance(feature, tuple):
+        grid_resolution = 50
     
     pdp = partial_dependence(estimator, features=feature, 
                                    X=data, grid_resolution=grid_resolution, 
                                    kind='average')
     if isinstance(feature, tuple):
-        df_pdp = pd.DataFrame({'x': pdp['values'][0], 'x_1': pdp['values'][1], 'y': pdp['average'][0]})
+        tmp = pd.DataFrame({'x': [pdp['values'][1]]*grid_resolution})
+        tmp = pd.DataFrame(tmp.x.to_list())
+        df_pdp = pd.concat([pd.DataFrame({'x': pdp['values'][0]}), tmp], axis=1)
+        df_pdp = pd.melt(df_pdp, id_vars='x', value_name='x_1').drop('variable', axis=1).sort_values('x')
+        df_pdp['y'] = [item for sublist in pdp['average'][0] for item in sublist]
     elif isinstance(feature, str):
-        df_pdp = pd.DataFrame({'x': pdp['values'][0], 'x_1': [np.nan]*grid_resolution, 'y': pdp['average'][0]})
-    df_pdp['feat'] = feature
+        df_pdp = pd.DataFrame({'x': pdp['values'][0], 
+                               'x_1': [np.nan]*grid_resolution, 
+                               'y': pdp['average'][0]})
+    
+    df_pdp['feat'] = [feature] * len(df_pdp)
     
     return df_pdp
             

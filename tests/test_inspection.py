@@ -205,6 +205,8 @@ def test_get_pdp_interaction():
     with pytest.warns(None) as record:
         pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
-    assert pdp.shape == (100, 4)
+    assert pdp.shape == (2500, 4)
     assert pdp['x_1'].notna().all()
+    assert pdp['x'].nunique() == 50
+    assert pdp['x_1'].nunique() == 50
     
