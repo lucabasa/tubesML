@@ -70,6 +70,39 @@ def get_feature_importance(pipe, feats=None):
     return result
 
 
+def plot_feat_imp(data, n=-1, savename=None):
+    '''
+    Plots a barplot with error bars of feature importance.
+    It works with coefficients too.
+    
+    :param data: pandas DataFrame with a ``mean`` and a ``std`` column. A KeyError is raised
+                if any of these columns is missing.
+                
+    :param n: int, default=-1. Number of features to display.
+    
+    :param savename: (optional) str with the name of the file to use to save the figure. If not provided, the function simply
+                    plots the figure.
+    '''
+    
+    if not set(['mean', 'std']).issubset(data.columns):
+        raise KeyError('data must contain the columns feat, mean, and std')
+    
+    if n > 0:
+        fi = data.head(n)
+    else:
+        fi = data
+    
+    fig, ax = plt.subplots(1,1, figsize=(13, int(0.3*fi.shape[0])))
+
+    sns.barplot(x=fi['mean'], y=fi.index, xerr=fi['std'], ax=ax)
+    
+    if savename is not None:
+        plt.savefig(savename)
+        plt.close()
+    else:
+        plt.show()
+
+
 def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 10), title=None):
     '''
@@ -176,40 +209,7 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
         fig.suptitle(f'{title}', fontsize=18)
     
     plt.show()
-    
-    
-def plot_feat_imp(data, n=-1, savename=None):
-    '''
-    Plots a barplot with error bars of feature importance.
-    It works with coefficients too.
-    
-    :param data: pandas DataFrame with a ``mean`` and a ``std`` column. A KeyError is raised
-                if any of these columns is missing.
-                
-    :param n: int, default=-1. Number of features to display.
-    
-    :param savename: (optional) str with the name of the file to use to save the figure. If not provided, the function simply
-                    plots the figure.
-    '''
-    
-    if not set(['mean', 'std']).issubset(data.columns):
-        raise KeyError('data must contain the columns feat, mean, and std')
-    
-    if n > 0:
-        fi = data.head(n)
-    else:
-        fi = data
-    
-    fig, ax = plt.subplots(1,1, figsize=(13, int(0.3*fi.shape[0])))
-
-    sns.barplot(x=fi['mean'], y=fi.index, xerr=fi['std'], ax=ax)
-    
-    if savename is not None:
-        plt.savefig(savename)
-        plt.close()
-    else:
-        plt.show()
-        
+            
 
 def plot_pdp(data, feature, title, axes):
     '''

@@ -145,7 +145,6 @@ def test_plot_feat_imp(_):
                           ('lgb', LGBMClassifier())])
     
     kfold = KFold(n_splits=3)
-    full_pipe.fit(df_1, y)
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
 
     with pytest.warns(None) as record:
@@ -163,3 +162,21 @@ def test_plot_feat_imp_warning():
     with pytest.raises(KeyError):
         tml.plot_feat_imp(wrong_input, n=10)
         
+
+def test_get_pdp():
+    """
+    Test basic functioning
+    """
+    feat = df.columns[0]
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+    
+    full_pipe.fit(df_1, y)
+    
+    with pytest.warns(None) as record:
+        pdp = tml.get_pdp(full_pipe, feat, df_1)
+    assert {'feat', 'x', 'y'} == set(pdp.columns)
+    
