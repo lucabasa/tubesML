@@ -5,6 +5,7 @@ __status__ = 'development'
 
 import pandas as pd
 import numpy as np
+import matplotlib.tri as tri
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import learning_curve
@@ -304,6 +305,41 @@ def plot_pdp(data, feature, title, axes):
     axes.legend().set_visible(False)
     axes.set_xlabel('')
     return axes
+
+
+def plot_two_pdp(data, feature, title, axes):
+    """
+    This function is still in development
+    """
+    
+    if not {'feat', 'x', 'x_1'} <= set(data.columns):
+        raise KeyError('data must contain the columns feat, x, x_1')
+        
+    if not isinstance(feature, tuple):
+        raise TypeError('feature must be a tuple for this type of plot')
+        
+    plt_data = data[data['feat'] == feature]
+
+    X_axis = plt_data['x'].astype(float)
+    Y_axis = plt_data['x_1'].astype(float)
+
+    xg, yg = np.meshgrid(np.linspace(X_axis.min(), X_axis.max(), 100),
+                         np.linspace(Y_axis.min(), Y_axis.max(), 100))
+    
+    triangles = tri.Triangulation(X_axis, Y_axis)
+    tri_interp = tri.CubicTriInterpolator(triangles, plt_data['y'])
+    zg = tri_interp(xg, yg)
+    
+    axes.contourf(xg, yg, zg, 
+                   norm=plt.Normalize(vmax=plt_data['y'].max(), vmin=plt_data['y'].min()),
+                   cmap=plt.cm.terrain)
+    
+    
+    ax.set_xlabel(feature[0], fontsize=12)
+    ax.set_ylabel(feature[1], fontsize=12)
+    ax.set_title(title, fontsize=14)
+    
+    return ax
 
 
 def plot_partial_dependence(pdps, savename=None):
