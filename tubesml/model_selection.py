@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 __status__ = 'development'
 
 import pandas as pd
@@ -10,7 +10,7 @@ from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 
-from tubesml.report import get_coef, get_feature_importance
+from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
 from tubesml.base import BaseTransformer
 
 
@@ -70,7 +70,7 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     return result, grid.best_params_, grid.best_estimator_
 
 
-def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, early_stopping=None, eval_metric=None, verbose=False):
+def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_proba=False, early_stopping=None, eval_metric=None, verbose=False):
     '''
     Train and test a pipeline in kfold cross validation
     
@@ -90,6 +90,10 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
     :param imp_coef: bool, default=False.
             If True, returns the feature importance or the coefficient values averaged across the folds, with standard deviation on the mean.
             
+    :param pdp: string or list, default=None.
+            If not None, returns the partial dependence of the given features averaged across the folds, with standard deviation on the mean.
+            The partial dependence of 2 features simultaneously is not supported.
+            
     :param predict_proba: bool, default=False.
             If True, calls the ``predict_proba`` method instead of the ``predict`` one.
             
@@ -106,7 +110,8 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
     
     :return rep_res: A dictionary with additional results. If ``imp_coef=True``, it contains a pd.DataFrame with the coefficients or 
                     feature importances of the estimator, it can be found under the key ``feat_imp``. If ``early_stopping=True``, it contains a list 
-                    with the best iteration number per fold, it can be found under the key ``iterations``.
+                    with the best iteration number per fold, it can be found under the key ``iterations``. If ``pdp`` is not ``None``, it contains a
+                    pd.DataFrame with the partial dependence of the given features, it can be found under the key ``pdp``
     '''
     oof = np.zeros(len(data))
     train = data.copy()
@@ -115,6 +120,7 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
     
     feat_df = pd.DataFrame()
     iteration = []
+    feat_pdp = pd.DataFrame()
     
     try:  # If estimator is not a pipeline, make a pipeline
         estimator.steps
@@ -129,13 +135,14 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
         trn_target = pd.Series(target.iloc[train_index].values.ravel())
         val_target = pd.Series(target.iloc[test_index].values.ravel())
         
+        # create model and transform pipelines
+        transf_pipe = clone(Pipeline(estimator.steps[:-1]))
+        model = clone(estimator.steps[-1][1])  # it creates issues with match_cols in dummy otherwise
+        # Transform the data for the model
+        trn_data = transf_pipe.fit_transform(trn_data, trn_target)
+        val_data = transf_pipe.transform(val_data)
+        
         if early_stopping:
-            # create model and transform pipelines
-            transf_pipe = clone(Pipeline(estimator.steps[:-1]))
-            model = clone(estimator.steps[-1][1])
-            # Transform the data for the model
-            trn_data = transf_pipe.fit_transform(trn_data, trn_target)
-            val_data = transf_pipe.transform(val_data)
             # Fit the model with early stopping
             model.fit(trn_data, trn_target, 
                       eval_set=[(trn_data, trn_target), (val_data, val_target)], 
@@ -148,7 +155,6 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
             except AttributeError:
                 iteration.append(model.best_iteration_)
         else:
-            model = clone(estimator)  # it creates issues with match_cols in dummy otherwise
             model.fit(trn_data, trn_target)
         
         if predict_proba:
@@ -157,10 +163,7 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
             oof[test_index] = model.predict(val_data).ravel()
 
         if imp_coef:
-            if early_stopping:
-                feats = trn_data.columns
-            else:
-                feats = None
+            feats = trn_data.columns
             try:
                 fold_df = get_coef(model, feats)
             except (AttributeError, KeyError):
@@ -168,6 +171,22 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
                 
             fold_df['fold'] = n_fold + 1
             feat_df = pd.concat([feat_df, fold_df], axis=0)
+            
+        if pdp is not None:
+            pdp_set = transf_pipe.transform(train)  # to have the same data ranges in each fold
+            # The pdp will still be different by fold
+            if isinstance(pdp, str):
+                pdp = [pdp]
+            fold_pdp = []
+            for feat in pdp:
+                if isinstance(feat, tuple):  # 2-way pdp is not supported as we can't take a good average
+                    continue
+                fold_tmp = get_pdp(model, feat, pdp_set)
+                fold_tmp['fold'] = n_fold + 1
+                fold_pdp.append(fold_tmp)
+            fold_pdp = pd.concat(fold_pdp, axis=0)
+            feat_pdp = pd.concat([feat_pdp, fold_pdp], axis=0)
+            
     
     if imp_coef:
         feat_df = feat_df.groupby('feat')['score'].agg(['mean', 'std'])
@@ -176,8 +195,14 @@ def cv_score(data, target, estimator, cv, imp_coef=False, predict_proba=False, e
         feat_df['std'] = feat_df['std'] / np.sqrt(cv.get_n_splits() - 1)  # std of the mean, unbiased
         del feat_df['abs_sco']
         rep_res['feat_imp'] = feat_df
+        
     if early_stopping:
         rep_res['iterations'] = iteration
+        
+    if pdp is not None:
+        feat_pdp = feat_pdp.groupby(['feat', 'x'])['y'].agg(['mean', 'std']).reset_index()
+        fold_pdp['std'] = feat_pdp['std'] / np.sqrt(cv.get_n_splits() - 1)
+        rep_res['pdp'] = feat_pdp
         
     return oof, rep_res
     

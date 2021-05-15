@@ -8,11 +8,11 @@ from sklearn.datasets import make_classification
 import string
 import random
 
-
-def test_list_missing():
+@pytest.mark.parametrize("verbose", [True, False])  
+def test_list_missing(verbose):
     df = pd.DataFrame({'a': [1, np.nan, 5], 
                        'b': [3, 2, 1] })
-    mis = tubesml.list_missing(df, verbose=False)
+    mis = tubesml.list_missing(df, verbose=verbose)
     assert len(mis) == 1
     assert mis[0] == 'a'
 

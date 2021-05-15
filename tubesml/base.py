@@ -51,6 +51,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), optional
             The target values (class labels) as integers or strings.
         '''
+        self.is_fit_ = True
         return self
         
     @self_columns    

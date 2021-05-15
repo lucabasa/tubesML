@@ -4,7 +4,7 @@ __status__ = 'development'
 
 
 from tubesml.base import BaseTransformer
-from tubesml.report import get_coef, get_feature_importance
+from tubesml.model_inspection import get_coef, get_feature_importance
 from tubesml.model_selection import cv_score
 
 import pandas as pd
