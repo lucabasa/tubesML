@@ -309,11 +309,25 @@ def plot_pdp(data, feature, title, axes):
 
 def plot_two_pdp(data, feature, title, axes):
     """
-    This function is still in development
+    This function is still in development. Plot a 2-way partial dependence
+    
+    :param data: pandas Dataframe with the partial dependence
+                It must contain a ``feat``, a ``x``, a ``x_1`` and a ``y`` columns.
+                
+    :param feature: tuple of strings.
+                The features to plot as x and y axis in the partial dependence
+    
+    :param title: string.
+                The title on top of the plot
+                
+    :param axes: matplotlib axes
+                The plot will take place in this axes
+                
+    :return: matplotlib axes with the plot.
     """
     
-    if not {'feat', 'x', 'x_1'} <= set(data.columns):
-        raise KeyError('data must contain the columns feat, x, x_1')
+    if not {'feat', 'x', 'x_1', 'y'} <= set(data.columns):
+        raise KeyError('data must contain the columns feat, x, x_1, y')
         
     if not isinstance(feature, tuple):
         raise TypeError('feature must be a tuple for this type of plot')
