@@ -179,6 +179,8 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
                 pdp = [pdp]
             fold_pdp = []
             for feat in pdp:
+                if isinstance(feat, tuple):  # 2-way pdp is not supported as we can't take a good average
+                    continue
                 fold_tmp = get_pdp(model, feat, pdp_set)
                 fold_tmp['fold'] = n_fold + 1
                 fold_pdp.append(fold_tmp)
