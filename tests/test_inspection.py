@@ -213,7 +213,7 @@ def test_get_pdp_cats(model):
     with pytest.warns(None) as record:
         pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
-    assert pdp.shape == (100, 4)
+    assert pdp.shape == (2, 4)
     assert pdp['x_1'].isna().all()
     
 
