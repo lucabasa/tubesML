@@ -60,6 +60,23 @@ def test_cvscore(predict_proba):
         res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(record) == 0
     assert len(res) == len(df_1)
+    
+    
+def test_cvscore_nopipe():
+    """
+    Test if the function works without a pipeline
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    kfold = KFold(n_splits=3)
+    
+    full_pipe = LogisticRegression(solver='lbfgs', multi_class='auto')
+    
+    with pytest.warns(None) as record:
+        res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
+    assert len(record) == 0
+    assert len(res) == len(df_1)
 
 
 @pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False), LGBMClassifier()])

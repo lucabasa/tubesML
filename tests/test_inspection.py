@@ -188,6 +188,35 @@ def test_get_pdp(model):
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (100, 4)
     assert pdp['x_1'].isna().all()
+    
+
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+                                   DecisionTreeRegressor(),
+                                   XGBClassifier(use_label_encoder=False), 
+                                   LGBMClassifier()])   
+def test_get_pdp_cats(model):
+    """
+    Test basic functioning for various models
+    XGB - Version 1.3.3, not in package requirements
+    LGB - Version 3.1.1, not in package requirements
+    """
+    feat = 'cat'
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    df_1['cat'] = [1, 2] * 50
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('model', model)])
+    
+    full_pipe.fit(df_1, y)
+    
+    with pytest.warns(None) as record:
+        pdp = tml.get_pdp(full_pipe, feat, df_1)
+    assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
+    assert pdp.shape == (100, 4)
+    assert pdp['x_1'].isna().all()
+    
+
 
 
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
