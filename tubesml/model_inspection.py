@@ -256,7 +256,7 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
         df_pdp['y'] = [item for sublist in pdp['average'][0] for item in sublist]
     elif isinstance(feature, str):
         df_pdp = pd.DataFrame({'x': pdp['values'][0], 
-                               'x_1': [np.nan]*grid_resolution, 
+                               'x_1': [np.nan]*len(pdp['values'][0]), 
                                'y': pdp['average'][0]})
     
     df_pdp['feat'] = [feature] * len(df_pdp)
