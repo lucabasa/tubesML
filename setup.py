@@ -41,6 +41,8 @@ CLASSIFIERS = [
     'Operating System :: MacOS',
 ]
 
+TEST_REQUIRE = ["pytest", "pytest-cov"]
+
 
 if __name__ == "__main__":
 
@@ -60,6 +62,7 @@ if __name__ == "__main__":
         long_description=LONG_DESCRIPTION,
         license=LICENSE,
         url=URL,
+        test_require=TEST_REQUIRE,
         version=VERSION,
         download_url=DOWNLOAD_URL,
         project_urls=PROJECT_URLS,
