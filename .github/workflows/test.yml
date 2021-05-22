@@ -26,6 +26,9 @@ jobs:
         pip install .
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: print root dir
+      run: |
+        ls -lh
     - name: Test with pytest
       run: |
-        pytest --cov=tubesml 
+        pytest 
