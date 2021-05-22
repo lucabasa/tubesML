@@ -3,6 +3,8 @@
 .. |PandasMinVersion| replace:: 1.2.0
 .. |SklearnMinVersion| replace:: 0.24.1
 
+![Unit Tests](https://github.com/AramKoorn/tubesML/actions/workflows/test.yml/badge.svg)
+.. [![codecov](https://codecov.io/gh/AramKoorn/TenBagger/branch/main/graph/badge.svg?token=O5F0TEQ0DY)](https://codecov.io/gh/AramKoorn/TenBagger)
 
 TubesML
 =======
