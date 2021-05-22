@@ -22,6 +22,7 @@ INSTALL_REQUIRES = [
     'numpy>=1.19.5',
     'pandas>=1.2.0',
     'scikit-learn>=0.24.1',
+    'xgboost==1.4.2'
 ]
 
 
