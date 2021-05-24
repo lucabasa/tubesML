@@ -19,9 +19,11 @@ VERSION = '0.5.2'
 PYTHON_REQUIRES = ">=3.6"
 
 INSTALL_REQUIRES = [
+    'matplotlib>=3.3.3',
     'numpy>=1.19.5',
     'pandas>=1.2.0',
-    'scikit-learn>=0.24.1'
+    'scikit-learn>=0.24.1',
+    'seaborn>=0.11.1'
 ]
 
 

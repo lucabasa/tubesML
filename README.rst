@@ -2,6 +2,8 @@
 .. |NumPyMinVersion| replace:: 1.19.5
 .. |PandasMinVersion| replace:: 1.2.0
 .. |SklearnMinVersion| replace:: 0.24.1
+.. |PltMinVersion| replace:: 3.3.3
+.. |SnsMinVersion| replace:: 0.11.1
 
 TubesML
 =======
@@ -21,9 +23,11 @@ Dependencies
 tubesML requires:
 
 - Python (>= |PythonMinVersion|)
+- Matplotlib (>= |PltMinVersion|)
 - NumPy (>= |NumPyMinVersion|)
 - Pandas (>= |PandasMinVersion|)
 - Scikit-Learn (>= |SklearnMinVersion|)
+- Seaborn (>= |SnsMinVersion|)
 
 =======
 
