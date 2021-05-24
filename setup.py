@@ -21,7 +21,7 @@ PYTHON_REQUIRES = ">=3.6"
 INSTALL_REQUIRES = [
     'numpy>=1.19.5',
     'pandas>=1.2.0',
-    'scikit-learn>=0.24.1',
+    'scikit-learn>=0.24.1'
 ]
 
 
@@ -40,6 +40,14 @@ CLASSIFIERS = [
     'Operating System :: Unix',
     'Operating System :: MacOS',
 ]
+
+TEST_REQUIRE = [
+        "pytest", 
+        "pytest-cov", 
+        'xgboost==1.4.2',
+        'lightgbm==3.2.1'
+]
+
 
 
 if __name__ == "__main__":
@@ -60,6 +68,7 @@ if __name__ == "__main__":
         long_description=LONG_DESCRIPTION,
         license=LICENSE,
         url=URL,
+        test_require=TEST_REQUIRE,
         version=VERSION,
         download_url=DOWNLOAD_URL,
         project_urls=PROJECT_URLS,

@@ -3,7 +3,6 @@
 .. |PandasMinVersion| replace:: 1.2.0
 .. |SklearnMinVersion| replace:: 0.24.1
 
-
 TubesML
 =======
 
