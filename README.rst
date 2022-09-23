@@ -1,9 +1,9 @@
-.. |PythonMinVersion| replace:: 3.6
-.. |NumPyMinVersion| replace:: 1.19.5
-.. |PandasMinVersion| replace:: 1.2.0
-.. |SklearnMinVersion| replace:: 0.24.1
-.. |PltMinVersion| replace:: 3.3.3
-.. |SnsMinVersion| replace:: 0.11.1
+.. |PythonMinVersion| replace:: 3.10
+.. |NumPyMinVersion| replace:: 1.23.3
+.. |PandasMinVersion| replace:: 1.5.0
+.. |SklearnMinVersion| replace:: 1.1.2
+.. |PltMinVersion| replace:: 3.6.0
+.. |SnsMinVersion| replace:: 0.12.0
 
 TubesML
 =======
