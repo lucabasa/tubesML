@@ -69,7 +69,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         return X
      
         
-    def get_feature_names(self):
+    def get_feature_names_out(self):
         '''
         Returns the ``columns`` attribute, useful to well behave with other sklearn methods
         '''
