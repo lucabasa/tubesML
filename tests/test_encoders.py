@@ -56,5 +56,5 @@ def test_get_feature_names():
     '''
     trsf = tubesml.TargetEncoder()
     res = trsf.fit_transform(df, df['b'])
-    assert trsf.get_feature_names()[0] == df.columns[0]
-    assert trsf.get_feature_names()[1] == df.columns[1]
+    assert trsf.get_feature_names_out()[0] == df.columns[0]
+    assert trsf.get_feature_names_out()[1] == df.columns[1]
