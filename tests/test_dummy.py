@@ -138,6 +138,6 @@ def test_get_feature_names():
     '''
     trsf = tubesml.Dummify()
     res = trsf.fit_transform(df)
-    assert trsf.get_feature_names()[0] == df.columns[1]
+    assert trsf.get_feature_names_out()[0] == df.columns[1]
     for i, val in enumerate(df['a'].unique()):
-        assert trsf.get_feature_names()[i+1] == f'a_{val}'
+        assert trsf.get_feature_names_out()[i+1] == f'a_{val}'

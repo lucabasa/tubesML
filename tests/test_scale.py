@@ -116,7 +116,7 @@ def test_get_feature_names():
     '''
     trsf = tubesml.DfScaler()
     res = trsf.fit_transform(df)
-    assert trsf.get_feature_names()[0] == df.columns[0]
-    assert trsf.get_feature_names()[1] == df.columns[1]
+    assert trsf.get_feature_names_out()[0] == df.columns[0]
+    assert trsf.get_feature_names_out()[1] == df.columns[1]
     
     

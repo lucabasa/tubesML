@@ -84,10 +84,10 @@ class DfPolynomial(BaseTransformer):
         '''
         if self.to_interact == 'all':
             X_tr = self.pol.transform(X)
-            X_tr = pd.DataFrame(X_tr, columns=self.pol.get_feature_names(X.columns), index=X.index)
+            X_tr = pd.DataFrame(X_tr, columns=self.pol.get_feature_names_out(X.columns), index=X.index)
         else:
             X_int = self.pol.transform(X[self.to_interact])
-            X_int = pd.DataFrame(X_int, columns=self.pol.get_feature_names(self.to_interact), index=X.index)
+            X_int = pd.DataFrame(X_int, columns=self.pol.get_feature_names_out(self.to_interact), index=X.index)
             X_tr = pd.concat([X[[col for col in X if col not in self.to_interact]], X_int], axis=1)
             
         if self.include_bias:
