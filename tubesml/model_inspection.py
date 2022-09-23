@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __status__ = 'development'
 
 
@@ -19,10 +19,10 @@ def get_coef(pipe, feats=None):
     '''
     Get dataframe with coefficients of a model in Pipeline. 
     
-    The step before the model has to have a ``get_feature_names`` method. 
+    The step before the model has to have a ``get_feature_names_out`` method. 
     
     If a simple estimator is provided, it creates a pipeline with a ``BaseTransformer``. 
-    In that case, the ``feats`` input is not optional and there is no need for a ``get_feature_names`` method.
+    In that case, the ``feats`` input is not optional and there is no need for a ``get_feature_names_out`` method.
     
     :param pipe: pipeline or estimator
     
@@ -32,7 +32,7 @@ def get_coef(pipe, feats=None):
                     coefficients values ordere by absolute magnitude.
     '''
     try:  # If estimator is not a pipeline, make a pipeline
-        feats = pipe.steps[-2][1].get_feature_names()
+        feats = pipe.steps[-2][1].get_feature_names_out()
     except AttributeError:
         pipe = Pipeline([('transf', BaseTransformer()), ('model', pipe)])
         feats = feats
@@ -48,10 +48,10 @@ def get_feature_importance(pipe, feats=None):
     '''
     Get dataframe with the feature importance of a model in Pipeline.
     
-    The step before the model has to have a ``get_feature_names`` method.
+    The step before the model has to have a ``get_feature_names_out`` method.
     
     If a simple estimator is provided, it creates a pipeline with a ``BaseTransformer``. 
-    In that case, the ``feats`` input is not optional and there is no need for a ``get_feature_names`` method.
+    In that case, the ``feats`` input is not optional and there is no need for a ``get_feature_names_out`` method.
     
     :param pipe: pipeline or estimator
     
@@ -62,7 +62,7 @@ def get_feature_importance(pipe, feats=None):
 
     '''
     try:  # If estimator is not a pipeline, make a pipeline
-        feats = pipe.steps[-2][1].get_feature_names()
+        feats = pipe.steps[-2][1].get_feature_names_out()
     except AttributeError:
         pipe = Pipeline([('transf', BaseTransformer()), ('model', pipe)])
         feats = feats
