@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, self_columns, reset_columns
