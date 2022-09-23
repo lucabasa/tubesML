@@ -122,9 +122,9 @@ class FeatureUnionDf(BaseTransformer):
         
         for trsnf in self.transformer_list:
             try:
-                cols = trsnf[1].steps[-1][1].get_feature_names()
+                cols = trsnf[1].steps[-1][1].get_feature_names_out()
             except AttributeError:  # in case it is not a pipeline
-                cols = trsnf[1].get_feature_names()
+                cols = trsnf[1].get_feature_names_out()
             columns += list(cols)
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
