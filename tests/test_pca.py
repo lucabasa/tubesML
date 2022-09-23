@@ -71,6 +71,6 @@ def test_get_feature_names():
     '''
     trsf = tubesml.DfPCA(n_components=4)
     res = trsf.fit_transform(df)
-    assert trsf.get_feature_names()[0] == 'pca_0'
-    assert trsf.get_feature_names()[1] == 'pca_1'
+    assert trsf.get_feature_names_out()[0] == 'pca_0'
+    assert trsf.get_feature_names_out()[1] == 'pca_1'
     
