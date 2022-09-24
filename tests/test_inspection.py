@@ -1,5 +1,6 @@
 import tubesml as tml
 import pytest
+import warnings
 from unittest.mock import patch 
 
 import pandas as pd
@@ -49,9 +50,9 @@ def test_get_coef():
     
     full_pipe.fit(df_1, y)
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         coef = tml.get_coef(full_pipe)
-    assert len(record) == 0
     assert len(coef) == df_1.shape[1]
 
 
@@ -72,9 +73,9 @@ def test_feat_imp(model):
     
     full_pipe.fit(df_1, y)
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         coef = tml.get_feature_importance(full_pipe)
-    assert len(record) == 0
     assert len(coef) == df_1.shape[1]
 
 
@@ -90,10 +91,10 @@ def test_learning_curves(_):
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
     
     kfold = KFold(n_splits=3)
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title='Title')
-    assert len(record) == 0
     
     
 @patch("matplotlib.pyplot.show")  
@@ -110,10 +111,10 @@ def test_learning_curves_xgb(_):
                                                 use_label_encoder=False))])
     
     kfold = KFold(n_splits=3)
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
-    assert len(record) == 0   
+                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
     
     
 @patch("matplotlib.pyplot.show")
@@ -128,10 +129,10 @@ def test_learning_curves_lgb(_):
                           ('lgb', LGBMClassifier())])
     
     kfold = KFold(n_splits=3)
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
-    assert len(record) == 0
 
 
 @patch("matplotlib.pyplot.show")
@@ -148,9 +149,9 @@ def test_plot_feat_imp(_):
     kfold = KFold(n_splits=3)
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_feat_imp(coef['feat_imp'])
-    assert len(record) == 0
     
 
 def test_plot_feat_imp_warning():
@@ -183,7 +184,8 @@ def test_get_pdp(model):
     
     full_pipe.fit(df_1, y)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (100, 4)
@@ -210,14 +212,13 @@ def test_get_pdp_cats(model):
     
     full_pipe.fit(df_1, y)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (2, 4)
     assert pdp['x_1'].isna().all()
     
-
-
 
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
                                    DecisionTreeRegressor(),
@@ -237,7 +238,8 @@ def test_get_pdp_interaction(model):
     
     full_pipe.fit(df_1, y)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (2500, 4)
@@ -272,9 +274,9 @@ def test_plot_pdp(_):
     kfold = KFold(n_splits=3)
     oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=pdp)
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_partial_dependence(res['pdp'])
-    assert len(record) == 0
     
 
 @patch("matplotlib.pyplot.show")      
@@ -293,9 +295,9 @@ def test_plot_pdp_singleplot_y(_):
     full_pipe.fit(df_1, y)
     pdp = tml.get_pdp(full_pipe, df_1.columns[0], df_1)
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         ax = tml.plot_pdp(pdp, df_1.columns[0], '', ax)
-    assert len(record) == 0
     
     
 @patch("matplotlib.pyplot.show")      
@@ -315,7 +317,7 @@ def test_plot_pdp_singleplot_mean(_):
     kfold = KFold(n_splits=3)
     oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=df_1.columns[0])
 
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         ax = tml.plot_pdp(res['pdp'], df_1.columns[0], '', ax)
-    assert len(record) == 0
     
