@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __status__ = 'development'
 
 import pandas as pd
@@ -70,7 +70,7 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     return result, grid.best_params_, grid.best_estimator_
 
 
-def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_proba=False, early_stopping=None, eval_metric=None, verbose=False):
+def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_proba=False, early_stopping=False):
     '''
     Train and test a pipeline in kfold cross validation
     
@@ -99,12 +99,6 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
             
     :param early_stopping: bool, default=False.
                         If True, uses early stopping within the folds for the estimators that support it.
-                        
-    :param eval_metric: str, default=None.
-                        The evaluation metric to use for early stopping.
-                        
-    :param verbose: bool or int, default=False.
-                        Level of verbosity for early stopping.
     
     :return oof: pd.Series with the out of fold predictions for the entire train set.
     
@@ -145,10 +139,7 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
         if early_stopping:
             # Fit the model with early stopping
             model.fit(trn_data, trn_target, 
-                      eval_set=[(trn_data, trn_target), (val_data, val_target)], 
-                      early_stopping_rounds=early_stopping,
-                      eval_metric=eval_metric,
-                      verbose=verbose)
+                      eval_set=[(trn_data, trn_target), (val_data, val_target)])
             #store iteration used
             try:
                 iteration.append(model.best_iteration)

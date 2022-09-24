@@ -1,5 +1,6 @@
 import tubesml as tml
 import pytest
+import warnings
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import make_classification
@@ -64,9 +65,9 @@ def test_grid_bestestimator(random):
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=random)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res = best_estimator.predict(df_1)
-    assert len(record) == 0
     
     
 @pytest.mark.parametrize("random", [False, 20])
@@ -90,10 +91,10 @@ def test_grid_bestestimator_proba(random):
     result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=full_pipe, 
                                                          param_grid=param_grid, scoring='neg_log_loss', cv=3, random=random)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res = best_estimator.predict(df_1)
-    assert len(record) == 0
-    
+
 
 @pytest.mark.parametrize("random, n_res", [(False, 6), (5, 5)])   
 def test_gridsearch_result(random, n_res):
@@ -143,8 +144,8 @@ def test_gridsearch_nopipeline(random):
     
     param_grid = {'C': np.arange(1, 10)}
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=model, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=random)
-    assert len(record) == 0
     

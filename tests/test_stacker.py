@@ -1,5 +1,6 @@
 import tubesml
 import pytest
+import warnings
 import pandas as pd
 import numpy as np
 
@@ -51,14 +52,14 @@ def test_stacker_cls():
     
     kfold = KFold(n_splits=3)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                               final_estimator=LogisticRegression(), 
                               cv=kfold)
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
-    assert len(record) == 0
     
     
 def test_stacker_reg():
@@ -73,13 +74,13 @@ def test_stacker_reg():
     
     kfold = KFold(n_splits=3)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                               final_estimator=DecisionTreeRegressor(), 
                               cv=kfold)
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
-    assert len(record) == 0
     
 
 def test_stacker_pipelines():
@@ -96,14 +97,14 @@ def test_stacker_pipelines():
     
     kfold = KFold(n_splits=3)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                               final_estimator=pipe2, 
                               cv=kfold)
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
-    assert len(record) == 0
 
 
 def test_importances():
@@ -139,15 +140,14 @@ def test_hybrid_params():
     
     kfold = KFold(n_splits=3)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
                             cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
-        
-    assert len(record) == 0
     
 
 def test_early_stopping():
@@ -157,24 +157,21 @@ def test_early_stopping():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False)), 
-            ('lgb', LGBMClassifier(n_estimators=10000))]
+    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_round=100, eval_metric='logloss')), 
+            ('lgb', LGBMClassifier(n_estimators=10000, early_stopping_round=100, eval_metric='accuracy'))]
     
     kfold = KFold(n_splits=3)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 
-                                                           'early_stopping': 100, 
-                                                           'eval_metric': 'logloss'}, 
-                                                   'lgb': {'early_stopping': 100, 
-                                                           'eval_metric': 'accuracy'}})
+                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True}, 
+                                                   'lgb': {'early_stopping': True}})
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
-        
-    assert len(record) == 0
+
     assert stk._estimators[0].n_estimators < 10000
     assert stk._estimators[1].n_estimators < 10000
     
@@ -245,11 +242,11 @@ def test_gridsearch_stacker_simple(scoring):
     
     param_grid = {'final_estimator__max_depth': [3,4,5]}
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=stk, 
                                                          param_grid=param_grid, scoring=scoring, cv=3)
         
-    assert len(record) == 0
     
     
 @pytest.mark.parametrize("scoring", ['accuracy', 'neg_log_loss'])   
@@ -273,11 +270,11 @@ def test_gridsearch_stacker_pipeline(scoring):
     
     param_grid = {'model__final_estimator__max_depth': [3,4,5]}
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
                                                          param_grid=param_grid, scoring=scoring, cv=3)
         
-    assert len(record) == 0
     
     
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])   
@@ -304,11 +301,11 @@ def test_gridsearch_stacker_passthrough(passthrough):
     
     param_grid = {'model__final_estimator__max_depth': [3,4,5]}
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
                                                          param_grid=param_grid, scoring='neg_log_loss', cv=3)
-        
-    assert len(record) == 0
+
 
     
 @pytest.mark.parametrize("predict_proba", [True, False])
@@ -328,9 +325,9 @@ def test_cv_score_stacker_simple(predict_proba):
                             final_estimator=DecisionTreeClassifier(), 
                             cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
-    assert len(record) == 0
     
     
 @pytest.mark.parametrize("predict_proba", [True, False])
@@ -353,9 +350,9 @@ def test_cv_score_stacker_simple(predict_proba):
     
     pipe = Pipeline([('scl', tubesml.DfScaler()), ('model', stk)])
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
-    assert len(record) == 0
     
     
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])
@@ -381,6 +378,6 @@ def test_cv_score_stacker_passthrough(passthrough):
     
     pipe = Pipeline([('scl', tubesml.DfScaler()), ('model', stk)])
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=True)
-    assert len(record) == 0

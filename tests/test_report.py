@@ -1,5 +1,6 @@
 import tubesml as tml
 import pytest
+import warnings
 from unittest.mock import patch 
 
 from sklearn.linear_model import LogisticRegression
@@ -52,9 +53,9 @@ def test_plot_regression_pred_nohue(_):
     
     oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof)
-    assert len(record) == 0
 
     
 @patch("matplotlib.pyplot.show") 
@@ -73,9 +74,9 @@ def test_plot_regression_pred_hue(_):
     
     oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='cat')
-    assert len(record) == 0
     
 
 @patch("matplotlib.pyplot.show") 
@@ -106,7 +107,8 @@ def test_plot_confusion_matrix_binary(_):
     pred = df['target']
     true = df['target']
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
 
         
@@ -118,9 +120,9 @@ def test_plot_confusion_matrix_nonbinary(_):
     pred = df_r['target']
     true = df['target']
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
-    assert len(record) == 0
     
     
 @patch("matplotlib.pyplot.show")       
@@ -138,9 +140,9 @@ def test_plot_classification_probs(_):
     
     oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof)
-    assert len(record) == 0
     
     
 @patch("matplotlib.pyplot.show")       
@@ -180,9 +182,9 @@ def test_plot_classification_probs_hue(_):
     
     oof, _ = tml.cv_score(df_1, y, full_pipe, kfold, predict_proba=True)
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='cat')
-    assert len(record) == 0
     
 
 @patch("matplotlib.pyplot.show")

@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __status__ = 'development'
 
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -32,7 +32,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     ------------
 
     columns: an empty list that gets reset by the fit method, populated by the transform method, 
-            returned by the ``get_feature_names`` method
+            returned by the ``get_feature_names_out`` method
 
     '''
     
@@ -69,7 +69,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         return X
      
         
-    def get_feature_names(self):
+    def get_feature_names_out(self):
         '''
         Returns the ``columns`` attribute, useful to well behave with other sklearn methods
         '''
