@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __status__ = 'development'
 
 
@@ -122,7 +122,8 @@ class Stacker(BaseTransformer):
         Each of the ``estimators`` is then refit on the entire dataset
         
         If an estimator is in the first layer of estimators was trained with early stopping, in the refit it will be trained on a number of
-        iterations equal to the mean number across the folds used to generate the first layer of predictions.
+        iterations equal to the mean number across the folds used to generate the first layer of predictions. Be sure that the early stopping
+        attribute of the estimator is ``early_stopping_round``.
         
         If ``verbose=True`` the user will be warned if any of the predictions are correlated more than 0.9. The ``corr_`` attribute is created
         by this method
@@ -143,7 +144,8 @@ class Stacker(BaseTransformer):
             out_of_fold_predictions[:, i] = oof
             
             if self.lay1_kwargs[self.estimators[i][0]]['early_stopping']:
-                self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int)})
+                self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
+                                                  'early_stopping_round': None})
                 
             self._estimators[i].fit(X, y)
         

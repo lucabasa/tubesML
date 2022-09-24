@@ -80,7 +80,8 @@ def test_cvscore_nopipe():
     assert len(res) == len(df_1)
 
 
-@pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False), LGBMClassifier()])
+@pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False, early_stopping_round=5, eval_metric='auc'), 
+                                   LGBMClassifier(early_stopping_round=5, eval_metric='auc')])
 def test_earlystopping(model):
     '''
     Test early stopping for XGBoost and LGBM
@@ -104,7 +105,7 @@ def test_earlystopping(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=5, eval_metric='auc', imp_coef=True)
+        res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, imp_coef=True)
     assert len(res) == len(df_1)
     assert len(res_dict['iterations']) == 3  # one per fold
 
