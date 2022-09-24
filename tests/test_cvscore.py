@@ -80,8 +80,8 @@ def test_cvscore_nopipe():
     assert len(res) == len(df_1)
 
 
-@pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False, early_stopping=5, eval_metric='auc'), 
-                                   LGBMClassifier(early_stopping=5, eval_metric='auc')])
+@pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False, early_stopping_round=5, eval_metric='auc'), 
+                                   LGBMClassifier(early_stopping_round=5, eval_metric='auc')])
 def test_earlystopping(model):
     '''
     Test early stopping for XGBoost and LGBM
