@@ -1,5 +1,6 @@
 import tubesml
 import pytest
+import warnings
 import pandas as pd
 import numpy as np
 
@@ -32,9 +33,9 @@ def test_pca():
     Test the transformer works
     '''
     pca = tubesml.DfPCA(n_components=2)
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res = pca.fit_transform(df)
-    assert len(record) == 0
     
     
 def test_pca_columns():

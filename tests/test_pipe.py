@@ -1,5 +1,6 @@
 import tubesml as tml
 import pytest
+import warnings
 import pandas as pd
 import numpy as np
 
@@ -44,9 +45,9 @@ def test_transformers(add_indicator):
                      ('dummify', tml.Dummify()), 
                      ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res = pipe.fit_transform(df, df['target'])
-    assert len(record) == 0
     
 
 @pytest.mark.parametrize("add_indicator", [True, False])
@@ -69,8 +70,8 @@ def test_predictions(add_indicator):
     full_pipe = Pipeline([('pipe', pipe), 
                           ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
     
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         full_pipe.fit(df_1, y)
         res = full_pipe.predict(df_1)
-    assert len(record) == 0
     

@@ -1,5 +1,6 @@
 import tubesml
 import pytest
+import warnings
 import pandas as pd
 import numpy as np
 
@@ -75,9 +76,9 @@ def test_featun_nowarnings():
     cat_pipe = Pipeline([('cat', tubesml.DtypeSel(dtype='category'))])
     tot_pipe = tubesml.FeatureUnionDf(transformer_list=[('cat', cat_pipe), 
                                                         ('num', num_pipe)])
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res = tot_pipe.fit_transform(df)
-    assert len(record) == 0
     
 
 def test_featun_transformers():

@@ -1,4 +1,5 @@
 import pytest
+import warnings
 import pandas as pd
 import numpy as np
 import tubesml
@@ -34,16 +35,16 @@ def test_targetencoder_toencode():
     assert res.shape[1] == df.shape[1]
 
 
-@pytest.mark.parametrize("agg_func, warnings", [("mean", None), ('median', None), ('std', None), ('min', None), ('max', None), ('sum', None), ('count', 1)])   
-def test_variousencodings(agg_func, warnings):
+@pytest.mark.parametrize("agg_func, has_warn", [("mean", None), ('median', None), ('std', None), ('min', None), ('max', None), ('sum', None), ('count', 1)])   
+def test_variousencodings(agg_func, has_warn):
     '''
     Test several agg functions, including a forbidden one to check the error
     '''
-    if warnings is None:
-        with pytest.warns(warnings) as record:
+    if has_warn is None:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             enc = tubesml.TargetEncoder(agg_func=agg_func)
             res = enc.fit_transform(df, df['b'])
-        assert len(record) == 0
     else:
         with pytest.raises(UserWarning):
             enc = tubesml.TargetEncoder(agg_func=agg_func)

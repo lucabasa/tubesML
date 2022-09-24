@@ -1,4 +1,5 @@
 import pytest
+import warnings
 import pandas as pd
 import numpy as np
 import tubesml
@@ -116,9 +117,9 @@ def test_verbose_change():
     res = dummifier.fit_transform(df)
     with pytest.warns(UserWarning):
         res_2 = dummifier.transform(df_2)
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         res_2 = dummifier.transform(df_2)
-    assert len(record) == 0
 
     
 def test_dummy_cols():
