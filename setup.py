@@ -15,15 +15,15 @@ PROJECT_URLS = {
     'Documentation': 'https://tubesml.readthedocs.io/',
     'Source Code': 'https://github.com/lucabasa/tubesML'
 }
-VERSION = '0.5.2'
-PYTHON_REQUIRES = ">=3.6"
+VERSION = '0.6.0'
+PYTHON_REQUIRES = ">=3.10"
 
 INSTALL_REQUIRES = [
-    'matplotlib>=3.3.3',
-    'numpy>=1.19.5',
-    'pandas>=1.2.0',
-    'scikit-learn>=0.24.1',
-    'seaborn>=0.11.1'
+    'matplotlib>=3.6.0',
+    'numpy>=1.23.3',
+    'pandas>=1.5.0',
+    'scikit-learn>=1.1.2',
+    'seaborn>=0.12.0'
 ]
 
 
@@ -34,7 +34,7 @@ PACKAGES = [
 CLASSIFIERS = [
     'Development Status :: 4 - Beta', 
     'Programming Language :: Python', 
-    'Programming Language :: Python :: 3.8', 
+    'Programming Language :: Python :: 3.10', 
     'Intended Audience :: Science/Research',
     'Intended Audience :: Developers',
     'Operating System :: Microsoft :: Windows',
@@ -44,10 +44,10 @@ CLASSIFIERS = [
 ]
 
 TEST_REQUIRE = [
-        "pytest", 
-        "pytest-cov", 
-        'xgboost==1.4.2',
-        'lightgbm==3.2.1'
+        "pytest==7.1.3", 
+        "coverage==6.4.4", 
+        'xgboost==1.6.2',
+        'lightgbm==3.3.2'
 ]
 
 
@@ -57,8 +57,8 @@ if __name__ == "__main__":
     from setuptools import setup
 
     import sys
-    if sys.version_info[:2] < (3, 6):
-        raise RuntimeError("tubesml requires python >= 3.6.")
+    if sys.version_info[:2] < (3, 10):
+        raise RuntimeError("tubesml requires python >= 3.10.")
 
     setup(
         name=DISTNAME,
