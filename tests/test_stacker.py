@@ -157,8 +157,8 @@ def test_early_stopping():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False)), 
-            ('lgb', LGBMClassifier(n_estimators=10000))]
+    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_round=100, eval_metric='logloss')), 
+            ('lgb', LGBMClassifier(n_estimators=10000, early_stopping_round=100, eval_metric='accuracy'))]
     
     kfold = KFold(n_splits=3)
     
@@ -166,11 +166,8 @@ def test_early_stopping():
         warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 
-                                                           'early_stopping': 100, 
-                                                           'eval_metric': 'logloss'}, 
-                                                   'lgb': {'early_stopping': 100, 
-                                                           'eval_metric': 'accuracy'}})
+                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True}, 
+                                                   'lgb': {'early_stopping': True}})
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
