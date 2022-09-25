@@ -46,7 +46,6 @@ class Stacker(BaseTransformer):
                     If True, it warns the user if the correlation of the first layer of predictions is higher than 0.9.
 
     :Attributes:
-    ------------
     
         `meta_importances_` : pandas DataFrame with the feature importances (or the coefficients) of the final estimator. 
                                 Note: this estimator doesn't have a ``coef_`` or ``feature_importances_`` attribute, 
@@ -54,7 +53,6 @@ class Stacker(BaseTransformer):
 
         `corr_` :  pandas DataFrame.
                     Returns the correlation between the first set of estimator's predictions.
-
     '''
     def __init__(self, estimators, final_estimator, cv, lay1_kwargs=None, passthrough=False, verbose=False):
         self.estimators = estimators

@@ -17,7 +17,7 @@ class DfPCA(BaseTransformer):
     :param n_components: int, float or 'mle'.
         Number of components to keep.
         if n_components is not set all components are kept::
-            n_components == min(n_samples, n_features)
+        n_components == min(n_samples, n_features)
         If ``n_components == 'mle'`` and ``svd_solver == 'full'``, Minka's
         MLE is used to guess the dimension. Use of ``n_components == 'mle'``
         will interpret ``svd_solver == 'auto'`` as ``svd_solver == 'full'``.
@@ -27,33 +27,33 @@ class DfPCA(BaseTransformer):
         If ``svd_solver == 'arpack'``, the number of components must be
         strictly less than the minimum of n_features and n_samples.
         Hence, the None case results in::
-            n_components == min(n_samples, n_features) - 1
+        n_components == min(n_samples, n_features) - 1
             
     :param svd_solver: {'auto', 'full', 'arpack', 'randomized'}, default='auto'
         If auto :
-            The solver is selected by a default policy based on ``X.shape`` and
-            ``n_components``: if the input data is larger than 500x500 and the
-            number of components to extract is lower than 80% of the smallest
-            dimension of the data, then the more efficient 'randomized'
-            method is enabled. Otherwise the exact full SVD is computed and
-            optionally truncated afterwards.
+        The solver is selected by a default policy based on ``X.shape`` and
+        ``n_components``: if the input data is larger than 500x500 and the
+        number of components to extract is lower than 80% of the smallest
+        dimension of the data, then the more efficient 'randomized'
+        method is enabled. Otherwise the exact full SVD is computed and
+        optionally truncated afterwards.
         If full :
-            run exact full SVD calling the standard LAPACK solver via
-            ``scipy.linalg.svd`` and select the components by postprocessing
+        run exact full SVD calling the standard LAPACK solver via
+        ``scipy.linalg.svd`` and select the components by postprocessing
         If arpack :
-            run SVD truncated to n_components calling ARPACK solver via
-            ``scipy.sparse.linalg.svds``. It requires strictly
-            0 < n_components < min(X.shape)
+        run SVD truncated to n_components calling ARPACK solver via
+        ``scipy.sparse.linalg.svds``. It requires strictly
+        0 < n_components < min(X.shape)
         If randomized :
-            run randomized SVD by the method of Halko et al.
+        run randomized SVD by the method of Halko et al.
             
     :param random_state: int, RandomState instance or None, default=24
         Used when the 'arpack' or 'randomized' solvers are used. Pass an int
         for reproducible results across multiple function calls.
         
     :param compress: bool, default=False.
-            If True, it reverses the PCA via ``inverse_transform`` and returns a DataFrame with the original structure
-            It can be useful to remove noise from the data by compressing the information.
+        If True, it reverses the PCA via ``inverse_transform`` and returns a DataFrame with the original structure
+        It can be useful to remove noise from the data by compressing the information.
     '''
     def __init__(self, n_components, svd_solver='auto', random_state=24, compress=False):
         super().__init__()

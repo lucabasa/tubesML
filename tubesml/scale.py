@@ -20,7 +20,6 @@ class DfScaler(BaseTransformer):
                     Relevant only if ``method=='minmax'``
     
     :Attributes:
-    ------------
     
         `mean_` : pandas Series with the mean of each feature in the input data.
                     It is relevant only if ``method=Standard``. 

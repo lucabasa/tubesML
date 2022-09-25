@@ -29,11 +29,9 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     This is the base class for all the transformers.
     
     :Attributes:
-    ------------
-
+    
     columns: an empty list that gets reset by the fit method, populated by the transform method, 
             returned by the ``get_feature_names_out`` method
-
     '''
     
     def __init__(self):
