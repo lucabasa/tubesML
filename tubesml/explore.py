@@ -53,7 +53,7 @@ def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
     :param figsize: tuple, default=(12,10).
                 Size of the output figure.
                 
-    :param **kwargs: kwargs to be passed to ``sns.heatmap``.
+    :param kwargs: kwargs to be passed to ``sns.heatmap``.
                 For example, to display annotations. See the documentation of Seaborn for more options.
     
     :return cor_target: Only if ``target`` is provided, 
@@ -107,13 +107,13 @@ def plot_bivariate(data, x, y, hue=None, **kwargs):
     :param data: pandas DataFrame.
                 The input dataframe.
     
-    :param x: str, name of the feature to plot on the x-axis
+    :param x: str, name of the feature to plot on the x-axis.
     
-    :param y: str, name of the feature to plot on the y-axis
+    :param y: str, name of the feature to plot on the y-axis.
     
     :param hue: (optional) str, feature to use as hue.
     
-    :param **kwargs: additional key arguments to pass to ``sns.scatterplot``
+    :param kwargs: additional key arguments to pass to ``sns.scatterplot``
     '''
     plt.figure(figsize=(12,8))
     sns.scatterplot(data=data, x=x, y=y, hue=hue, **kwargs)

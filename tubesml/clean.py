@@ -26,7 +26,6 @@ class DfImputer(BaseTransformer):
                     the fit method is called. The column will be called ``missing_<column_name>``
     
     :Attributes:
-    ------------
     
         `statistics_` : pandas Series. The statistics per column, depending on the ``strategy`` chosen.
                         The index of the series is the ``columns`` attribute of the input dataframe.
