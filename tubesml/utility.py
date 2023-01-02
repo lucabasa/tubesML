@@ -62,8 +62,7 @@ class FeatureUnionDf(BaseTransformer):
     :param n_jobs: int, default=None
         Number of jobs to run in parallel.
         ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
-        ``-1`` means using all processors. See :term:`Glossary <n_jobs>`
-        for more details.
+        ``-1`` means using all processors. 
     
     :param transformer_weights: dict, default=None
         Multiplicative weights for features per transformer.
