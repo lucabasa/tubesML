@@ -1,8 +1,7 @@
-.. |PythonMinVersion| replace:: 3.10
-.. |NumPyMinVersion| replace:: 1.23.3
-.. |PandasMinVersion| replace:: 1.5.0
-.. |SklearnMinVersion| replace:: 1.1.2
-.. |PltMinVersion| replace:: 3.6.0
+.. |PythonMinVersion| replace:: 3.7
+.. |PandasMinVersion| replace:: 1.3.5
+.. |SklearnMinVersion| replace:: 1.0.2
+.. |PltMinVersion| replace:: 3.5.3
 .. |SnsMinVersion| replace:: 0.12.0
 
 TubesML
@@ -24,9 +23,17 @@ tubesML requires:
 
 - Python (>= |PythonMinVersion|)
 - Matplotlib (>= |PltMinVersion|)
-- NumPy (>= |NumPyMinVersion|)
 - Pandas (>= |PandasMinVersion|)
 - Scikit-Learn (>= |SklearnMinVersion|)
+- Seaborn (>= |SnsMinVersion|)
+
+These requirements are good for a Kaggle notebook, however the package has been developed with the following requirements
+
+- Python (>= 3.10)
+- Matplotlib (>= 3.6.0)
+- Pandas (>= 1.5.0)
+- Numpy (>= 1.23.1)
+- Scikit-Learn (>= 1.1.2)
 - Seaborn (>= |SnsMinVersion|)
 
 =======
