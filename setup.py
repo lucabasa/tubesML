@@ -19,7 +19,7 @@ VERSION = '0.6.1'
 PYTHON_REQUIRES = ">=3.7"
 
 INSTALL_REQUIRES = [
-    'matplotlib>=3.6.0',
+    'matplotlib>=3.5.3',
     'pandas>=1.3.5',
     'scikit-learn>=1.0.2',
     'seaborn>=0.12.0'
