@@ -99,6 +99,10 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
             
     :param early_stopping: bool, default=False.
                         If True, uses early stopping within the folds for the estimators that support it.
+                        
+    :param fit_params: dict, default=None.
+                        If a dictionary is provided, it will pass it to the fit method. This is useful to control the verbosity of the fit method
+                        as some packages like XGBoost and LightGBM do not do that in the estimator declaration.
     
     :return oof: pd.Series with the out of fold predictions for the entire train set.
     
