@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 __status__ = 'development'
 
 
@@ -113,6 +113,9 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
     
     It may create issues when both the estimator and this function have n_jobs>1.
     
+    Moreover, it doesn't behave well with early stopping, which produces no result. In that case, a
+    RuntimeError is raised
+    
     :param estimator: estimator or pipeline.
     
     :param X: {array-like} of shape (n_samples, n_features)
@@ -151,6 +154,10 @@ def plot_learning_curve(estimator, X, y, scoring=None, ylim=None, cv=None,
                        scoring=scoring,
                        train_sizes=train_sizes,
                        return_times=True)
+    
+        
+    if np.isnan(train_scores).all() or np.isnan(test_scores).all():
+        raise RuntimeError("No scores generated, try change the model")
     
     if not scoring is None:
         if 'neg' in scoring:
