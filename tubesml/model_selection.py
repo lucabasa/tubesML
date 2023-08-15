@@ -70,7 +70,7 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     return result, grid.best_params_, grid.best_estimator_
 
 
-def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_proba=False, early_stopping=False):
+def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_proba=False, early_stopping=False, fit_params=None):
     '''
     Train and test a pipeline in kfold cross validation
     
@@ -99,6 +99,10 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
             
     :param early_stopping: bool, default=False.
                         If True, uses early stopping within the folds for the estimators that support it.
+                        
+    :param fit_params: dict, default=None.
+                        If a dictionary is provided, it will pass it to the fit method. This is useful to control the verbosity of the fit method
+                        as some packages like XGBoost and LightGBM do not do that in the estimator declaration.
     
     :return oof: pd.Series with the out of fold predictions for the entire train set.
     
@@ -115,6 +119,9 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
     feat_df = pd.DataFrame()
     iteration = []
     feat_pdp = pd.DataFrame()
+    
+    if fit_params is None:
+        fit_params = {}
     
     try:  # If estimator is not a pipeline, make a pipeline
         estimator.steps
@@ -139,14 +146,14 @@ def cv_score(data, target, estimator, cv, imp_coef=False, pdp=None, predict_prob
         if early_stopping:
             # Fit the model with early stopping
             model.fit(trn_data, trn_target, 
-                      eval_set=[(trn_data, trn_target), (val_data, val_target)])
+                      eval_set=[(trn_data, trn_target), (val_data, val_target)], **fit_params)
             #store iteration used
             try:
                 iteration.append(model.best_iteration)
             except AttributeError:
                 iteration.append(model.best_iteration_)
         else:
-            model.fit(trn_data, trn_target)
+            model.fit(trn_data, trn_target, **fit_params)
         
         if predict_proba:
             oof[test_index] = model.predict_proba(val_data)[:,1]

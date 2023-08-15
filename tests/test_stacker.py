@@ -166,7 +166,7 @@ def test_early_stopping():
         warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True}, 
+                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
                                                    'lgb': {'early_stopping': True}})
         stk.fit(df_1, y)
         _ = stk.predict(df_1)

@@ -9,7 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import KFold
 
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
+from lightgbm import LGBMClassifier, early_stopping
 
 import pandas as pd
 
@@ -188,6 +188,38 @@ def test_cvscore_pdp(model):
     assert set(pdp_res['pdp']['feat']) == set(pdp)
     assert pdp_res['pdp']['mean'].notna().all()
     assert pdp_res['pdp']['std'].notna().all()
+    
+     
+def test_fit_params():
+    """
+    Test that the user can provide a fit_params input
+    This test is specific for Xgboost and lightgbm or any other estimator
+    that allows parameters for the fit method.
+    
+    The test is not parametrized as the devs of xgboost and lightgbm can't
+    agree on how to pass parameters to a function.
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    kfold = KFold(n_splits=3)
+    
+    #XGBoost
+    model = XGBClassifier(use_label_encoder=False, early_stopping_rounds=5)
+    fit_params = {'verbose': False}
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        res, _ = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+    assert len(res) == len(df_1)
+    
+    #LightGBM
+    model = LGBMClassifier()
+    callbacks = [early_stopping(10, verbose=0)]
+    fit_params = {"callbacks":callbacks}
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        res, _ = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+    assert len(res) == len(df_1)
 
     
 def test_make_test():
