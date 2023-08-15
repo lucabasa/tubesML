@@ -115,6 +115,28 @@ def test_learning_curves_xgb(_):
         warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
+        
+        
+@patch("matplotlib.pyplot.show")  
+def test_learning_curves_xgb_error(_):
+    '''
+    Test learning curves raises an error when does not produce a result
+    This happens because the sklearn method is not necessarily compatible with the
+    runtime parameters of the model
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    full_pipe = Pipeline([('scaler', tml.DfScaler()), 
+                          ('xgb', XGBClassifier(objective='binary:logistic', 
+                                                n_estimators=200, early_stopping_rounds=3, 
+                                                eval_metric='accuracy', n_jobs=-1,
+                                                use_label_encoder=False))])
+    
+    kfold = KFold(n_splits=3)
+    with pytest.raises(RuntimeError):
+        tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
+                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
     
     
 @patch("matplotlib.pyplot.show")
