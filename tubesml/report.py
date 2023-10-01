@@ -29,32 +29,8 @@ def _plot_diagonal(ax):
     return ax
 
 
-def plot_regression_predictions(data, true_label, pred_label, hue=None, savename=None):
-    '''
-    Plot prediction vs true label and the distribution of both the label and the predictions.
-    
-    :param data: pandas DataFrame. 
-                Ideally, the dataframe used for training the model you are evaluating. It must have the same 
-                number of rows of ``true_label`` and ``pred_label``.
-                
-    :param true_label: pandas Series, numpy array, or list with the true values of the target variable.
-    
-    :param pred_label: pandas Series, numpy array, or list with the predicted values of the target variable.
-    
-    :param hue: (optional) str, name of the feature to use as hue in the scatter plot. It must be in ``data`` or it will be
-                ignored after a warning.
-                It is ignored when the unique values are more than 5 for readability.
-                
-    :param savename: (optional) str with the name of the file to use to save the figure. If not provided, the function simply
-                    plots the figure.
-    '''
-    
-    tmp = data.copy()
-    tmp['Prediction'] = pred_label
-    tmp['True Label'] = true_label
-    
-    fig, ax = plt.subplots(1,2, figsize=(15,6))
-    
+def _plot_simple_predictions(fig, ax, tmp, hue):
+
     legend=False
     addition=''
     if hue is not None:
@@ -71,17 +47,87 @@ def plot_regression_predictions(data, true_label, pred_label, hue=None, savename
     ax[0] = _plot_diagonal(ax[0])
     ax[0].set_title(f'True Label vs Prediction{addition}', fontsize=14)
         
-    sns.histplot(data=tmp, x=true_label, kde=True, ax=ax[1], color='blue', label='True Label', alpha=0.4)
-    sns.histplot(data=tmp, x=pred_label, kde=True, ax=ax[1], color='red', label='Prediction', alpha=0.6)
+    sns.histplot(data=tmp, x=tmp['True Label'], kde=True, ax=ax[1], color='blue', label='True Label', alpha=0.4)
+    sns.histplot(data=tmp, x=tmp['Prediction'], kde=True, ax=ax[1], color='red', label='Prediction', alpha=0.6)
     ax[1].legend()
     ax[1].set_xlabel('Target')
     ax[1].set_title('Distribution of target and prediction', fontsize=14)
+    
+    return fig, ax
+
+
+def _plot_feature_predictions(fig, ax, tmp, feature):
+    
+    alpha = 0.7
+    label = ''
+    
+    legend = 'full'
+    sns.scatterplot(x=feature, y='True Label', data=tmp, ax=ax[0], label='True Label',
+                    legend='full', alpha=0.4)
+
+    sns.scatterplot(x=feature, y='Prediction', data=tmp, ax=ax[0], label='Prediction',
+                         legend='full', alpha=0.7)
+    
+    sns.scatterplot(x=feature, y='Residual', data=tmp, ax=ax[1], 
+                    legend=legend, alpha=0.7)
+    ax[1].axhline(y=0, color='r', linestyle='--')
+    
+    ax[0].set_title(f'{feature} vs Predictions')
+    ax[1].set_title(f'{feature} vs Residuals')
+    return fig, ax
+
+
+def plot_regression_predictions(data, true_label, pred_label, hue=None, feature=None, savename=None):
+    '''
+    Plot prediction vs true label and the distribution of both the label and the predictions. Display also the influence
+    of categorical features via the `hue` parameter. You can also display the prediction vs a feature or more in the data.
+    This will help identify non-desired patterns also with the help of a residuals plot.
+    
+    :param data: pandas DataFrame. 
+                Ideally, the dataframe used for training the model you are evaluating. It must have the same 
+                number of rows of ``true_label`` and ``pred_label``.
+                
+    :param true_label: pandas Series, numpy array, or list with the true values of the target variable.
+    
+    :param pred_label: pandas Series, numpy array, or list with the predicted values of the target variable.
+    
+    :param hue: (optional) str, name of the feature to use as hue in the scatter plot. It must be in ``data`` or it will be
+                ignored after a warning.
+                It is ignored when the unique values are more than 5 for readability.
+                
+    :param feature: (optional), str or list, feature(s) to use as x-axis in the scatter plot against the prediction. Using this 
+                option will produce 2 more plots for each feature provided, one with the feature vs the prediction and one with
+                the feature vs the residuals
+                
+    :param savename: (optional) str with the name of the file to use to save the figure. If not provided, the function simply
+                    plots the figure.
+    '''
+    
+    tmp = data.copy()
+    tmp['Prediction'] = pred_label
+    tmp['True Label'] = true_label
+    tmp['Residual'] = tmp['True Label'] - tmp['Prediction']
+    
+    if feature is None:
+        fig, ax = plt.subplots(1,2, figsize=(15,6))
+        fig, ax = _plot_simple_predictions(fig, ax, tmp, hue)
+        
+    else:
+        if isinstance(feature, str):
+            feature = [feature]
+        fig, ax = plt.subplots(len(feature) + 1, 2, figsize=(15,6 * (len(feature)+1)))
+        fig, ax[0] = _plot_simple_predictions(fig, ax[0], tmp, hue)
+        i = 1
+        for feat in feature:
+            fig, ax[i] = _plot_feature_predictions(fig, ax[i], tmp, feat)
+            i += 1
     
     if savename is not None:
         plt.savefig(savename)
         plt.close()
     else:
         plt.show()
+        plt.close()
         
 
 def plot_confusion_matrix(true_label, pred_label, ax=None, thrs=0.5):
