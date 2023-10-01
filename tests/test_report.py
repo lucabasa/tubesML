@@ -98,6 +98,49 @@ def test_plot_regression_pred_huemany(_):
     with pytest.warns(UserWarning):
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='many_cat')
         
+@patch("matplotlib.pyplot.show") 
+def test_plot_regression_features(_):
+    '''
+    Test plot_regression_predictions with extra plot against one feature
+    '''
+    y = df_r['target']
+    df_1 = df_r.drop('target', axis=1)
+    df_1['feature'] = df_1[random.choice(df_1.columns)]
+    
+    full_pipe = Pipeline([('dummier', tml.Dummify()), 
+                          ('tree', DecisionTreeRegressor())])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature='feature')
+        
+        
+@patch("matplotlib.pyplot.show") 
+def test_plot_regression_features(_):
+    '''
+    Test plot_regression_predictions with extra plot against more feature
+    '''
+    y = df_r['target']
+    df_1 = df_r.drop('target', axis=1)
+    df_1['feature'] = df_1[random.choice(df_1.columns)]
+    df_1['feature2'] = df_1[random.choice(df_1.columns)]
+    
+    full_pipe = Pipeline([('dummier', tml.Dummify()), 
+                          ('tree', DecisionTreeRegressor())])
+    
+    kfold = KFold(n_splits=3)
+    
+    oof, _ = tml.cv_score(df_1, y, full_pipe, kfold)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature=['feature', 'feature2'])
+        
+        
 
 @patch("matplotlib.pyplot.show")       
 def test_plot_confusion_matrix_binary(_):

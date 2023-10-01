@@ -127,6 +127,7 @@ def plot_regression_predictions(data, true_label, pred_label, hue=None, feature=
         plt.close()
     else:
         plt.show()
+        plt.close()
         
 
 def plot_confusion_matrix(true_label, pred_label, ax=None, thrs=0.5):
