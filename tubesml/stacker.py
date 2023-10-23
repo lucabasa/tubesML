@@ -60,6 +60,8 @@ class Stacker(BaseTransformer):
         self.cv = cv
         self._lay1_kwargs_input(lay1_kwargs)
         self.meta_importances_ = None
+        self.coef_ = None  # this is to work well with other sklearn methods
+        self.feature_importances_ = None  # this is to work well with other sklearn methods
         self.passthrough = passthrough
         self.verbose = verbose
         
@@ -102,8 +104,18 @@ class Stacker(BaseTransformer):
         else:
             feats = self.est_names
         try:
+            try:
+                self.feature_importances_ = self.final_estimator.steps[-1][1].coef_
+                self.coef_ = self.feature_importances_
+            except AttributeError:
+                self.feature_importances_ = self.final_estimator.coef_
+                self.coef_ = self.feature_importances_
             return get_coef(self.final_estimator, feats)
         except (AttributeError, KeyError):
+            try:
+                self.feature_importances_ = self.final_estimator.steps[-1][1].feature_importances_
+            except AttributeError:
+                self.feature_importances_ = self.final_estimator.feature_importances_
             return get_feature_importance(self.final_estimator, feats)
         
         
