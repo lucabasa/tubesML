@@ -333,10 +333,10 @@ def test_cv_score_stacker_simple(predict_proba):
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
     
     
-@pytest.mark.parametrize("predict_proba", [True, False])
-def test_cv_score_stacker_simple(predict_proba):
+@pytest.mark.parametrize("predict_proba, imp_coef", [(True, False), (False, False), (True, True)])
+def test_cv_score_stacker_simple(predict_proba, imp_coef):
     '''
-    Test tml.cv_score works on this when in a pipeline
+    Test tml.cv_score works on this when in a pipeline and if it returns the feature importance
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
@@ -355,7 +355,7 @@ def test_cv_score_stacker_simple(predict_proba):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
+        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef)
     
     
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])
