@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
+from lightgbm import LGBMClassifier, early_stopping
 
 import string
 import random
@@ -83,7 +83,8 @@ def test_stacker_reg():
         _ = stk.predict(df_1)
     
 
-def test_stacker_pipelines():
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_stacker_pipelines(passthrough):
     '''
     Test it works when pipelines are provided
     '''
@@ -101,13 +102,38 @@ def test_stacker_pipelines():
         warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                               final_estimator=pipe2, 
-                              cv=kfold)
+                              cv=kfold, passthrough=passthrough)
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
 
 
-def test_importances():
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_importances_pipeline(passthrough):
+    '''
+    Test it returns the feature importances with pipelines
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    pipe1 = Pipeline([('scl', tubesml.DfScaler()), ('model', DecisionTreeClassifier())])
+    pipe2 = Pipeline([('scl', tubesml.DfScaler()), ('model', LogisticRegression())])
+    
+    estm = [('model1', pipe1), ('model2', pipe2)]
+    
+    kfold = KFold(n_splits=3)
+    stk = tubesml.Stacker(estimators=estm,
+                          final_estimator=pipe2,
+                          cv=kfold, passthrough=passthrough)
+    stk.fit(df_1, y)
+    
+    imps = stk.meta_importances_
+    
+    assert imps.shape == (2 + passthrough*10, 2)
+    
+
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_importances_pipeline(passthrough):
     '''
     Test it returns the feature importances
     '''
@@ -120,12 +146,12 @@ def test_importances():
     kfold = KFold(n_splits=3)
     stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold)
+                            cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
     
     imps = stk.meta_importances_
     
-    assert imps.shape == (2, 2)
+    assert imps.shape == (2 + passthrough*10, 2)
     
     
 def test_hybrid_params():
@@ -157,23 +183,26 @@ def test_early_stopping():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_round=100, eval_metric='logloss')), 
-            ('lgb', LGBMClassifier(n_estimators=10000, early_stopping_round=100, eval_metric='accuracy'))]
+    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_rounds=5, eval_metric='logloss')), 
+            ('lgb', LGBMClassifier(n_estimators=10000))]
     
     kfold = KFold(n_splits=3)
+    
+    callbacks = [early_stopping(10, verbose=0)]
+    fit_params = {"callbacks":callbacks, 'eval_metric': 'accuracy'}
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
                             cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
-                                                   'lgb': {'early_stopping': True}})
+                                                   'lgb': {'early_stopping': True, 'fit_params': fit_params}})
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
 
-    assert stk._estimators[0].n_estimators < 10000
-    assert stk._estimators[1].n_estimators < 10000
+    assert stk._estimators[0].n_estimators < 1000
+    assert stk._estimators[1].n_estimators < 1000
     
 
 @pytest.mark.parametrize("passthrough, n_feats", [(False, 2), (True, 12), ('hybrid', 5)])
@@ -275,8 +304,7 @@ def test_gridsearch_stacker_pipeline(scoring):
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
                                                          param_grid=param_grid, scoring=scoring, cv=3)
         
-    
-    
+
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])   
 def test_gridsearch_stacker_passthrough(passthrough):
     '''
@@ -330,10 +358,10 @@ def test_cv_score_stacker_simple(predict_proba):
         res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
     
     
-@pytest.mark.parametrize("predict_proba", [True, False])
-def test_cv_score_stacker_simple(predict_proba):
+@pytest.mark.parametrize("predict_proba, imp_coef", [(True, False), (False, False), (True, True)])
+def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
     '''
-    Test tml.cv_score works on this when in a pipeline
+    Test tml.cv_score works on this when in a pipeline and if it returns the feature importance
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
@@ -352,7 +380,7 @@ def test_cv_score_stacker_simple(predict_proba):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
+        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef)
     
     
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])

@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.4'
+__version__ = '0.1.0'
 __status__ = 'development'
 
 
@@ -60,6 +60,10 @@ class Stacker(BaseTransformer):
         self.cv = cv
         self._lay1_kwargs_input(lay1_kwargs)
         self.meta_importances_ = None
+        self.coef_ = None  # this is to work well with other sklearn methods
+        self.feature_importances_ = None  # this is to work well with other sklearn methods
+        self.columns = None
+        self.is_stacker = True
         self.passthrough = passthrough
         self.verbose = verbose
         
@@ -95,15 +99,26 @@ class Stacker(BaseTransformer):
                 
                 
     def return_feature_importances(self, X):
-        if self.passthrough and type(self.passthrough) is bool:
-            feats = self.est_names + list(X.columns)
-        elif self.passthrough and type(self.passthrough) is list:
-            feats = self.est_names + self.passthrough
-        else:
-            feats = self.est_names
+        # if self.passthrough and type(self.passthrough) is bool:
+        #     feats = self.est_names + list(X.columns)
+        # elif self.passthrough and type(self.passthrough) is list:
+        #     feats = self.est_names + self.passthrough
+        # else:
+        #     feats = self.est_names
+        feats = X.columns
         try:
+            try:
+                self.feature_importances_ = self.final_estimator.steps[-1][1].coef_
+                self.coef_ = self.feature_importances_
+            except AttributeError:
+                self.feature_importances_ = self.final_estimator.coef_
+                self.coef_ = self.feature_importances_
             return get_coef(self.final_estimator, feats)
         except (AttributeError, KeyError):
+            try:
+                self.feature_importances_ = self.final_estimator.steps[-1][1].feature_importances_
+            except AttributeError:
+                self.feature_importances_ = self.final_estimator.feature_importances_
             return get_feature_importance(self.final_estimator, feats)
         
         
@@ -143,7 +158,7 @@ class Stacker(BaseTransformer):
             
             if self.lay1_kwargs[self.estimators[i][0]]['early_stopping']:
                 self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
-                                                  'early_stopping_round': None})
+                                                  'early_stopping_rounds': None})
                 
             self._estimators[i].fit(X, y)
         
@@ -159,7 +174,8 @@ class Stacker(BaseTransformer):
         except AttributeError:  # if the final_estimator does not have classes, we don't care
             pass
         
-        self.meta_importances_ = self.return_feature_importances(X)
+        self.meta_importances_ = self.return_feature_importances(final_train)
+        self.columns = final_train.columns
         
         return self
     
