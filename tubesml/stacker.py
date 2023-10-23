@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.4'
+__version__ = '0.1.0'
 __status__ = 'development'
 
 
@@ -143,7 +143,7 @@ class Stacker(BaseTransformer):
             
             if self.lay1_kwargs[self.estimators[i][0]]['early_stopping']:
                 self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
-                                                  'early_stopping_round': None})
+                                                  'early_stopping_rounds': None})
                 
             self._estimators[i].fit(X, y)
         
