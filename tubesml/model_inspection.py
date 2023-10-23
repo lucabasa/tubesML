@@ -36,6 +36,8 @@ def get_coef(pipe, feats=None):
     except AttributeError:
         pipe = Pipeline([('transf', BaseTransformer()), ('model', pipe)])
         feats = feats
+    if hasattr(pipe.steps[-1][1], "is_stacker"):
+        feats = pipe.steps[-1][1].get_feature_names_out()
     imp = pipe.steps[-1][1].coef_.ravel().tolist()
     result = pd.DataFrame({'feat':feats,'score':imp})
     result['abs_res'] = abs(result['score'])
@@ -66,6 +68,8 @@ def get_feature_importance(pipe, feats=None):
     except AttributeError:
         pipe = Pipeline([('transf', BaseTransformer()), ('model', pipe)])
         feats = feats
+    if hasattr(pipe.steps[-1][1], "is_stacker"):
+        feats = pipe.steps[-1][1].get_feature_names_out()
     imp = pipe.steps[-1][1].feature_importances_.tolist() # it's a pipeline
     result = pd.DataFrame({'feat':feats,'score':imp})
     result = result.sort_values(by=['score'],ascending=False)
