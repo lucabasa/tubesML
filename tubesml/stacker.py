@@ -62,6 +62,8 @@ class Stacker(BaseTransformer):
         self.meta_importances_ = None
         self.coef_ = None  # this is to work well with other sklearn methods
         self.feature_importances_ = None  # this is to work well with other sklearn methods
+        self.columns = None
+        self.is_stacker = True
         self.passthrough = passthrough
         self.verbose = verbose
         
@@ -97,12 +99,13 @@ class Stacker(BaseTransformer):
                 
                 
     def return_feature_importances(self, X):
-        if self.passthrough and type(self.passthrough) is bool:
-            feats = self.est_names + list(X.columns)
-        elif self.passthrough and type(self.passthrough) is list:
-            feats = self.est_names + self.passthrough
-        else:
-            feats = self.est_names
+        # if self.passthrough and type(self.passthrough) is bool:
+        #     feats = self.est_names + list(X.columns)
+        # elif self.passthrough and type(self.passthrough) is list:
+        #     feats = self.est_names + self.passthrough
+        # else:
+        #     feats = self.est_names
+        feats = X.columns
         try:
             try:
                 self.feature_importances_ = self.final_estimator.steps[-1][1].coef_
@@ -171,7 +174,8 @@ class Stacker(BaseTransformer):
         except AttributeError:  # if the final_estimator does not have classes, we don't care
             pass
         
-        self.meta_importances_ = self.return_feature_importances(X)
+        self.meta_importances_ = self.return_feature_importances(final_train)
+        self.columns = final_train.columns
         
         return self
     
