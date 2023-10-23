@@ -83,7 +83,8 @@ def test_stacker_reg():
         _ = stk.predict(df_1)
     
 
-def test_stacker_pipelines():
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_stacker_pipelines(passthrough):
     '''
     Test it works when pipelines are provided
     '''
@@ -101,14 +102,38 @@ def test_stacker_pipelines():
         warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                               final_estimator=pipe2, 
-                              cv=kfold)
+                              cv=kfold, passthrough=passthrough)
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
 
 
 @pytest.mark.parametrize("passthrough", [True, False])
-def test_importances(passthrough):
+def test_importances_pipeline(passthrough):
+    '''
+    Test it returns the feature importances with pipelines
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    pipe1 = Pipeline([('scl', tubesml.DfScaler()), ('model', DecisionTreeClassifier())])
+    pipe2 = Pipeline([('scl', tubesml.DfScaler()), ('model', LogisticRegression())])
+    
+    estm = [('model1', pipe1), ('model2', pipe2)]
+    
+    kfold = KFold(n_splits=3)
+    stk = tubesml.Stacker(estimators=estm,
+                          final_estimator=pipe2,
+                          cv=kfold, passthrough=passthrough)
+    stk.fit(df_1, y)
+    
+    imps = stk.meta_importances_
+    
+    assert imps.shape == (2 + passthrough*10, 2)
+    
+
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_importances_pipeline(passthrough):
     '''
     Test it returns the feature importances
     '''
@@ -334,7 +359,7 @@ def test_cv_score_stacker_simple(predict_proba):
     
     
 @pytest.mark.parametrize("predict_proba, imp_coef", [(True, False), (False, False), (True, True)])
-def test_cv_score_stacker_simple(predict_proba, imp_coef):
+def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
     '''
     Test tml.cv_score works on this when in a pipeline and if it returns the feature importance
     '''
