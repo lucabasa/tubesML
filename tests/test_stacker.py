@@ -107,7 +107,8 @@ def test_stacker_pipelines():
         _ = stk.predict_proba(df_1)
 
 
-def test_importances():
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_importances(passthrough):
     '''
     Test it returns the feature importances
     '''
@@ -120,12 +121,12 @@ def test_importances():
     kfold = KFold(n_splits=3)
     stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold)
+                            cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
     
     imps = stk.meta_importances_
     
-    assert imps.shape == (2, 2)
+    assert imps.shape == (2 + passthrough*10, 2)
     
     
 def test_hybrid_params():
@@ -278,8 +279,7 @@ def test_gridsearch_stacker_pipeline(scoring):
         result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
                                                          param_grid=param_grid, scoring=scoring, cv=3)
         
-    
-    
+
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])   
 def test_gridsearch_stacker_passthrough(passthrough):
     '''
