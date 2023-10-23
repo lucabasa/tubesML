@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
+from lightgbm import LGBMClassifier, early_stopping
 
 import string
 import random
@@ -157,23 +157,26 @@ def test_early_stopping():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_round=100, eval_metric='logloss')), 
-            ('lgb', LGBMClassifier(n_estimators=10000, early_stopping_round=100, eval_metric='accuracy'))]
+    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_rounds=5, eval_metric='logloss')), 
+            ('lgb', LGBMClassifier(n_estimators=10000))]
     
     kfold = KFold(n_splits=3)
+    
+    callbacks = [early_stopping(10, verbose=0)]
+    fit_params = {"callbacks":callbacks, 'eval_metric': 'accuracy'}
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         stk = tubesml.Stacker(estimators=estm, 
                             final_estimator=DecisionTreeClassifier(), 
                             cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
-                                                   'lgb': {'early_stopping': True}})
+                                                   'lgb': {'early_stopping': True, 'fit_params': fit_params}})
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
 
-    assert stk._estimators[0].n_estimators < 10000
-    assert stk._estimators[1].n_estimators < 10000
+    assert stk._estimators[0].n_estimators < 1000
+    assert stk._estimators[1].n_estimators < 1000
     
 
 @pytest.mark.parametrize("passthrough, n_feats", [(False, 2), (True, 12), ('hybrid', 5)])
