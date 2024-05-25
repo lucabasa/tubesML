@@ -106,6 +106,28 @@ def test_stacker_pipelines(passthrough):
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
+        
+        
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_importances(passthrough):
+    '''
+    Test it returns the feature importances
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, passthrough=passthrough)
+    stk.fit(df_1, y)
+    
+    imps = stk.meta_importances_
+    
+    assert imps.shape == (2 + passthrough*10, 2)
 
 
 @pytest.mark.parametrize("passthrough", [True, False])
@@ -125,28 +147,6 @@ def test_importances_pipeline(passthrough):
     stk = tubesml.Stacker(estimators=estm,
                           final_estimator=pipe2,
                           cv=kfold, passthrough=passthrough)
-    stk.fit(df_1, y)
-    
-    imps = stk.meta_importances_
-    
-    assert imps.shape == (2 + passthrough*10, 2)
-    
-
-@pytest.mark.parametrize("passthrough", [True, False])
-def test_importances_pipeline(passthrough):
-    '''
-    Test it returns the feature importances
-    '''
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
-            ('logit', LogisticRegression())]
-    
-    kfold = KFold(n_splits=3)
-    stk = tubesml.Stacker(estimators=estm, 
-                            final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
     
     imps = stk.meta_importances_
