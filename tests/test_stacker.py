@@ -238,8 +238,8 @@ def test_early_stopping_pipeline_estimators():
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
 
-    assert stk._estimators[0].n_estimators < 1000
-    assert stk._estimators[1].n_estimators < 1000
+    assert stk._estimators[0].steps[-1][1].n_estimators < 1000
+    assert stk._estimators[1].steps[-1][1].n_estimators < 1000
     
 
 @pytest.mark.parametrize("passthrough, n_feats", [(False, 2), (True, 12), ('hybrid', 5)])

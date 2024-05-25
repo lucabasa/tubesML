@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __status__ = 'development'
 
 
@@ -99,12 +99,6 @@ class Stacker(BaseTransformer):
                 
                 
     def return_feature_importances(self, X):
-        # if self.passthrough and type(self.passthrough) is bool:
-        #     feats = self.est_names + list(X.columns)
-        # elif self.passthrough and type(self.passthrough) is list:
-        #     feats = self.est_names + self.passthrough
-        # else:
-        #     feats = self.est_names
         feats = X.columns
         try:
             try:
@@ -157,8 +151,12 @@ class Stacker(BaseTransformer):
             out_of_fold_predictions[:, i] = oof
             
             if self.lay1_kwargs[self.estimators[i][0]]['early_stopping']:
-                self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
-                                                  'early_stopping_rounds': None})
+                try:
+                    self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
+                                                      'early_stopping_rounds': None})
+                except ValueError:
+                    self._estimators[i].steps[-1][1].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
+                                                      'early_stopping_rounds': None})
                 
             self._estimators[i].fit(X, y)
         
