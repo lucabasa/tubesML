@@ -154,7 +154,7 @@ class Stacker(BaseTransformer):
                 try:
                     self._estimators[i].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
                                                       'early_stopping_rounds': None})
-                except ValueError:
+                except ValueError:  # if the estimator is a pipeline, setting n_estimators requires a workaround
                     self._estimators[i].steps[-1][1].set_params(**{'n_estimators': np.mean(res['iterations']).astype(int), 
                                                       'early_stopping_rounds': None})
                 
