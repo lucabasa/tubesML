@@ -15,7 +15,7 @@ PROJECT_URLS = {
     'Documentation': 'https://tubesml.readthedocs.io/',
     'Source Code': 'https://github.com/lucabasa/tubesML'
 }
-VERSION = '0.7.1'
+VERSION = '0.7.2'
 PYTHON_REQUIRES = ">=3.7"
 
 INSTALL_REQUIRES = [
