@@ -106,6 +106,28 @@ def test_stacker_pipelines(passthrough):
         stk.fit(df_1, y)
         _ = stk.predict(df_1)
         _ = stk.predict_proba(df_1)
+        
+        
+@pytest.mark.parametrize("passthrough", [True, False])
+def test_importances(passthrough):
+    '''
+    Test it returns the feature importances
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
+            ('logit', LogisticRegression())]
+    
+    kfold = KFold(n_splits=3)
+    stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, passthrough=passthrough)
+    stk.fit(df_1, y)
+    
+    imps = stk.meta_importances_
+    
+    assert imps.shape == (2 + passthrough*10, 2)
 
 
 @pytest.mark.parametrize("passthrough", [True, False])
@@ -125,28 +147,6 @@ def test_importances_pipeline(passthrough):
     stk = tubesml.Stacker(estimators=estm,
                           final_estimator=pipe2,
                           cv=kfold, passthrough=passthrough)
-    stk.fit(df_1, y)
-    
-    imps = stk.meta_importances_
-    
-    assert imps.shape == (2 + passthrough*10, 2)
-    
-
-@pytest.mark.parametrize("passthrough", [True, False])
-def test_importances_pipeline(passthrough):
-    '''
-    Test it returns the feature importances
-    '''
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    estm = [('tree', DecisionTreeClassifier(max_depth=3)), 
-            ('logit', LogisticRegression())]
-    
-    kfold = KFold(n_splits=3)
-    stk = tubesml.Stacker(estimators=estm, 
-                            final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
     
     imps = stk.meta_importances_
@@ -203,6 +203,43 @@ def test_early_stopping():
 
     assert stk._estimators[0].n_estimators < 1000
     assert stk._estimators[1].n_estimators < 1000
+    
+    
+def test_early_stopping_pipeline_estimators():
+    '''
+    Test early stopping is possible within a pipeline
+    '''
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    estm = [('xgb', Pipeline([('scl', tubesml.DfScaler()),
+                              ('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False,
+                                            early_stopping_rounds=5, eval_metric='logloss'))
+                             ])
+            ),
+            ('lgb', Pipeline([('scl', tubesml.DfScaler()),
+                              ('lgb', LGBMClassifier(n_estimators=10000))
+                             ])
+            )
+           ]
+    
+    kfold = KFold(n_splits=3)
+    
+    callbacks = [early_stopping(10, verbose=0)]
+    fit_params = {"callbacks":callbacks, 'eval_metric': 'accuracy'}
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        stk = tubesml.Stacker(estimators=estm, 
+                            final_estimator=DecisionTreeClassifier(), 
+                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
+                                                   'lgb': {'early_stopping': True, 'fit_params': fit_params}})
+        stk.fit(df_1, y)
+        _ = stk.predict(df_1)
+        _ = stk.predict_proba(df_1)
+
+    assert stk._estimators[0].steps[-1][1].n_estimators < 1000
+    assert stk._estimators[1].steps[-1][1].n_estimators < 1000
     
 
 @pytest.mark.parametrize("passthrough, n_feats", [(False, 2), (True, 12), ('hybrid', 5)])
