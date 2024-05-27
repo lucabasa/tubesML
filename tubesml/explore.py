@@ -71,7 +71,7 @@ def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
         del corr['abs']
         corr = corr.loc[cor_target.index, cor_target.index]
     plt.figure(figsize=figsize)
-    ax = sns.heatmap(corr, cmap='RdBu_r', **kwargs)
+    ax = sns.heatmap(data=corr, cmap='RdBu_r', **kwargs)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     plt.show()
     if target:
