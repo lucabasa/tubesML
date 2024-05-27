@@ -98,7 +98,7 @@ def plot_feat_imp(data, n=-1, savename=None):
     else:
         fi = data
     
-    fig, ax = plt.subplots(1,1, figsize=(13, int(0.3*fi.shape[0])))
+    fig, ax = plt.subplots(1,1, max(1, int(0.3*fi.shape[0])))
 
     sns.barplot(x=fi['mean'], y=fi.index, xerr=fi['std'], ax=ax)
     
