@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '1.1.3'
+__version__ = '1.2.0'
 __status__ = 'development'
 
 
@@ -10,6 +10,10 @@ from scipy import stats
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+import warnings  # Fixme: remove this when Seaborn is updated to 0.13
+warnings.filterwarnings("ignore", "is_categorical_dtype")
+warnings.filterwarnings("ignore", "use_inf_as_na")
 
 
 
@@ -67,7 +71,7 @@ def plot_correlations(data, target=None, limit=50, figsize=(12,10), **kwargs):
         del corr['abs']
         corr = corr.loc[cor_target.index, cor_target.index]
     plt.figure(figsize=figsize)
-    ax = sns.heatmap(corr, cmap='RdBu_r', **kwargs)
+    ax = sns.heatmap(data=corr, cmap='RdBu_r', **kwargs)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     plt.show()
     if target:
@@ -209,13 +213,17 @@ def segm_target(data, cat, target):
     '''
     Studies the target segmented by a categorical feature.
     It plots both a boxplot and a distplot for visual support
+    
+    :param data: Pandas Dataframe with the columns cat and target
+    :param cat: str, name of the category used to cut the data
+    :param target: str, name of the continuous target variable
     '''
     df = data.groupby(cat)[target].agg(['count', 'mean', 'max', 
                                         'min', 'median', 'std'])
     fig, ax = plt.subplots(1,2, figsize=(12, 5))
-    sns.boxplot(cat, target, data=data, ax=ax[0])
+    sns.boxplot(x=cat, y=target, data=data, ax=ax[0])
     for val in data[cat].unique():
         tmp = data[data[cat] == val]
-        sns.kdeplot(tmp[target], linewidth=3, alpha=0.7,
-                 label=val, ax=ax[1])  
+        sns.kdeplot(data=tmp[target], linewidth=3, alpha=0.7,
+                 label=val, ax=ax[1], warn_singular=False)  
     return df
