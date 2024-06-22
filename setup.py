@@ -15,13 +15,13 @@ PROJECT_URLS = {
     'Documentation': 'https://tubesml.readthedocs.io/',
     'Source Code': 'https://github.com/lucabasa/tubesML'
 }
-VERSION = '0.7.3'
+VERSION = '0.8.0'
 PYTHON_REQUIRES = ">=3.7"
 
 INSTALL_REQUIRES = [
-    'matplotlib>=3.5.3',
-    'pandas>=1.3.5',
-    'scikit-learn>=1.0.2',
+    'matplotlib>=3.7.5',
+    'pandas>=2.2.2',
+    'scikit-learn>=1.2.2',
     'seaborn>=0.12.2'
 ]
 
@@ -43,10 +43,10 @@ CLASSIFIERS = [
 ]
 
 TEST_REQUIRE = [
-        "pytest==7.1.3", 
-        "coverage==6.4.4", 
-        'xgboost==1.6.2',
-        'lightgbm==3.3.2'
+        "pytest==8.2.2", 
+        "coverage==7.5.3", 
+        'xgboost==2.1.0',
+        'lightgbm==4.4.0'
 ]
 
 
