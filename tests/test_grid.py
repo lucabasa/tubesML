@@ -42,7 +42,7 @@ pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')),
 pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
 
 full_pipe = Pipeline([('pipe', pipe), 
-                      ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                      ('logit', LogisticRegression(solver='lbfgs'))])
 
 
 @pytest.mark.parametrize("random", [False, 20])
@@ -140,7 +140,7 @@ def test_gridsearch_nopipeline(random):
     df_1 = df.drop('target', axis=1)
     df_1 = tml.DfImputer('mean').fit_transform(df_1)
     
-    model = LogisticRegression(solver='lbfgs', multi_class='auto')
+    model = LogisticRegression(solver='lbfgs')
     
     param_grid = {'C': np.arange(1, 10)}
     

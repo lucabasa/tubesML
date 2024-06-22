@@ -42,11 +42,9 @@ class DtypeSel(BaseTransformer):
         :return: pandas DataFrame with columns of the selected type
         '''
         if self.dtype == 'numeric':
-            num_cols = X.columns[X.dtypes != object].tolist()
-            X_tr = X[num_cols]
+            X_tr = X.select_dtypes(include='number')
         elif self.dtype == 'category':
-            cat_cols = X.columns[X.dtypes == object].tolist()
-            X_tr = X[cat_cols]
+            X_tr = X.select_dtypes(exclude='number')
         return X_tr
     
     
