@@ -177,7 +177,7 @@ def test_plot_classification_probs(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     
@@ -198,7 +198,7 @@ def test_plot_classification_probs_wronginput(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     
@@ -219,7 +219,7 @@ def test_plot_classification_probs_hue(_):
     
     full_pipe = Pipeline([('dummier', tml.Dummify()), 
                           ('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     
@@ -241,7 +241,7 @@ def test_plot_classification_probs_manyhue(_):
     df_1['many_cat'] = df_1[random.choice(df_1.columns)]
 
     full_pipe = Pipeline([('scaler', tml.DfScaler()),
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
 
     kfold = KFold(n_splits=3)
 
@@ -261,7 +261,7 @@ def test_plot_classification_probs_wronghue(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     

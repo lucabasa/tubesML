@@ -68,7 +68,7 @@ def test_predictions(add_indicator):
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")

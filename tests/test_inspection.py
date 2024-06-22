@@ -46,7 +46,7 @@ def test_get_coef():
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     full_pipe.fit(df_1, y)
 
@@ -88,7 +88,7 @@ def test_learning_curves(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     with warnings.catch_warnings():
@@ -187,7 +187,7 @@ def test_plot_feat_imp_warning():
         tml.plot_feat_imp(wrong_input, n=10)
 
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
                                    XGBClassifier(use_label_encoder=False), 
                                    LGBMClassifier()])
@@ -214,7 +214,7 @@ def test_get_pdp(model):
     assert pdp['x_1'].isna().all()
     
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
                                    XGBClassifier(use_label_encoder=False), 
                                    LGBMClassifier()])   
@@ -242,7 +242,7 @@ def test_get_pdp_cats(model):
     assert pdp['x_1'].isna().all()
     
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
                                    XGBClassifier(use_label_encoder=False), 
                                    LGBMClassifier()])    
