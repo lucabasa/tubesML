@@ -73,7 +73,7 @@ class FeatureUnionDf(BaseTransformer):
         If True, the time elapsed while fitting each transformer will be
         printed as it is completed.
     '''
-    def __init__(self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False):
+    def __init__(self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False, verbose_feature_names_out=False):
         super().__init__()
         self.transformer_list = transformer_list
         self.n_jobs = n_jobs
@@ -82,7 +82,8 @@ class FeatureUnionDf(BaseTransformer):
         self.feat_un = FeatureUnion(self.transformer_list, 
                                     n_jobs=self.n_jobs, 
                                     transformer_weights=self.transformer_weights, 
-                                    verbose=self.verbose)
+                                    verbose=self.verbose,
+                                    verbose_feature_names_out=verbose_feature_names_out)
     
     @reset_columns    
     def fit(self, X, y=None):

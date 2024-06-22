@@ -53,7 +53,7 @@ def test_cvscore(predict_proba):
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
 
     full_pipe = Pipeline([('pipe', pipe), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
 
     kfold = KFold(n_splits=3)
     
@@ -72,7 +72,7 @@ def test_cvscore_nopipe():
     
     kfold = KFold(n_splits=3)
     
-    full_pipe = LogisticRegression(solver='lbfgs', multi_class='auto')
+    full_pipe = LogisticRegression(solver='lbfgs')
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -110,7 +110,7 @@ def test_earlystopping(model):
     assert len(res_dict['iterations']) == 3  # one per fold
 
     
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeClassifier(), 
                                    XGBClassifier(use_label_encoder=False), 
                                    LGBMClassifier()])
@@ -141,7 +141,7 @@ def test_cvscore_coef_imp(model):
     assert len(coef['feat_imp']) == df_1.shape[1]  * 2 + 45  # to account for the combinations
 
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    XGBClassifier(use_label_encoder=False), 
                                    LGBMClassifier()])   
 def test_cvscore_nopipeline(model):
@@ -160,7 +160,7 @@ def test_cvscore_nopipeline(model):
     assert len(coef['feat_imp']) == df_1.shape[1]
     
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeClassifier(), 
                                    XGBClassifier(use_label_encoder=False), 
                                    LGBMClassifier()])    

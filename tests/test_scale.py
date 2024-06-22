@@ -59,7 +59,7 @@ def test_scl_scale_minmax():
     scaler = tubesml.DfScaler(method='minmax', feature_range=(0,2))
     scaler.fit(df)
     real_scale = (scaler.feature_range[1] - scaler.feature_range[0]) / (df['a'].max() - df['a'].min())
-    assert scaler.scale_[0] == real_scale
+    assert scaler.scale_.iloc[0] == real_scale
     
     
 def test_scl_mean():
