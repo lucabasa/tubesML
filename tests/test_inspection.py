@@ -57,13 +57,11 @@ def test_get_coef():
 
 
 @pytest.mark.parametrize('model', [DecisionTreeClassifier(), 
-                                   XGBClassifier(use_label_encoder=False), 
+                                   XGBClassifier(), 
                                    LGBMClassifier()])    
 def test_feat_imp(model):
     '''
     Test if we can get the feature importance for various models
-    XGB - Version 1.3.3, not in package requirements
-    LGB - Version 3.1.1, not in package requirements
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
@@ -107,8 +105,7 @@ def test_learning_curves_xgb(_):
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
                           ('xgb', XGBClassifier(objective='binary:logistic', 
-                                                n_estimators=2, n_jobs=-1,
-                                                use_label_encoder=False))])
+                                                n_estimators=2, n_jobs=-1))])
     
     kfold = KFold(n_splits=3)
     with warnings.catch_warnings():
@@ -130,11 +127,10 @@ def test_learning_curves_xgb_error(_):
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
                           ('xgb', XGBClassifier(objective='binary:logistic', 
                                                 n_estimators=200, early_stopping_rounds=3, 
-                                                eval_metric='accuracy', n_jobs=-1,
-                                                use_label_encoder=False))])
+                                                eval_metric='accuracy', n_jobs=-1))])
     
     kfold = KFold(n_splits=3)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
     
@@ -148,7 +144,7 @@ def test_learning_curves_lgb(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     kfold = KFold(n_splits=3)
     with warnings.catch_warnings():
@@ -189,13 +185,11 @@ def test_plot_feat_imp_warning():
 
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])
 def test_get_pdp(model):
     """
     Test basic functioning for various models
-    XGB - Version 1.3.3, not in package requirements
-    LGB - Version 3.1.1, not in package requirements
     """
     feat = df.columns[0]
     y = df['target']
@@ -216,8 +210,8 @@ def test_get_pdp(model):
 
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])   
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])   
 def test_get_pdp_cats(model):
     """
     Test basic functioning for various models
@@ -244,8 +238,8 @@ def test_get_pdp_cats(model):
 
 @pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])    
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])    
 def test_get_pdp_interaction(model):
     """
     Test if passing a tuple of features is possible
@@ -310,7 +304,7 @@ def test_plot_pdp_singleplot_y(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('imputer', tml.DfImputer()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     fig, ax = plt.subplots(1, 1, figsize=(12, 5))
     
@@ -331,7 +325,7 @@ def test_plot_pdp_singleplot_mean(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('imputer', tml.DfImputer()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     fig, ax = plt.subplots(1, 1, figsize=(12, 5))
     
