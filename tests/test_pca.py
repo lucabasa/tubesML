@@ -36,8 +36,17 @@ def test_pca():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         res = pca.fit_transform(df)
+
+@pytest.mark.parametrize("compress", [True, False])
+def test_no_nan(compress):
+    '''
+    Test it returns meaningful values
+    '''
+    pca = tubesml.DfPCA(n_components=2, compress=compress)
+    res = pca.fit_transform(df)
+    assert res.isna().any().sum() == 0
     
-    
+
 def test_pca_columns():
     '''
     Test the transformer columns are called properly
