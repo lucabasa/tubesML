@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.tri as tri
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.model_selection import learning_curve
 from sklearn.inspection import partial_dependence
 from sklearn.pipeline import Pipeline
@@ -94,13 +93,15 @@ def plot_feat_imp(data, n=-1, savename=None):
         raise KeyError('data must contain the columns feat, mean, and std')
     
     if n > 0:
-        fi = data.head(n)
+        fi = data.head(n).copy()
     else:
-        fi = data
+        fi = data.copy()
+
+    fi = fi.reset_index().iloc[::-1]
     
     fig, ax = plt.subplots(1,1, figsize=(13, max(1, int(0.3*fi.shape[0]))))
 
-    sns.barplot(x=fi['mean'], y=fi.index, xerr=fi['std'], ax=ax)
+    ax.barh(y=fi['feat'], width=fi['mean'], xerr=fi['std'], left=0)
     
     if savename is not None:
         plt.savefig(savename)
