@@ -47,9 +47,10 @@ def test_transformers(add_indicator):
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = pipe.fit_transform(df, df['target'])
+        pipe.fit(df, df['target'])
+        res = pipe.transform(df, df['target'])
+                       
     
-
 @pytest.mark.parametrize("add_indicator", [True, False])
 def test_predictions(add_indicator):
     '''
@@ -60,11 +61,11 @@ def test_predictions(add_indicator):
     
     pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
                      ('imp', tml.DfImputer(strategy='mean', add_indicator=add_indicator)), 
-                     ('poly', tml.DfPolynomial()), 
-                     ('sca', tml.DfScaler(method='standard')),  
+                     ('poly', tml.DfPolynomial()),
+                     ('sca', tml.DfScaler(method='standard')), 
                      ('tarenc', tml.TargetEncoder()),
-                     ('dummify', tml.Dummify()), 
-                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
+                     ('dummify', tml.Dummify()),
+                     ('pca', tml.DfPCA(n_components=0.9, compress=False))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
