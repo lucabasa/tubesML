@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.2'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 from sklearn.preprocessing import PolynomialFeatures
 import pandas as pd
 
@@ -40,7 +40,7 @@ class DfPolynomial(BaseTransformer):
                                       interaction_only=self.interaction_only)
         self.to_interact = to_interact
     
-    @reset_columns
+    @fit_wrapper
     def fit(self, X, y=None):
         '''
         Method to train the transformer.
@@ -65,7 +65,7 @@ class DfPolynomial(BaseTransformer):
         
         return self
         
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to transform the input data.

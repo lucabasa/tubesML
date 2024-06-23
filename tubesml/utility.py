@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.4'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 import pandas as pd
 from sklearn.pipeline import FeatureUnion
 
@@ -26,7 +26,7 @@ class DtypeSel(BaseTransformer):
         if self.dtype not in allowed_dtype:
             raise ValueError(f"Can only use these dtype: {allowed_dtype} got strategy={self.dtype}")
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to select columns based on their type.
@@ -83,7 +83,7 @@ class FeatureUnionDf(BaseTransformer):
                                     verbose=self.verbose,
                                     verbose_feature_names_out=verbose_feature_names_out)
     
-    @reset_columns    
+    @fit_wrapper    
     def fit(self, X, y=None):
         '''
         Method to fit all the transformers.
@@ -100,7 +100,7 @@ class FeatureUnionDf(BaseTransformer):
         return self
     
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         """
         Method to call all the transform methods in the ``transformer_list``

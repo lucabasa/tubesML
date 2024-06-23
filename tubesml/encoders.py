@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.2'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 
 
 class TargetEncoder(BaseTransformer):
@@ -41,7 +41,7 @@ class TargetEncoder(BaseTransformer):
         self.agg_func = agg_func
         
         
-    @reset_columns
+    @fit_wrapper
     def fit(self, X, y):
         '''
         Method to train the encoder by determining the posterior of each column
@@ -80,7 +80,7 @@ class TargetEncoder(BaseTransformer):
         return self
     
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to transform the input data

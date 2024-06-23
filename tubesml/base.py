@@ -1,26 +1,36 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.2'
+__version__ = '0.1.0'
 __status__ = 'development'
 
 from sklearn.base import BaseEstimator, TransformerMixin
 import functools
 
 
-def self_columns(func):
+def transform_wrapper(func):
+    '''
+    Wrapper for the transform method. It makes sure the columns are in the
+    same order as when the fit method was called and it populates the ``columns`` attribute
+    '''
     @functools.wraps(func)
-    def wrapped(self, *args, **kwargs):
-            X_tr = func(self, *args, **kwargs)
-            self.columns = X_tr.columns
-            return X_tr
+    def wrapped(self, X, y=None, **kwargs):
+        if len(self.column_order) > 0:
+            X = X[self.column_order]
+        X_tr = func(self, X, y, **kwargs)
+        self.columns = X_tr.columns
+        return X_tr
     return wrapped
 
 
-def reset_columns(func):
+def fit_wrapper(func):
+    '''
+    Wrapper for the fit method. It stores the column order and resets the ``columns`` attribute
+    '''
     @functools.wraps(func)
-    def wrapped(self, *args, **kwargs):
-            res = func(self, *args, **kwargs)
-            self.columns = []
-            return res
+    def wrapped(self, X, y=None, **kwargs):
+        self.column_order = X.columns
+        res = func(self, X, y, **kwargs)
+        self.columns = []
+        return res
     return wrapped
 
 
@@ -35,9 +45,10 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     '''
     
     def __init__(self):
+        self.column_order = []
         self.columns = [] # useful to well behave with FeatureUnion
         
-    @reset_columns    
+    @fit_wrapper   
     def fit(self, X, y=None):
         '''
         Method to train the transformer.
@@ -52,7 +63,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         self.is_fit_ = True
         return self
         
-    @self_columns    
+    @transform_wrapper   
     def transform(self, X, y=None):
         '''
         Method to transform the input data.

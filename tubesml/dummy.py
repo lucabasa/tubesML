@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.3'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns
+from tubesml.base import BaseTransformer, transform_wrapper
 import pandas as pd
 import warnings
 
@@ -60,8 +60,9 @@ class Dummify(BaseTransformer):
             self.verbose = False  # if called repeatedly, we only need one warning
             
         return X[self.columns]  # preserve original order to avoid problems with some algorithms
-    
 
+    
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to transform the input data and create dummy columns. 
