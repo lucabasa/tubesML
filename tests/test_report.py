@@ -15,6 +15,9 @@ import numpy as np
 import string
 import random
 
+import warnings  # FIXME: this part is necessary for the kaggle requirements, it is good to remove it one day
+warnings.filterwarnings("ignore", message="is_sparse is deprecated and will be removed in a future version.")
+
 
 def create_data(classification=True):
     if classification:
