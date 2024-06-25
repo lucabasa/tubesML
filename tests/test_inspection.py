@@ -57,8 +57,8 @@ def test_get_coef():
 
 
 @pytest.mark.parametrize('model', [DecisionTreeClassifier(), 
-                                   XGBClassifier(), 
-                                   LGBMClassifier()])    
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])    
 def test_feat_imp(model):
     '''
     Test if we can get the feature importance for various models
@@ -162,7 +162,7 @@ def test_plot_feat_imp(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     kfold = KFold(n_splits=3)
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
@@ -284,7 +284,7 @@ def test_plot_pdp(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('imputer', tml.DfImputer()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     pdp = df_1.columns[:3].to_list()
     
     kfold = KFold(n_splits=3)
