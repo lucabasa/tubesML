@@ -77,11 +77,17 @@ class FeatureUnionDf(BaseTransformer):
         self.n_jobs = n_jobs
         self.transformer_weights = transformer_weights
         self.verbose = verbose  # these are necessary to work inside of GridSearch or similar
-        self.feat_un = FeatureUnion(self.transformer_list, 
-                                    n_jobs=self.n_jobs, 
-                                    transformer_weights=self.transformer_weights, 
-                                    verbose=self.verbose,
-                                    verbose_feature_names_out=verbose_feature_names_out)
+        try:
+            self.feat_un = FeatureUnion(self.transformer_list, 
+                                        n_jobs=self.n_jobs, 
+                                        transformer_weights=self.transformer_weights, 
+                                        verbose=self.verbose,
+                                        verbose_feature_names_out=verbose_feature_names_out)
+        except TypeError:  # this can happen on earlier sklearn versions
+            self.feat_un = FeatureUnion(self.transformer_list, 
+                                        n_jobs=self.n_jobs, 
+                                        transformer_weights=self.transformer_weights, 
+                                        verbose=self.verbose)
     
     @fit_wrapper    
     def fit(self, X, y=None):
