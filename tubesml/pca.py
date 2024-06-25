@@ -80,6 +80,8 @@ class DfPCA(BaseTransformer):
         '''
         self.PCA.fit(X)
         self.n_components_ = self.PCA.n_components_
+
+        self.original_columns = X.columns
         
         return self
     
@@ -121,6 +123,6 @@ class DfPCA(BaseTransformer):
             X_tr = self.PCA.inverse_transform(X)
         except ValueError:
             return X
-        X_tr = pd.DataFrame(X_tr, columns=self.original_columns)
+        X_tr.columns = self.original_columns
         
         return X_tr

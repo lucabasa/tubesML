@@ -73,6 +73,7 @@ def test_inverse_transform():
     res = pca.fit_transform(df)
     res_2 = pca.inverse_transform(res)
     assert (res_2.columns == df.columns).all()
+    assert res_2.isna().any().sum() == 0
     
     
 def test_get_feature_names():
