@@ -31,4 +31,4 @@ jobs:
         ls -lh
     - name: Test with pytest
       run: |
-        pytest 
+        pytest tests/ -W ignore::DeprecationWarning:is_sparse
