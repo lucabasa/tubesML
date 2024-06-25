@@ -17,7 +17,7 @@ import string
 import random
 
 import warnings  # FIXME: this part is necessary for the kaggle requirements, it is good to remove it one day
-warnings.filterwarnings("ignore", message="is_sparse is deprecated and will be removed in a future version.")
+warnings.filterwarnings("ignore", message="is_sparse is deprecated and will be removed in a future version. Check `isinstance(dtype, pd.SparseDtype)` instead.")
 
 
 def create_data():
