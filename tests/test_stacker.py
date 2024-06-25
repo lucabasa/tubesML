@@ -183,7 +183,7 @@ def test_early_stopping():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_rounds=5, eval_metric='logloss')), 
+    estm = [('xgb', XGBClassifier(n_estimators=10000, early_stopping_rounds=5, eval_metric='logloss')), 
             ('lgb', LGBMClassifier(n_estimators=10000))]
     
     kfold = KFold(n_splits=3)
@@ -213,7 +213,7 @@ def test_early_stopping_pipeline_estimators():
     df_1 = df.drop('target', axis=1)
     
     estm = [('xgb', Pipeline([('scl', tubesml.DfScaler()),
-                              ('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False,
+                              ('xgb', XGBClassifier(n_estimators=10000,
                                             early_stopping_rounds=5, eval_metric='logloss'))
                              ])
             ),

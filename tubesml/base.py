@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.1.0'
 __status__ = 'development'
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 import functools
 
 
@@ -34,7 +34,7 @@ def fit_wrapper(func):
     return wrapped
 
 
-class BaseTransformer(BaseEstimator, TransformerMixin):
+class BaseTransformer(BaseEstimator, TransformerMixin, ClassifierMixin):
     '''
     This is the base class for all the transformers.
     
