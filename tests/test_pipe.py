@@ -65,7 +65,7 @@ def test_predictions(add_indicator):
                      ('sca', tml.DfScaler(method='standard')), 
                      ('tarenc', tml.TargetEncoder()),
                      ('dummify', tml.Dummify()),
-                     ('pca', tml.DfPCA(n_components=0.9, compress=False))])
+                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     
     full_pipe = Pipeline([('pipe', pipe), 
