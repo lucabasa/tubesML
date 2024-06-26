@@ -111,6 +111,7 @@ env.bak/
 venv.bak/
 
 pipeML/
+kaggle_env/
 # environment to test pip install
 env_test/
 
