@@ -260,15 +260,22 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
     pdp = partial_dependence(estimator, features=feature, 
                                    X=data, grid_resolution=grid_resolution, 
                                    kind='average')
+    
+    try:  # FIXME:this is for backward compatibility with kaggle
+        pdp['grid_values']
+        vals = 'grid_values'
+    except KeyError:
+        vals = 'values'
+    
     if isinstance(feature, tuple):
-        tmp = pd.DataFrame({'x': [pdp['grid_values'][1]]*grid_resolution})
+        tmp = pd.DataFrame({'x': [pdp[vals][1]]*grid_resolution})
         tmp = pd.DataFrame(tmp.x.to_list())
-        df_pdp = pd.concat([pd.DataFrame({'x': pdp['grid_values'][0]}), tmp], axis=1)
+        df_pdp = pd.concat([pd.DataFrame({'x': pdp[vals][0]}), tmp], axis=1)
         df_pdp = pd.melt(df_pdp, id_vars='x', value_name='x_1').drop('variable', axis=1).sort_values('x')
         df_pdp['y'] = [item for sublist in pdp['average'][0] for item in sublist]
     elif isinstance(feature, str):
-        df_pdp = pd.DataFrame({'x': pdp['grid_values'][0], 
-                               'x_1': [np.nan]*len(pdp['grid_values'][0]), 
+        df_pdp = pd.DataFrame({'x': pdp[vals][0], 
+                               'x_1': [np.nan]*len(pdp[vals][0]), 
                                'y': pdp['average'][0]})
     
     df_pdp['feat'] = [feature] * len(df_pdp)

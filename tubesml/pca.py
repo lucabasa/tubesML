@@ -123,6 +123,9 @@ class DfPCA(BaseTransformer):
             X_tr = self.PCA.inverse_transform(X)
         except ValueError:
             return X
-        X_tr.columns = self.original_columns
+        try:
+            X_tr.columns = self.original_columns
+        except AttributeError:  # FIXME: backward compatibility with Kaggle
+            X_tr = pd.DataFrame(X_tr, columns=self.original_columns)
         
         return X_tr
