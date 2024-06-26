@@ -54,12 +54,14 @@ def test_stacker_cls():
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        stk = tubesml.Stacker(estimators=estm, 
-                              final_estimator=LogisticRegression(), 
-                              cv=kfold)
-        stk.fit(df_1, y)
-        _ = stk.predict(df_1)
-        _ = stk.predict_proba(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, 
+                                  final_estimator=LogisticRegression(), 
+                                  cv=kfold)
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+            _ = stk.predict_proba(df_1)
     
     
 def test_stacker_reg():
@@ -76,11 +78,13 @@ def test_stacker_reg():
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        stk = tubesml.Stacker(estimators=estm, 
-                              final_estimator=DecisionTreeRegressor(), 
-                              cv=kfold)
-        stk.fit(df_1, y)
-        _ = stk.predict(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, 
+                                  final_estimator=DecisionTreeRegressor(), 
+                                  cv=kfold)
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
     
 
 @pytest.mark.parametrize("passthrough", [True, False])
@@ -100,12 +104,14 @@ def test_stacker_pipelines(passthrough):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        stk = tubesml.Stacker(estimators=estm, 
-                              final_estimator=pipe2, 
-                              cv=kfold, passthrough=passthrough)
-        stk.fit(df_1, y)
-        _ = stk.predict(df_1)
-        _ = stk.predict_proba(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, 
+                                  final_estimator=pipe2, 
+                                  cv=kfold, passthrough=passthrough)
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+            _ = stk.predict_proba(df_1)
         
         
 @pytest.mark.parametrize("passthrough", [True, False])
@@ -168,12 +174,14 @@ def test_hybrid_params():
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        stk = tubesml.Stacker(estimators=estm, 
-                            final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
-        stk.fit(df_1, y)
-        _ = stk.predict(df_1)
-        _ = stk.predict_proba(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, 
+                                final_estimator=DecisionTreeClassifier(), 
+                                cv=kfold, lay1_kwargs={'logit': {'predict_proba': True}})
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+            _ = stk.predict_proba(df_1)
     
 
 def test_early_stopping():
@@ -183,7 +191,7 @@ def test_early_stopping():
     y = df['target']
     df_1 = df.drop('target', axis=1)
     
-    estm = [('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False, early_stopping_rounds=5, eval_metric='logloss')), 
+    estm = [('xgb', XGBClassifier(n_estimators=10000, early_stopping_rounds=5, eval_metric='logloss')), 
             ('lgb', LGBMClassifier(n_estimators=10000))]
     
     kfold = KFold(n_splits=3)
@@ -193,13 +201,15 @@ def test_early_stopping():
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        stk = tubesml.Stacker(estimators=estm, 
-                            final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
-                                                   'lgb': {'early_stopping': True, 'fit_params': fit_params}})
-        stk.fit(df_1, y)
-        _ = stk.predict(df_1)
-        _ = stk.predict_proba(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, 
+                                final_estimator=DecisionTreeClassifier(), 
+                                cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
+                                                       'lgb': {'early_stopping': True, 'fit_params': fit_params}})
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+            _ = stk.predict_proba(df_1)
 
     assert stk._estimators[0].n_estimators < 1000
     assert stk._estimators[1].n_estimators < 1000
@@ -213,7 +223,7 @@ def test_early_stopping_pipeline_estimators():
     df_1 = df.drop('target', axis=1)
     
     estm = [('xgb', Pipeline([('scl', tubesml.DfScaler()),
-                              ('xgb', XGBClassifier(n_estimators=10000, use_label_encoder=False,
+                              ('xgb', XGBClassifier(n_estimators=10000,
                                             early_stopping_rounds=5, eval_metric='logloss'))
                              ])
             ),
@@ -230,13 +240,15 @@ def test_early_stopping_pipeline_estimators():
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        stk = tubesml.Stacker(estimators=estm, 
-                            final_estimator=DecisionTreeClassifier(), 
-                            cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
-                                                   'lgb': {'early_stopping': True, 'fit_params': fit_params}})
-        stk.fit(df_1, y)
-        _ = stk.predict(df_1)
-        _ = stk.predict_proba(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, 
+                                final_estimator=DecisionTreeClassifier(), 
+                                cv=kfold, lay1_kwargs={'xgb': {'predict_proba': True, 'early_stopping': True, 'fit_params': {'verbose': False}}, 
+                                                       'lgb': {'early_stopping': True, 'fit_params': fit_params}})
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+            _ = stk.predict_proba(df_1)
 
     assert stk._estimators[0].steps[-1][1].n_estimators < 1000
     assert stk._estimators[1].steps[-1][1].n_estimators < 1000
@@ -310,8 +322,10 @@ def test_gridsearch_stacker_simple(scoring):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=stk, 
-                                                         param_grid=param_grid, scoring=scoring, cv=3)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=stk, 
+                                                             param_grid=param_grid, scoring=scoring, cv=3)
         
     
     
@@ -338,8 +352,10 @@ def test_gridsearch_stacker_pipeline(scoring):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
-                                                         param_grid=param_grid, scoring=scoring, cv=3)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
+                                                             param_grid=param_grid, scoring=scoring, cv=3)
         
 
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])   
@@ -368,8 +384,10 @@ def test_gridsearch_stacker_passthrough(passthrough):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
-                                                         param_grid=param_grid, scoring='neg_log_loss', cv=3)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            result, best_param, best_estimator = tubesml.grid_search(data=df_1, target=y, estimator=pipe, 
+                                                             param_grid=param_grid, scoring='neg_log_loss', cv=3)
 
 
     
@@ -392,7 +410,9 @@ def test_cv_score_stacker_simple(predict_proba):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba)
     
     
 @pytest.mark.parametrize("predict_proba, imp_coef", [(True, False), (False, False), (True, True)])
@@ -417,7 +437,9 @@ def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef)
     
     
 @pytest.mark.parametrize("passthrough", [True, False, 'hybrid'])
@@ -445,4 +467,6 @@ def test_cv_score_stacker_passthrough(passthrough):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tubesml.cv_score(df_1, y, stk, cv=kfold, predict_proba=True)

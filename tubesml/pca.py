@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.1'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 from sklearn.decomposition import PCA
 import pandas as pd
 
@@ -65,7 +65,7 @@ class DfPCA(BaseTransformer):
         self.compress = compress
         self.original_columns = []
         
-    @reset_columns
+    @fit_wrapper
     def fit(self, X, y=None):
         '''
         Method to train the transformer.
@@ -80,10 +80,12 @@ class DfPCA(BaseTransformer):
         '''
         self.PCA.fit(X)
         self.n_components_ = self.PCA.n_components_
+
+        self.original_columns = X.columns
         
         return self
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to transform the input data.
@@ -121,6 +123,9 @@ class DfPCA(BaseTransformer):
             X_tr = self.PCA.inverse_transform(X)
         except ValueError:
             return X
-        X_tr = pd.DataFrame(X_tr, columns=self.original_columns)
+        try:
+            X_tr.columns = self.original_columns
+        except AttributeError:  # FIXME: backward compatibility with Kaggle
+            X_tr = pd.DataFrame(X_tr, columns=self.original_columns)
         
         return X_tr

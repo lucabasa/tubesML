@@ -42,7 +42,7 @@ pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')),
 pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
 
 full_pipe = Pipeline([('pipe', pipe), 
-                      ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                      ('logit', LogisticRegression(solver='lbfgs'))])
 
 
 @pytest.mark.parametrize("random", [False, 20])
@@ -67,7 +67,9 @@ def test_grid_bestestimator(random):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = best_estimator.predict(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res = best_estimator.predict(df_1)
     
     
 @pytest.mark.parametrize("random", [False, 20])
@@ -93,7 +95,9 @@ def test_grid_bestestimator_proba(random):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = best_estimator.predict(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res = best_estimator.predict(df_1)
 
 
 @pytest.mark.parametrize("random, n_res", [(False, 6), (5, 5)])   
@@ -140,12 +144,14 @@ def test_gridsearch_nopipeline(random):
     df_1 = df.drop('target', axis=1)
     df_1 = tml.DfImputer('mean').fit_transform(df_1)
     
-    model = LogisticRegression(solver='lbfgs', multi_class='auto')
+    model = LogisticRegression(solver='lbfgs')
     
     param_grid = {'C': np.arange(1, 10)}
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=model, 
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=model, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=random)
     

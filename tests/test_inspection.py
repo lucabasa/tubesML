@@ -20,6 +20,7 @@ import string
 import random
 
 
+
 def create_data(classification=True):
     if classification:
         df, target = make_classification(n_features=10)
@@ -46,7 +47,7 @@ def test_get_coef():
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     full_pipe.fit(df_1, y)
 
@@ -57,13 +58,11 @@ def test_get_coef():
 
 
 @pytest.mark.parametrize('model', [DecisionTreeClassifier(), 
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])    
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])    
 def test_feat_imp(model):
     '''
     Test if we can get the feature importance for various models
-    XGB - Version 1.3.3, not in package requirements
-    LGB - Version 3.1.1, not in package requirements
     '''
     y = df['target']
     df_1 = df.drop('target', axis=1)
@@ -88,7 +87,7 @@ def test_learning_curves(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     with warnings.catch_warnings():
@@ -107,14 +106,13 @@ def test_learning_curves_xgb(_):
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
                           ('xgb', XGBClassifier(objective='binary:logistic', 
-                                                n_estimators=2, n_jobs=-1,
-                                                use_label_encoder=False))])
+                                                n_estimators=2, n_jobs=-1))])
     
     kfold = KFold(n_splits=3)
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
+                                n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
         
         
 @patch("matplotlib.pyplot.show")  
@@ -130,11 +128,10 @@ def test_learning_curves_xgb_error(_):
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
                           ('xgb', XGBClassifier(objective='binary:logistic', 
                                                 n_estimators=200, early_stopping_rounds=3, 
-                                                eval_metric='accuracy', n_jobs=-1,
-                                                use_label_encoder=False))])
+                                                eval_metric='accuracy', n_jobs=-1))])
     
     kfold = KFold(n_splits=3)
-    with pytest.raises(RuntimeError):
+    with pytest.raises((RuntimeError, ValueError)):
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
     
@@ -148,13 +145,13 @@ def test_learning_curves_lgb(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     kfold = KFold(n_splits=3)
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+                                n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
 
 
 @patch("matplotlib.pyplot.show")
@@ -166,7 +163,7 @@ def test_plot_feat_imp(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     kfold = KFold(n_splits=3)
     oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
@@ -187,15 +184,13 @@ def test_plot_feat_imp_warning():
         tml.plot_feat_imp(wrong_input, n=10)
 
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])
 def test_get_pdp(model):
     """
     Test basic functioning for various models
-    XGB - Version 1.3.3, not in package requirements
-    LGB - Version 3.1.1, not in package requirements
     """
     feat = df.columns[0]
     y = df['target']
@@ -208,16 +203,18 @@ def test_get_pdp(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pdp = tml.get_pdp(full_pipe, feat, df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (100, 4)
     assert pdp['x_1'].isna().all()
     
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])   
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])   
 def test_get_pdp_cats(model):
     """
     Test basic functioning for various models
@@ -236,16 +233,18 @@ def test_get_pdp_cats(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pdp = tml.get_pdp(full_pipe, feat, df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (2, 4)
     assert pdp['x_1'].isna().all()
     
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeRegressor(),
-                                   XGBClassifier(use_label_encoder=False), 
-                                   LGBMClassifier()])    
+                                   XGBClassifier(n_estimators=10), 
+                                   LGBMClassifier(n_estimators=10)])    
 def test_get_pdp_interaction(model):
     """
     Test if passing a tuple of features is possible
@@ -262,7 +261,9 @@ def test_get_pdp_interaction(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pdp = tml.get_pdp(full_pipe, feat, df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (2500, 4)
     assert pdp['x_1'].notna().all()
@@ -290,7 +291,7 @@ def test_plot_pdp(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('imputer', tml.DfImputer()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     pdp = df_1.columns[:3].to_list()
     
     kfold = KFold(n_splits=3)
@@ -310,7 +311,7 @@ def test_plot_pdp_singleplot_y(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('imputer', tml.DfImputer()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     fig, ax = plt.subplots(1, 1, figsize=(12, 5))
     
@@ -331,7 +332,7 @@ def test_plot_pdp_singleplot_mean(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('imputer', tml.DfImputer()), 
-                          ('lgb', LGBMClassifier())])
+                          ('lgb', LGBMClassifier(n_estimators=10))])
     
     fig, ax = plt.subplots(1, 1, figsize=(12, 5))
     

@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.tri as tri
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.model_selection import learning_curve
 from sklearn.inspection import partial_dependence
 from sklearn.pipeline import Pipeline
@@ -94,13 +93,15 @@ def plot_feat_imp(data, n=-1, savename=None):
         raise KeyError('data must contain the columns feat, mean, and std')
     
     if n > 0:
-        fi = data.head(n)
+        fi = data.head(n).copy()
     else:
-        fi = data
+        fi = data.copy()
+
+    fi = fi.reset_index().iloc[::-1]
     
     fig, ax = plt.subplots(1,1, figsize=(13, max(1, int(0.3*fi.shape[0]))))
 
-    sns.barplot(x=fi['mean'], y=fi.index, xerr=fi['std'], ax=ax)
+    ax.barh(y=fi['feat'], width=fi['mean'], xerr=fi['std'], left=0)
     
     if savename is not None:
         plt.savefig(savename)
@@ -259,15 +260,22 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
     pdp = partial_dependence(estimator, features=feature, 
                                    X=data, grid_resolution=grid_resolution, 
                                    kind='average')
+    
+    try:  # FIXME:this is for backward compatibility with kaggle
+        pdp['grid_values']
+        vals = 'grid_values'
+    except KeyError:
+        vals = 'values'
+    
     if isinstance(feature, tuple):
-        tmp = pd.DataFrame({'x': [pdp['values'][1]]*grid_resolution})
+        tmp = pd.DataFrame({'x': [pdp[vals][1]]*grid_resolution})
         tmp = pd.DataFrame(tmp.x.to_list())
-        df_pdp = pd.concat([pd.DataFrame({'x': pdp['values'][0]}), tmp], axis=1)
+        df_pdp = pd.concat([pd.DataFrame({'x': pdp[vals][0]}), tmp], axis=1)
         df_pdp = pd.melt(df_pdp, id_vars='x', value_name='x_1').drop('variable', axis=1).sort_values('x')
         df_pdp['y'] = [item for sublist in pdp['average'][0] for item in sublist]
     elif isinstance(feature, str):
-        df_pdp = pd.DataFrame({'x': pdp['values'][0], 
-                               'x_1': [np.nan]*len(pdp['values'][0]), 
+        df_pdp = pd.DataFrame({'x': pdp[vals][0], 
+                               'x_1': [np.nan]*len(pdp[vals][0]), 
                                'y': pdp['average'][0]})
     
     df_pdp['feat'] = [feature] * len(df_pdp)

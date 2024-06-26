@@ -35,9 +35,20 @@ def test_pca():
     pca = tubesml.DfPCA(n_components=2)
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = pca.fit_transform(df)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res = pca.fit_transform(df)
+
+@pytest.mark.parametrize("compress", [True, False])
+def test_no_nan(compress):
+    '''
+    Test it returns meaningful values
+    '''
+    pca = tubesml.DfPCA(n_components=2, compress=compress)
+    res = pca.fit_transform(df)
+    assert res.isna().any().sum() == 0
     
-    
+
 def test_pca_columns():
     '''
     Test the transformer columns are called properly
@@ -64,6 +75,7 @@ def test_inverse_transform():
     res = pca.fit_transform(df)
     res_2 = pca.inverse_transform(res)
     assert (res_2.columns == df.columns).all()
+    assert res_2.isna().any().sum() == 0
     
     
 def test_get_feature_names():

@@ -53,13 +53,15 @@ def test_cvscore(predict_proba):
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
 
     full_pipe = Pipeline([('pipe', pipe), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
 
     kfold = KFold(n_splits=3)
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(res) == len(df_1)
     
     
@@ -72,47 +74,19 @@ def test_cvscore_nopipe():
     
     kfold = KFold(n_splits=3)
     
-    full_pipe = LogisticRegression(solver='lbfgs', multi_class='auto')
+    full_pipe = LogisticRegression(solver='lbfgs')
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
     assert len(res) == len(df_1)
 
-
-@pytest.mark.parametrize('model', [XGBClassifier(use_label_encoder=False, early_stopping_round=5, eval_metric='auc'), 
-                                   LGBMClassifier(early_stopping_round=5, eval_metric='auc')])
-def test_earlystopping(model):
-    '''
-    Test early stopping for XGBoost and LGBM
-    '''
-    y = df['target']
-    df_1 = df.drop('target', axis=1)
-    
-    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
-                     ('imp', tml.DfImputer(strategy='mean')), 
-                     ('poly', tml.DfPolynomial()),
-                     ('sca', tml.DfScaler(method='standard')),  
-                     ('tarenc', tml.TargetEncoder()),
-                     ('dummify', tml.Dummify()), 
-                     ('pca', tml.DfPCA(n_components=0.9))])
-    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
-
-    full_pipe = Pipeline([('pipe', pipe), 
-                          ('model', model)])
-
-    kfold = KFold(n_splits=3)
-    
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, imp_coef=True)
-    assert len(res) == len(df_1)
-    assert len(res_dict['iterations']) == 3  # one per fold
-
-    
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+  
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeClassifier(), 
-                                   XGBClassifier(use_label_encoder=False), 
+                                   XGBClassifier(), 
                                    LGBMClassifier()])
 def test_cvscore_coef_imp(model):
     '''
@@ -137,12 +111,14 @@ def test_cvscore_coef_imp(model):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(coef['feat_imp']) == df_1.shape[1]  * 2 + 45  # to account for the combinations
 
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
-                                   XGBClassifier(use_label_encoder=False), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
+                                   XGBClassifier(), 
                                    LGBMClassifier()])   
 def test_cvscore_nopipeline(model):
     '''
@@ -155,14 +131,16 @@ def test_cvscore_nopipeline(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
     assert len(res) == len(df_1)
     assert len(coef['feat_imp']) == df_1.shape[1]
     
 
-@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs', multi_class='auto'), 
+@pytest.mark.parametrize('model', [LogisticRegression(solver='lbfgs'), 
                                    DecisionTreeClassifier(), 
-                                   XGBClassifier(use_label_encoder=False), 
+                                   XGBClassifier(), 
                                    LGBMClassifier()])    
 def test_cvscore_pdp(model):
     """
@@ -184,7 +162,9 @@ def test_cvscore_pdp(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, pdp_res = tml.cv_score(df_1, y, full_pipe, cv=kfold, pdp=pdp)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, pdp_res = tml.cv_score(df_1, y, full_pipe, cv=kfold, pdp=pdp)
     assert set(pdp_res['pdp']['feat']) == set(pdp)
     assert pdp_res['pdp']['mean'].notna().all()
     assert pdp_res['pdp']['std'].notna().all()
@@ -205,12 +185,16 @@ def test_fit_params():
     kfold = KFold(n_splits=3)
     
     #XGBoost
-    model = XGBClassifier(use_label_encoder=False, early_stopping_rounds=5)
+    model = XGBClassifier(early_stopping_rounds=5)
     fit_params = {'verbose': False}
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, res_dict = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+        
     assert len(res) == len(df_1)
+    assert len(res_dict['iterations']) == 3  # one per fold
     
     #LightGBM
     model = LGBMClassifier()
@@ -218,8 +202,65 @@ def test_fit_params():
     fit_params = {"callbacks":callbacks}
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, res_dict = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+
     assert len(res) == len(df_1)
+    assert len(res_dict['iterations']) == 3  # one per fold
+
+
+def test_fit_params_pipeline():
+    """
+    Test that the user can provide a fit_params input when we use a pipeline
+    This test is specific for Xgboost and lightgbm or any other estimator
+    that allows parameters for the fit method.
+    
+    The test is not parametrized as the devs of xgboost and lightgbm can't
+    agree on how to pass parameters to a function.
+    """
+    y = df['target']
+    df_1 = df.drop('target', axis=1)
+    
+    kfold = KFold(n_splits=3)
+
+    pipe_transf = Pipeline([('fs', tml.DtypeSel(dtype='numeric')), 
+                     ('imp', tml.DfImputer(strategy='mean')), 
+                     ('poly', tml.DfPolynomial()),
+                     ('sca', tml.DfScaler(method='standard')),  
+                     ('tarenc', tml.TargetEncoder()),
+                     ('dummify', tml.Dummify()), 
+                     ('pca', tml.DfPCA(n_components=0.9, compress=True))])
+    pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
+    
+    #XGBoost
+    model = XGBClassifier(early_stopping_rounds=5)
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('model', model)])
+    fit_params = {'verbose': False}
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params)
+        
+    assert len(res) == len(df_1)
+    assert len(res_dict['iterations']) == 3  # one per fold
+    
+    #LightGBM
+    model = LGBMClassifier()
+    callbacks = [early_stopping(10, verbose=0)]
+    full_pipe = Pipeline([('pipe', pipe), 
+                          ('model', model)])
+    fit_params = {"callbacks":callbacks}
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params)
+
+    assert len(res) == len(df_1)
+    assert len(res_dict['iterations']) == 3  # one per fold
 
     
 def test_make_test():
@@ -233,6 +274,8 @@ def test_strat_test():
     df['cat'] = ['a']*50 + ['b']*50
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        train, test = tml.make_test(df, 0.2, 452, strat_feat='cat')
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            train, test = tml.make_test(df, 0.2, 452, strat_feat='cat')
     assert len(train[train['cat']=='a']) == len(train) / 2
     

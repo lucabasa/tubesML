@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.1.0'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 
 from sklearn.impute import SimpleImputer
 import pandas as pd
@@ -51,7 +51,7 @@ class DfImputer(BaseTransformer):
             raise ValueError(f"Can only use these strategies: {allowed_strategies} got strategy={self.strategy}")
 
     
-    @reset_columns
+    @fit_wrapper
     def fit(self, X, y=None):
         '''
         Method to train the imputer.
@@ -71,7 +71,7 @@ class DfImputer(BaseTransformer):
         return self
     
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to transform the input data

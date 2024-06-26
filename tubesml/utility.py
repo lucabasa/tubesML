@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.4'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 import pandas as pd
 from sklearn.pipeline import FeatureUnion
 
@@ -26,7 +26,7 @@ class DtypeSel(BaseTransformer):
         if self.dtype not in allowed_dtype:
             raise ValueError(f"Can only use these dtype: {allowed_dtype} got strategy={self.dtype}")
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to select columns based on their type.
@@ -42,11 +42,9 @@ class DtypeSel(BaseTransformer):
         :return: pandas DataFrame with columns of the selected type
         '''
         if self.dtype == 'numeric':
-            num_cols = X.columns[X.dtypes != object].tolist()
-            X_tr = X[num_cols]
+            X_tr = X.select_dtypes(include='number')
         elif self.dtype == 'category':
-            cat_cols = X.columns[X.dtypes == object].tolist()
-            X_tr = X[cat_cols]
+            X_tr = X.select_dtypes(exclude='number')
         return X_tr
     
     
@@ -73,18 +71,25 @@ class FeatureUnionDf(BaseTransformer):
         If True, the time elapsed while fitting each transformer will be
         printed as it is completed.
     '''
-    def __init__(self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False):
+    def __init__(self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False, verbose_feature_names_out=False):
         super().__init__()
         self.transformer_list = transformer_list
         self.n_jobs = n_jobs
         self.transformer_weights = transformer_weights
         self.verbose = verbose  # these are necessary to work inside of GridSearch or similar
-        self.feat_un = FeatureUnion(self.transformer_list, 
-                                    n_jobs=self.n_jobs, 
-                                    transformer_weights=self.transformer_weights, 
-                                    verbose=self.verbose)
+        try:
+            self.feat_un = FeatureUnion(self.transformer_list, 
+                                        n_jobs=self.n_jobs, 
+                                        transformer_weights=self.transformer_weights, 
+                                        verbose=self.verbose,
+                                        verbose_feature_names_out=verbose_feature_names_out)
+        except TypeError:  # this can happen on earlier sklearn versions
+            self.feat_un = FeatureUnion(self.transformer_list, 
+                                        n_jobs=self.n_jobs, 
+                                        transformer_weights=self.transformer_weights, 
+                                        verbose=self.verbose)
     
-    @reset_columns    
+    @fit_wrapper    
     def fit(self, X, y=None):
         '''
         Method to fit all the transformers.
@@ -101,7 +106,7 @@ class FeatureUnionDf(BaseTransformer):
         return self
     
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         """
         Method to call all the transform methods in the ``transformer_list``

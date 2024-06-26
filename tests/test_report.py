@@ -55,7 +55,11 @@ def test_plot_regression_pred_nohue(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof)
 
     
 @patch("matplotlib.pyplot.show") 
@@ -76,7 +80,11 @@ def test_plot_regression_pred_hue(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='cat')
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue='cat')
     
 
 @patch("matplotlib.pyplot.show") 
@@ -116,11 +124,15 @@ def test_plot_regression_features(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature='feature')
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature='feature')
         
         
 @patch("matplotlib.pyplot.show") 
-def test_plot_regression_features(_):
+def test_plot_regression_two_features(_):
     '''
     Test plot_regression_predictions with extra plot against more feature
     '''
@@ -138,8 +150,11 @@ def test_plot_regression_features(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature=['feature', 'feature2'])
-        
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature=['feature', 'feature2'])
         
 
 @patch("matplotlib.pyplot.show")       
@@ -152,7 +167,9 @@ def test_plot_confusion_matrix_binary(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
 
         
 @patch("matplotlib.pyplot.show")       
@@ -165,7 +182,9 @@ def test_plot_confusion_matrix_nonbinary(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
     
     
 @patch("matplotlib.pyplot.show")       
@@ -177,7 +196,7 @@ def test_plot_classification_probs(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     
@@ -185,7 +204,9 @@ def test_plot_classification_probs(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof)
     
     
 @patch("matplotlib.pyplot.show")       
@@ -198,7 +219,7 @@ def test_plot_classification_probs_wronginput(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     
@@ -219,7 +240,7 @@ def test_plot_classification_probs_hue(_):
     
     full_pipe = Pipeline([('dummier', tml.Dummify()), 
                           ('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     
@@ -227,7 +248,9 @@ def test_plot_classification_probs_hue(_):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='cat')
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat='cat')
     
 
 @patch("matplotlib.pyplot.show")
@@ -241,7 +264,7 @@ def test_plot_classification_probs_manyhue(_):
     df_1['many_cat'] = df_1[random.choice(df_1.columns)]
 
     full_pipe = Pipeline([('scaler', tml.DfScaler()),
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
 
     kfold = KFold(n_splits=3)
 
@@ -261,7 +284,7 @@ def test_plot_classification_probs_wronghue(_):
     df_1 = df.drop('target', axis=1)
     
     full_pipe = Pipeline([('scaler', tml.DfScaler()), 
-                          ('logit', LogisticRegression(solver='lbfgs', multi_class='auto'))])
+                          ('logit', LogisticRegression(solver='lbfgs'))])
     
     kfold = KFold(n_splits=3)
     

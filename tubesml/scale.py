@@ -2,7 +2,7 @@ __author__ = 'lucabasa'
 __version__ = '0.0.4'
 __status__ = 'development'
 
-from tubesml.base import BaseTransformer, self_columns, reset_columns
+from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 import pandas as pd
 
@@ -70,7 +70,7 @@ class DfScaler(BaseTransformer):
             raise ValueError(f"Can only use these methods: {allowed_methods} got method={self.method}")
     
     
-    @reset_columns
+    @fit_wrapper
     def fit(self, X, y=None):
         '''
         Method to train the scaler.
@@ -105,7 +105,7 @@ class DfScaler(BaseTransformer):
         return self
     
     
-    @self_columns
+    @transform_wrapper
     def transform(self, X, y=None):
         '''
         Method to transform the input data.
