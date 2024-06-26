@@ -29,4 +29,4 @@ jobs:
         ls -lh
     - name: Test with pytest
       run: |
-        pytest tests/ -W ignore::DeprecationWarning
+        pytest -W ignore::DeprecationWarning
