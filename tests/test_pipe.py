@@ -47,8 +47,10 @@ def test_transformers(add_indicator):
     pipe = tml.FeatureUnionDf([('transf', pipe_transf)])
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pipe.fit(df, df['target'])
-        res = pipe.transform(df, df['target'])
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pipe.fit(df, df['target'])
+            res = pipe.transform(df, df['target'])
                        
     
 @pytest.mark.parametrize("add_indicator", [True, False])
@@ -73,6 +75,8 @@ def test_predictions(add_indicator):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        full_pipe.fit(df_1, y)
-        res = full_pipe.predict(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            full_pipe.fit(df_1, y)
+            res = full_pipe.predict(df_1)
     

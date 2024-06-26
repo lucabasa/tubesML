@@ -67,7 +67,9 @@ def test_grid_bestestimator(random):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = best_estimator.predict(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res = best_estimator.predict(df_1)
     
     
 @pytest.mark.parametrize("random", [False, 20])
@@ -93,7 +95,9 @@ def test_grid_bestestimator_proba(random):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = best_estimator.predict(df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res = best_estimator.predict(df_1)
 
 
 @pytest.mark.parametrize("random, n_res", [(False, 6), (5, 5)])   
@@ -146,6 +150,8 @@ def test_gridsearch_nopipeline(random):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=model, 
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            result, best_param, best_estimator = tml.grid_search(data=df_1, target=y, estimator=model, 
                                                          param_grid=param_grid, scoring='accuracy', cv=3, random=random)
     

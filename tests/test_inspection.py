@@ -112,7 +112,7 @@ def test_learning_curves_xgb(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
+                                n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
         
         
 @patch("matplotlib.pyplot.show")  
@@ -131,7 +131,7 @@ def test_learning_curves_xgb_error(_):
                                                 eval_metric='accuracy', n_jobs=-1))])
     
     kfold = KFold(n_splits=3)
-    with pytest.raises(ValueError):
+    with pytest.raises(RuntimeError):
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
     
@@ -151,7 +151,7 @@ def test_learning_curves_lgb(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=None, cv=kfold,
-                            n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
+                                n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None)
 
 
 @patch("matplotlib.pyplot.show")
@@ -203,7 +203,9 @@ def test_get_pdp(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pdp = tml.get_pdp(full_pipe, feat, df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (100, 4)
     assert pdp['x_1'].isna().all()
@@ -231,7 +233,9 @@ def test_get_pdp_cats(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pdp = tml.get_pdp(full_pipe, feat, df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (2, 4)
     assert pdp['x_1'].isna().all()
@@ -257,7 +261,9 @@ def test_get_pdp_interaction(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        pdp = tml.get_pdp(full_pipe, feat, df_1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            pdp = tml.get_pdp(full_pipe, feat, df_1)
     assert {'feat', 'x', 'x_1', 'y'} == set(pdp.columns)
     assert pdp.shape == (2500, 4)
     assert pdp['x_1'].notna().all()

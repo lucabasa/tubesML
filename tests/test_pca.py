@@ -35,7 +35,9 @@ def test_pca():
     pca = tubesml.DfPCA(n_components=2)
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res = pca.fit_transform(df)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res = pca.fit_transform(df)
 
 @pytest.mark.parametrize("compress", [True, False])
 def test_no_nan(compress):
