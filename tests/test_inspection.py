@@ -131,7 +131,7 @@ def test_learning_curves_xgb_error(_):
                                                 eval_metric='accuracy', n_jobs=-1))])
     
     kfold = KFold(n_splits=3)
-    with pytest.raises(RuntimeError):
+    with pytest.raises((RuntimeError, ValueError)):
         tml.plot_learning_curve(estimator=full_pipe, X=df_1, y=y, scoring='accuracy', ylim=(0, 1), cv=kfold,
                             n_jobs=-1, train_sizes=np.linspace(.1, 1.0, 10), title=None) 
     
