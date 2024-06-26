@@ -16,9 +16,6 @@ import pandas as pd
 import string
 import random
 
-import warnings  # FIXME: this part is necessary for the kaggle requirements, it is good to remove it one day
-warnings.filterwarnings("ignore", message="is_sparse is deprecated and will be removed in a future version. Check `isinstance(dtype, pd.SparseDtype)` instead.")
-
 
 def create_data():
     df, target = make_classification(n_features=10)
