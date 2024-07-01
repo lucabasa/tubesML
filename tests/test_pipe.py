@@ -23,9 +23,11 @@ def create_data():
         i += 1
         
     df = pd.DataFrame(df, columns=random_names)
+    df['cat'] = ['A', 'B'] * int(len(df) / 2)
     df['target'] = target
     
     df.loc[df.sample(30).index, df.columns[0]] = np.nan
+    df.loc[df.sample(30).index, 'cat'] = np.nan
     
     return df
 
@@ -51,6 +53,22 @@ def test_transformers(add_indicator):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             pipe.fit(df, df['target'])
             res = pipe.transform(df, df['target'])
+
+def test_unifier():
+    num_pipe = Pipeline([('fs', tml.DtypeSel(dtype='numeric')),
+                          ('imp', tml.DfImputer(strategy='mean'))
+                          ])
+    cat_pipe = Pipeline([('fs', tml.DtypeSel(dtype='category')),
+                          ('imp', tml.DfImputer(strategy='most_frequent'))
+                          ])
+
+    pipe = tml.FeatureUnionDf([('num', num_pipe), ('cat', cat_pipe)])
+
+    full_pipe = Pipeline([('pipe', pipe), ('fs', tml.Dummify(drop_first=True))])
+
+    res = full_pipe.fit_transform(df)
+
+    assert len(res.columns == 12)
                        
     
 @pytest.mark.parametrize("add_indicator", [True, False])

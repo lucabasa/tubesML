@@ -116,6 +116,16 @@ def test_cl_stat_constant():
     imputer.fit(df)
     pd.testing.assert_series_equal(imputer.statistics_, pd.Series([5]*df.shape[1], index=df.columns), check_dtype=False)
 
+
+def test_imputer_dtype():
+    '''
+    Test the data type is preserved after imputation
+    '''
+    imputer = tubesml.DfImputer(strategy='mean', add_indicator=True)
+    res = imputer.fit_transform(df)
+    assert res['b'].dtype == 'int64'
+    assert res['a'].dtype == 'float64'
+
     
 def test_cl_error():
     '''

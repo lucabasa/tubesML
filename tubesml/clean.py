@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
@@ -43,6 +43,7 @@ class DfImputer(BaseTransformer):
         self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value)
         self.statistics_ = None
         self._missing_cols = []
+        self.data_types = None
         
         
     def _validate_input(self):
@@ -65,6 +66,7 @@ class DfImputer(BaseTransformer):
             The target values (class labels) as integers or strings.
         '''
         self.imp.fit(X)
+        self.data_types = X.dtypes.to_dict()
         self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
         if self.add_indicator:
             self._missing_cols = list(X.columns[X.isna().any()])
@@ -88,6 +90,11 @@ class DfImputer(BaseTransformer):
         '''
         Ximp = self.imp.transform(X)
         Xfilled = pd.DataFrame(Ximp, index=X.index, columns=X.columns)
+        for col in Xfilled:  # this is to preserve the original data types
+            try:
+                Xfilled[col] = Xfilled[col].astype(self.data_types[col])
+            except KeyError:
+                pass
         if self.add_indicator:
             for col in self._missing_cols:
                 Xfilled[f'missing_{col}'] = np.where(X[col].isna(), 1, 0)
