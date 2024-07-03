@@ -90,11 +90,7 @@ class DfImputer(BaseTransformer):
         '''
         Ximp = self.imp.transform(X)
         Xfilled = pd.DataFrame(Ximp, index=X.index, columns=X.columns)
-        for col in Xfilled:  # this is to preserve the original data types
-            try:
-                Xfilled[col] = Xfilled[col].astype(self.data_types[col])
-            except KeyError:
-                pass
+        Xfilled = Xfilled.astype(self.data_types)
         if self.add_indicator:
             for col in self._missing_cols:
                 Xfilled[f'missing_{col}'] = np.where(X[col].isna(), 1, 0)
