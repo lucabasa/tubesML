@@ -1,5 +1,5 @@
 __author__ = 'lucabasa'
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
@@ -133,7 +133,7 @@ class FeatureUnionDf(BaseTransformer):
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
         
-        return X_tr
+        return X_tr.convert_dtypes()
 
     
     def get_params(self, deep=True):  # necessary to well behave in GridSearch
