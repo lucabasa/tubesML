@@ -35,9 +35,7 @@ class Dummify(BaseTransformer):
         super().__init__()
         self.drop_first = drop_first
         self.match_cols = match_cols
-        self.verbose = verbose
-        self.is_fit = False
-        
+        self.verbose = verbose        
     
     def _match_columns(self, X):
         miss_train = list(set(X.columns) - set(self.columns))
@@ -60,7 +58,6 @@ class Dummify(BaseTransformer):
             self.verbose = False  # if called repeatedly, we only need one warning
             
         return X[self.columns]  # preserve original order to avoid problems with some algorithms
-
     
     @transform_wrapper
     def transform(self, X, y=None):
@@ -80,7 +77,7 @@ class Dummify(BaseTransformer):
             
         :return: pandas DataFrame with dummified columns
         '''
-        if not self.is_fit:  # if it the first time, run it as specified and populate self.columns
+        if len(self.columns) == 0:  # if it the first time, run it as specified and populate self.columns
             X_tr = pd.get_dummies(X, drop_first=self.drop_first)
             self.columns = X_tr.columns
             self.is_fit = True
