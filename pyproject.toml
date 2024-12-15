@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tubesml"
+version = "0.8.2"
+description = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
+readme = "README.rst"
+authors = [
+    { name="Luca Basanisi", email="luca.basanisi@gmail.com" },
+]
+maintainers = [
+    { name="Luca Basanisi", email="luca.basanisi@gmail.com" },
+]
+license = { text="Apache-2.0" }
+homepage = "https://pypi.org/project/tubesml/"
+repository = "https://github.com/lucabasa/tubesML"
+documentation = "https://tubesml.readthedocs.io/"
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
+
+[project.urls]
+"Source Code" = "https://github.com/lucabasa/tubesML"
+"Documentation" = "https://tubesml.readthedocs.io/"
+# "Bug Tracker" = ""  # Add this if you have a bug tracker URL
+
+[project.dependencies]
+matplotlib = ">=3.7.5"
+pandas = ">=2.2.2"
+scikit-learn = ">=1.2.2"
+seaborn = ">=0.12.2"
+
+[project.optional-dependencies]
+test = [
+    "pytest==8.2.2",
+    "coverage==7.5.3",
+    "xgboost==2.1.0",
+    "lightgbm==4.4.0",
+]
+
+[tool.black]
+line-length = 120
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/( \.git
+| \.hg
+| \.mypy_cache
+| \.tox
+| \.venv
+| _build
+| buck-out
+| build
+| dist
+)/
+'''
