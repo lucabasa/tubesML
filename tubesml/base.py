@@ -1,8 +1,9 @@
 __author__ = 'lucabasa'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __status__ = 'development'
 
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
+from sklearn.utils.validation import check_is_fitted
 import functools
 
 
@@ -29,6 +30,7 @@ def fit_wrapper(func):
     def wrapped(self, X, y=None, **kwargs):
         self.column_order = X.columns
         res = func(self, X, y, **kwargs)
+        self._is_fitted = True
         self.columns = []
         return res
     return wrapped
@@ -60,7 +62,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin, ClassifierMixin):
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), optional
             The target values (class labels) as integers or strings.
         '''
-        self.is_fit_ = True
+        self._is_fitted = True
         return self
         
     @transform_wrapper   
@@ -75,11 +77,17 @@ class BaseTransformer(BaseEstimator, TransformerMixin, ClassifierMixin):
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs), optional
             The target values (class labels) as integers or strings.
         '''
+        check_is_fitted(self)
         return X
      
-        
     def get_feature_names_out(self):
         '''
         Returns the ``columns`` attribute, useful to well behave with other sklearn methods
         '''
         return self.columns
+
+    def __sklearn_is_fitted__(self):
+        """
+        Check fitted status and return a Boolean value.
+        """
+        return hasattr(self, "_is_fitted") and self._is_fitted
