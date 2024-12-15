@@ -1,10 +1,10 @@
 __author__ = 'lucabasa'
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 __status__ = 'development'
 
 from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 
-from sklearn.impute import SimpleImputer
+from sklearn.impute import SimpleImputer, KNNImputer
 import pandas as pd
 import numpy as np
 
@@ -34,13 +34,20 @@ class DfImputer(BaseTransformer):
                 Core transformer. Its ``fit`` and ``transform`` methods are used here.
 
     '''
-    def __init__(self, strategy='mean', fill_value=None, add_indicator=False):
+    def __init__(self, imputer_type="simple", strategy='mean', fill_value=None, add_indicator=False,
+                n_neighbors=5, weights='uniform'):
         super().__init__()
         self.strategy = strategy
         self.fill_value = fill_value
         self.add_indicator = add_indicator
+        self.imputer_type = imputer_type
+        self.n_neighbors = n_neighbors
+        self.weights = weights
         self._validate_input()
-        self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value)
+        if imputer_type == "simple":
+            self.imp = SimpleImputer(strategy=self.strategy, fill_value=self.fill_value)
+        elif imputer_type == "knn":
+            self.imp = KNNImputer(n_neighbors=self.n_neighbors, weights=self.weights)
         self.statistics_ = None
         self._missing_cols = []
         self.data_types = None
@@ -50,6 +57,8 @@ class DfImputer(BaseTransformer):
         allowed_strategies = ["mean", "median", "most_frequent", "constant"]
         if self.strategy not in allowed_strategies:
             raise ValueError(f"Can only use these strategies: {allowed_strategies} got strategy={self.strategy}")
+        if self.weights not in ["uniform", "distance"]:
+            raise ValueError(f"Can only use these weights: uniform, distance. Got weights={self.weights}")
 
     
     @fit_wrapper
@@ -67,7 +76,8 @@ class DfImputer(BaseTransformer):
         '''
         self.imp.fit(X)
         self.data_types = X.dtypes.to_dict()
-        self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
+        if self.imputer_type == "simple":
+            self.statistics_ = pd.Series(self.imp.statistics_, index=X.columns)
         if self.add_indicator:
             self._missing_cols = list(X.columns[X.isna().any()])
         return self
