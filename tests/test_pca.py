@@ -1,13 +1,12 @@
-import tubesml
-import pytest
+import random
+import string
 import warnings
-import pandas as pd
-import numpy as np
 
+import pandas as pd
+import pytest
 from sklearn.datasets import make_classification
 
-import string
-import random
+import tubesml
 
 
 def create_data():

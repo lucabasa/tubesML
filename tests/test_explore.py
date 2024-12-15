@@ -1,12 +1,13 @@
-import tubesml
-import pytest
-import pandas as pd
-import numpy as np
+import random
+import string
 from unittest.mock import patch
 
+import numpy as np
+import pandas as pd
+import pytest
 from sklearn.datasets import make_classification
-import string
-import random
+
+import tubesml
 
 
 @pytest.mark.parametrize("verbose", [True, False])

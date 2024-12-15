@@ -118,7 +118,6 @@ class DfPCA(BaseTransformer):
         return X_tr
 
     def inverse_transform(self, X, y=None):
-
         try:
             X_tr = self.PCA.inverse_transform(X)
         except ValueError:

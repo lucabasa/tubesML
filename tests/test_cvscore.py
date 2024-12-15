@@ -1,20 +1,19 @@
-import tubesml as tml
-import pytest
+import random
+import string
 import warnings
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.datasets import make_classification
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import KFold
-
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier, early_stopping
-
 import pandas as pd
+import pytest
+from lightgbm import early_stopping
+from lightgbm import LGBMClassifier
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import KFold
+from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
 
-import string
-import random
+import tubesml as tml
 
 
 def create_data():

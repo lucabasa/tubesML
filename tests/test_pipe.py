@@ -1,15 +1,15 @@
-import tubesml as tml
-import pytest
-import warnings
-import pandas as pd
-import numpy as np
-
-import string
 import random
+import string
+import warnings
 
+import numpy as np
+import pandas as pd
+import pytest
 from sklearn.datasets import make_classification
-from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+
+import tubesml as tml
 
 
 def create_data():

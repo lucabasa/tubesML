@@ -1,7 +1,8 @@
-import pytest
 import warnings
+
 import pandas as pd
-import numpy as np
+import pytest
+
 import tubesml
 
 

@@ -11,7 +11,7 @@ In every case, the output is going to be a pandas DataFrame so that any further 
 
 .. automodule:: tubesml.poly
     :members:
-    
+
 .. automodule:: tubesml.encoders
     :members:
 

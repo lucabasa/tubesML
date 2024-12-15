@@ -8,11 +8,12 @@ from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
 class TargetEncoder(BaseTransformer):
     """
     Heavily inspired by
-    `MaxHalford <https://github.com/MaxHalford/xam/blob/93c066990d976c7d4d74b63fb6fb3254ee8d9b48/xam/feature_extraction/encoding/bayesian_target.py#L8>`__
+    `MaxHalford <https://github.com/MaxHalford/xam/blob/93c066990d976c7d4d74b63fb6fb3254ee8d9b48/xam/feature_extraction/encoding/bayesian_target.py#L8>`__ # noqa
 
     Encodes categorical features with statistics of the target variable. For example, by using the mean target value.
 
-    It allows for other aggregating functions, for now it is assumed this is provided as a string for the agg method of pandas.
+    It allows for other aggregating functions, for now it is assumed this is provided as a string for the agg method
+    of pandas.
 
     Inherits from ``BaseTransformer``.
 
@@ -68,7 +69,6 @@ class TargetEncoder(BaseTransformer):
         self.posteriors_ = {}
 
         for col in self.to_encode:
-
             agg = tmp.groupby(col)["target"].agg(["count", self.agg_func])
             counts = agg["count"]
             data = agg[self.agg_func]

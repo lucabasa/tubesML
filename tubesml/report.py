@@ -6,11 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import learning_curve
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import roc_auc_score, accuracy_score, classification_report, roc_curve, confusion_matrix
-
-from tubesml.base import BaseTransformer
 
 import warnings
 
@@ -31,7 +27,6 @@ def _plot_diagonal(ax):
 
 
 def _plot_simple_predictions(fig, ax, tmp, hue):
-
     legend = False
     addition = ""
     if hue is not None:
@@ -57,10 +52,6 @@ def _plot_simple_predictions(fig, ax, tmp, hue):
 
 
 def _plot_feature_predictions(fig, ax, tmp, feature):
-
-    alpha = 0.7
-    label = ""
-
     legend = "full"
     sns.scatterplot(x=feature, y="True Label", data=tmp, ax=ax[0], label="True Label", legend="full", alpha=0.4)
 
@@ -76,8 +67,9 @@ def _plot_feature_predictions(fig, ax, tmp, feature):
 
 def plot_regression_predictions(data, true_label, pred_label, hue=None, feature=None, savename=None):
     """
-    Plot prediction vs true label and the distribution of both the label and the predictions. Display also the influence
-    of categorical features via the `hue` parameter. You can also display the prediction vs a feature or more in the data.
+    Plot prediction vs true label and the distribution of both the label and the predictions.
+    Display also the influence of categorical features via the `hue` parameter.
+    You can also display the prediction vs a feature or more in the data.
     This will help identify non-desired patterns also with the help of a residuals plot.
 
     :param data: pandas DataFrame.
@@ -88,16 +80,16 @@ def plot_regression_predictions(data, true_label, pred_label, hue=None, feature=
 
     :param pred_label: pandas Series, numpy array, or list with the predicted values of the target variable.
 
-    :param hue: (optional) str, name of the feature to use as hue in the scatter plot. It must be in ``data`` or it will be
-                ignored after a warning.
+    :param hue: (optional) str, name of the feature to use as hue in the scatter plot. It must be in ``data``
+                or it will be ignored after a warning.
                 It is ignored when the unique values are more than 5 for readability.
 
-    :param feature: (optional), str or list, feature(s) to use as x-axis in the scatter plot against the prediction. Using this
-                option will produce 2 more plots for each feature provided, one with the feature vs the prediction and one with
-                the feature vs the residuals
+    :param feature: (optional), str or list, feature(s) to use as x-axis in the scatter plot against the prediction.
+                Using this option will produce 2 more plots for each feature provided,
+                one with the feature vs the prediction and one with the feature vs the residuals
 
-    :param savename: (optional) str with the name of the file to use to save the figure. If not provided, the function simply
-                    plots the figure.
+    :param savename: (optional) str with the name of the file to use to save the figure. If not provided,
+                the function simply plots the figure.
     """
 
     tmp = data.copy()

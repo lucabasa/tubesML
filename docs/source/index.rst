@@ -13,7 +13,7 @@ The package contains also several methods to inspect the models and its predicti
    :maxdepth: 2
    :caption: Contents:
    :titlesonly:
-   
+
    intro
    base
    clean

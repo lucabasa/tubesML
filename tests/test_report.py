@@ -1,19 +1,18 @@
-import tubesml as tml
-import pytest
+import random
+import string
 import warnings
 from unittest.mock import patch
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.datasets import make_classification, make_regression
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import KFold
-
 import pandas as pd
-import numpy as np
+import pytest
+from sklearn.datasets import make_classification
+from sklearn.datasets import make_regression
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import KFold
+from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeRegressor
 
-import string
-import random
+import tubesml as tml
 
 
 def create_data(classification=True):
