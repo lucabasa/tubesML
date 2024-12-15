@@ -3,7 +3,7 @@ init:
 
 test:
 	coverage run -m pytest tests
-    
+
 coverage:
 	coverage report -m --include=tubesml/* --skip-covered
 

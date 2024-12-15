@@ -45,11 +45,10 @@ If you already have a working installation of pandas and sklearn,
 the easiest way to install scikit-learn is using ``pip``   ::
 
     pip install -U tubesml
-    
+
 Important links
 ~~~~~~~~~~~~~~~
 
 - Official source code repo: https://github.com/lucabasa/tubesML
 - Download releases: https://pypi.org/project/tubesml/
 - Documentation: https://tubesml.readthedocs.io/en/latest/
-    

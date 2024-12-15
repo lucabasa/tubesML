@@ -6,4 +6,3 @@ This class ensures just that. Nearly every other class in TubesML inherits from 
 
 .. automodule:: tubesml.base
     :members:
-    
