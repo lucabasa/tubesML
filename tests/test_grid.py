@@ -151,7 +151,7 @@ def test_gridsearch_nopipeline(random):
     """
     y = df["target"]
     df_1 = df.drop("target", axis=1)
-    df_1 = tml.DfImputer("mean").fit_transform(df_1)
+    df_1 = tml.DfImputer().fit_transform(df_1)
 
     model = LogisticRegression(solver="lbfgs")
 
