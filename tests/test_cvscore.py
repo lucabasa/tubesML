@@ -59,7 +59,9 @@ def test_cvscore(predict_proba):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(res) == len(df_1)
     
     
@@ -76,7 +78,9 @@ def test_cvscore_nopipe():
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
     assert len(res) == len(df_1)
 
   
@@ -107,7 +111,9 @@ def test_cvscore_coef_imp(model):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(coef['feat_imp']) == df_1.shape[1]  * 2 + 45  # to account for the combinations
 
 
@@ -125,7 +131,9 @@ def test_cvscore_nopipeline(model):
     
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
     assert len(res) == len(df_1)
     assert len(coef['feat_imp']) == df_1.shape[1]
     
@@ -155,7 +163,7 @@ def test_cvscore_pdp(model):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=FutureWarning)  # TODO: fix it later, an issue in LGB and XGB
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
             res, pdp_res = tml.cv_score(df_1, y, full_pipe, cv=kfold, pdp=pdp)
     assert set(pdp_res['pdp']['feat']) == set(pdp)
     assert pdp_res['pdp']['mean'].notna().all()
