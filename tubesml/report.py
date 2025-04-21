@@ -242,7 +242,7 @@ def plot_classification_probs(
         plt.show()
 
 
-def eval_classification(data, target, preds, proba=False, thrs=0.5, feats=None, plot=True, **kwargs):
+def eval_classification(data, target, preds, proba=False, thrs=0.5, plot=True, **kwargs):
     if proba:
         preds_bin = preds >= thrs
         fpr, tpr, _ = roc_curve(target, preds)
