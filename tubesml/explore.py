@@ -11,10 +11,6 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-import warnings  # Fixme: remove this when Seaborn is updated to 0.13
-
-warnings.filterwarnings("ignore", "is_categorical_dtype")
-warnings.filterwarnings("ignore", "use_inf_as_na")
 
 
 def list_missing(data, verbose=True):
