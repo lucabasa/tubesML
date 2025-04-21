@@ -217,7 +217,7 @@ def segm_target(data, cat, target):
     :param cat: str, name of the category used to cut the data
     :param target: str, name of the continuous target variable
     """
-    df = data.groupby(cat)[target].agg(["count", "mean", "max", "min", "median", "std"])
+    df = data.groupby(cat, observed=False)[target].agg(["count", "mean", "max", "min", "median", "std"])
     fig, ax = plt.subplots(1, 2, figsize=(12, 5))
     sns.boxplot(x=cat, y=target, data=data, ax=ax[0])
     for val in data[cat].unique():
