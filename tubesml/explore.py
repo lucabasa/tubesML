@@ -147,12 +147,13 @@ def corr_target(data, target, cols, x_estimator=None):
     num = len(cols)
     rows = int(num / 2) + (num % 2 > 0)
     cols = list(cols)
-    y = data[target]
+    to_plot = data.sample(min(len(data), 20000))
+    y = to_plot[target]
     fig, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
     i = 0
     j = 0
     for feat in cols:
-        x = data[feat]
+        x = to_plot[feat]
         if rows > 1:
             sns.regplot(x=x, y=y, ax=ax[i][j], x_estimator=x_estimator)
             j = (j + 1) % 2
