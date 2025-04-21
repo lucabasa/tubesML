@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-
 def list_missing(data, verbose=True):
     """
     Find all the columns with missing values and report on the percentage of missing values.
