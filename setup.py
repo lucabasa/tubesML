@@ -14,7 +14,7 @@ PROJECT_URLS = {
     "Documentation": "https://tubesml.readthedocs.io/",
     "Source Code": "https://github.com/lucabasa/tubesML",
 }
-VERSION = "0.8.2"
+VERSION = "0.8.3"
 PYTHON_REQUIRES = ">=3.7"
 
 INSTALL_REQUIRES = ["matplotlib>=3.7.5", "pandas>=2.2.2", "scikit-learn>=1.2.2", "seaborn>=0.12.2"]
