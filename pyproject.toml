@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tubesml"
-version = "0.8.2"
+version = "1.0.0"
 description = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 readme = "README.rst"
 authors = [
@@ -13,11 +13,10 @@ authors = [
 maintainers = [
     { name="Luca Basanisi", email="luca.basanisi@gmail.com" },
 ]
-license = { text="Apache-2.0" }
-homepage = "https://pypi.org/project/tubesml/"
-repository = "https://github.com/lucabasa/tubesML"
-documentation = "https://tubesml.readthedocs.io/"
+license = { file="LICENSE" }
+
 requires-python = ">=3.7"
+
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
@@ -29,20 +28,15 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: MacOS",
 ]
-
-[project.urls]
-"Source Code" = "https://github.com/lucabasa/tubesML"
-"Documentation" = "https://tubesml.readthedocs.io/"
-# "Bug Tracker" = ""  # Add this if you have a bug tracker URL
-
-[project.dependencies]
-matplotlib = ">=3.7.5"
-pandas = ">=2.2.2"
-scikit-learn = ">=1.2.2"
-seaborn = ">=0.12.2"
+dependencies = [
+    "matplotlib>=3.7.5",
+    "pandas>=2.2.2",
+    "scikit-learn>=1.2.2",
+    "seaborn>=0.12.2",
+]
 
 [project.optional-dependencies]
-test = [
+testing = [
     "pytest==8.2.2",
     "coverage==7.5.3",
     "xgboost==2.1.0",
@@ -65,3 +59,8 @@ exclude = '''
 | dist
 )/
 '''
+
+[project.urls]
+Source = "https://github.com/lucabasa/tubesML"
+Documentation = "https://tubesml.readthedocs.io/"
+# "Bug Tracker" = ""  # Add this if you have a bug tracker URL
