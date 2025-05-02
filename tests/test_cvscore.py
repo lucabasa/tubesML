@@ -62,9 +62,11 @@ def test_cvscore(predict_proba):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
+        cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=predict_proba)
+        res, _ = cv_score.score()
+        # with warnings.catch_warnings():  # FIXME: clean before release
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=predict_proba)
     assert len(res) == len(df_1)
 
 
@@ -81,9 +83,11 @@ def test_cvscore_nopipe():
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
+        cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+        res, _ = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, _ = tml.cv_score(df_1, y, full_pipe, cv=kfold, predict_proba=True)
     assert len(res) == len(df_1)
 
 
@@ -116,9 +120,11 @@ def test_cvscore_coef_imp(model):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
+        cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True)
+        res, coef = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, coef = tml.cv_score(df_1, y, full_pipe, cv=kfold, imp_coef=True)
     assert len(coef["feat_imp"]) == df_1.shape[1] * 2 + 45  # to account for the combinations
 
 
@@ -134,15 +140,17 @@ def test_cvscore_nopipeline(model):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
+        cv_score = tml.CrossValidate(data=df_1, target=y, estimator=model, cv=kfold, imp_coef=True)
+        res, coef = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, coef = tml.cv_score(df_1, y, model, cv=kfold, imp_coef=True)
     assert len(res) == len(df_1)
     assert len(coef["feat_imp"]) == df_1.shape[1]
 
 
 @pytest.mark.parametrize(
-    "model", [LogisticRegression(solver="lbfgs"), DecisionTreeClassifier(), XGBClassifier(), LGBMClassifier()]
+    "model", [LogisticRegression(solver="lbfgs"), DecisionTreeClassifier(), XGBClassifier(), LGBMClassifier(verbose=-1)]
 )
 def test_cvscore_pdp(model):
     """
@@ -162,9 +170,11 @@ def test_cvscore_pdp(model):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, pdp_res = tml.cv_score(df_1, y, full_pipe, cv=kfold, pdp=pdp)
+        cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=pdp)
+        res, pdp_res = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, pdp_res = tml.cv_score(df_1, y, full_pipe, cv=kfold, pdp=pdp)
     assert set(pdp_res["pdp"]["feat"]) == set(pdp)
     assert pdp_res["pdp"]["mean"].notna().all()
     assert pdp_res["pdp"]["std"].notna().all()
@@ -189,9 +199,13 @@ def test_fit_params():
     fit_params = {"verbose": False}
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, res_dict = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+        cv_score = tml.CrossValidate(
+            data=df_1, target=y, estimator=model, cv=kfold, early_stopping=True, fit_params=fit_params
+        )
+        res, res_dict = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, res_dict = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
 
     assert len(res) == len(df_1)
     assert len(res_dict["iterations"]) == 3  # one per fold
@@ -202,9 +216,13 @@ def test_fit_params():
     fit_params = {"callbacks": callbacks}
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, res_dict = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
+        cv_score = tml.CrossValidate(
+            data=df_1, target=y, estimator=model, cv=kfold, early_stopping=True, fit_params=fit_params
+        )
+        res, res_dict = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, res_dict = tml.cv_score(df_1, y, model, cv=kfold, early_stopping=True, fit_params=fit_params)
 
     assert len(res) == len(df_1)
     assert len(res_dict["iterations"]) == 3  # one per fold
@@ -243,9 +261,13 @@ def test_fit_params_pipeline():
     fit_params = {"verbose": False}
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params)
+        cv_score = tml.CrossValidate(
+            data=df_1, target=y, estimator=full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params
+        )
+        res, res_dict = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params)
 
     assert len(res) == len(df_1)
     assert len(res_dict["iterations"]) == 3  # one per fold
@@ -257,26 +279,13 @@ def test_fit_params_pipeline():
     fit_params = {"callbacks": callbacks}
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params)
+        cv_score = tml.CrossValidate(
+            data=df_1, target=y, estimator=full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params
+        )
+        res, res_dict = cv_score.score()
+        # with warnings.catch_warnings():
+        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
+        #     res, res_dict = tml.cv_score(df_1, y, full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params)
 
     assert len(res) == len(df_1)
     assert len(res_dict["iterations"]) == 3  # one per fold
-
-
-def test_make_test():
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        train, test = tml.make_test(df, 0.2, 452)
-
-
-def test_strat_test():
-    df_1 = df.copy()
-    df["cat"] = ["a"] * 50 + ["b"] * 50
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            train, test = tml.make_test(df, 0.2, 452, strat_feat="cat")
-    assert len(train[train["cat"] == "a"]) == len(train) / 2

@@ -8,18 +8,26 @@ from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
 from tubesml.base import BaseTransformer
 
 
-class CrossValidate():
-    def __init__(self, data,
-                 target,
-                 estimator,
-                 cv,
-                 test=None,
-                 target_proc=None,
-                 imp_coef=False, pdp=None, 
-                 predict_proba=False, early_stopping=False, 
-                 fit_params=None):
-        self.train = data.copy
-        self.df_test = test.copy()
+class CrossValidate:
+    def __init__(
+        self,
+        data,
+        target,
+        estimator,
+        cv,
+        test=None,
+        target_proc=None,
+        imp_coef=False,
+        pdp=None,
+        predict_proba=False,
+        early_stopping=False,
+        fit_params=None,
+    ):
+        self.train = data.copy()
+        if test is None:
+            self.df_test = None
+        else:
+            self.df_test = test.copy()
         self.target = target.copy()
         self.estimator = estimator
         self.cv = cv
@@ -38,13 +46,15 @@ class CrossValidate():
 
             trn_target, val_target = self._get_train_val_target(train_index, test_index)
 
-            trn_data, val_data, test_data, model, transf_pipe = self._prepare_cv_iteration(trn_data, val_data, trn_target) 
-            
+            trn_data, val_data, test_data, model, transf_pipe = self._prepare_cv_iteration(
+                trn_data, val_data, trn_target
+            )
+
             if self.early_stopping:
                 # Fit the model with early stopping
-                model.fit(trn_data, trn_target, eval_set=[(trn_data, trn_target),
-                                                          (val_data, val_target)],
-                                                          **self.fit_params)
+                model.fit(
+                    trn_data, trn_target, eval_set=[(trn_data, trn_target), (val_data, val_target)], **self.fit_params
+                )
                 # store iteration used
                 try:
                     self.iteration.append(model.best_iteration)
@@ -55,10 +65,12 @@ class CrossValidate():
 
             if self.predict_proba:
                 self.oof[test_index] = model.predict_proba(val_data)[:, 1]
-                self.pred += model.predict_proba(test_data)[:, 1]
+                if self.df_test is not None:
+                    self.pred += model.predict_proba(test_data)[:, 1]
             else:
                 self.oof[test_index] = model.predict(val_data).ravel()
-                self.pred += model.predict(test_data).ravel()
+                if self.df_test is not None:
+                    self.pred += model.predict(test_data).ravel()
 
             if self.imp_coef:
                 self._fold_imp(model, trn_data, n_fold)
@@ -73,7 +85,7 @@ class CrossValidate():
         else:
             self.pred /= self.cv.get_n_splits()
             return self.oof, self.pred, self.result_dict
-    
+
     def _initialize_loop(self):
         self.oof = np.zeros(len(self.train))
         if self.df_test is not None:
@@ -92,16 +104,15 @@ class CrossValidate():
         try:  # If estimator is not a pipeline, make a pipeline
             self.estimator.steps
         except AttributeError:
-            self.estimator = Pipeline([("transf", BaseTransformer()),
-                                       ("model", self.estimator)])
-            
+            self.estimator = Pipeline([("transf", BaseTransformer()), ("model", self.estimator)])
+
     def _get_train_val_target(self, train_index, test_index):
         if self.target_proc is None:
             trn_target = pd.Series(self.target.iloc[train_index].values.ravel())
             val_target = pd.Series(self.target.iloc[test_index].values.ravel())
         else:
             trn_target, val_target = self.target_proc(self.target, train_index, test_index)
-        
+
         return trn_target, val_target
 
     def _prepare_cv_iteration(self, trn_data, val_data, trn_target):
@@ -118,7 +129,7 @@ class CrossValidate():
             test_data = val_data
 
         return trn_data, val_data, test_data, model, transf_pipe
-    
+
     def _fold_imp(self, model, trn_data, n_fold):
         feats = trn_data.columns
         try:
@@ -132,10 +143,10 @@ class CrossValidate():
     def _fold_pdp(self, model, transf_pipe, n_fold):
         pdp_set = transf_pipe.transform(self.train)  # to have the same data ranges in each fold
         # The pdp will still be different by fold
-        if isinstance(pdp, str):
-            pdp = [pdp]
+        if isinstance(self.pdp, str):
+            self.pdp = [self.pdp]
         fold_pdp = []
-        for feat in pdp:
+        for feat in self.pdp:
             if isinstance(feat, tuple):  # 2-way pdp is not supported as we can't take a good average
                 continue
             fold_tmp = get_pdp(model, feat, pdp_set)

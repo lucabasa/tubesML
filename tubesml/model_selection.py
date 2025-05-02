@@ -85,6 +85,91 @@ def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
     return result, grid.best_params_, grid.best_estimator_
 
 
+def cv_score_predict(data, test, target, estimator, cv,
+                     imp_coef=False, predict_proba=False,
+                     early_stopping=False, fit_params=None,
+                     target_proc=None):
+
+    oof = np.zeros(len(data))
+    pred = np.zeros(len(test))
+    train = data.copy()
+    test_df = test.copy()
+
+    rep_res = {}
+
+    feat_df = pd.DataFrame()
+    iteration = []
+    feat_pdp = pd.DataFrame()
+
+    if fit_params is None:
+        fit_params = {}
+
+    try:  # If estimator is not a pipeline, make a pipeline
+        estimator.steps
+    except AttributeError:
+        estimator = Pipeline([("transf", BaseTransformer()), ("model", estimator)])
+
+    for n_fold, (train_index, test_index) in enumerate(cv.split(train.values)):
+        trn_data = train.iloc[train_index, :]
+        val_data = train.iloc[test_index, :]
+
+        if target_proc is None:
+            trn_target = pd.Series(target.iloc[train_index].values.ravel())
+            val_target = pd.Series(target.iloc[test_index].values.ravel())
+        else:
+            trn_target, val_target = target_proc(target, train_index, test_index)
+
+        # create model and transform pipelines
+        transf_pipe = clone(Pipeline(estimator.steps[:-1]))
+        model = clone(estimator.steps[-1][1])  # it creates issues with match_cols in dummy otherwise
+        # Transform the data for the model
+        trn_data = transf_pipe.fit_transform(trn_data, trn_target)
+        val_data = transf_pipe.transform(val_data)
+        test_data = transf_pipe.transform(test_df)
+
+        if early_stopping:
+            # Fit the model with early stopping
+            model.fit(trn_data, trn_target, eval_set=[(trn_data, trn_target), (val_data, val_target)], **fit_params)
+            # store iteration used
+            try:
+                iteration.append(model.best_iteration)
+            except AttributeError:
+                iteration.append(model.best_iteration_)
+        else:
+            model.fit(trn_data, trn_target, **fit_params)
+
+        if predict_proba:
+            oof[test_index] = model.predict_proba(val_data)[:, 1]
+            pred += model.predict_proba(test_data)[:, 1]
+        else:
+            oof[test_index] = model.predict(val_data).ravel()
+            pred += model.predict(test_data).ravel()
+
+        if imp_coef:
+            feats = trn_data.columns
+            try:
+                fold_df = get_coef(model, feats)
+            except (AttributeError, KeyError):
+                fold_df = get_feature_importance(model, feats)
+
+            fold_df["fold"] = n_fold + 1
+            feat_df = pd.concat([feat_df, fold_df], axis=0)
+
+    if imp_coef:
+        feat_df = feat_df.groupby("feat")["score"].agg(["mean", "std"])
+        feat_df["abs_sco"] = abs(feat_df["mean"])
+        feat_df = feat_df.sort_values(by=["abs_sco"], ascending=False)
+        feat_df["std"] = feat_df["std"] / np.sqrt(cv.get_n_splits() - 1)  # std of the mean, unbiased
+        del feat_df["abs_sco"]
+        rep_res["feat_imp"] = feat_df
+
+    if early_stopping:
+        rep_res["iterations"] = iteration
+
+    pred /= (n_fold + 1)
+
+    return oof, rep_res, pred
+
 def cv_score(
     data, target, estimator, cv, imp_coef=False, pdp=None, predict_proba=False, early_stopping=False, fit_params=None
 ):
