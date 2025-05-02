@@ -70,6 +70,7 @@ class CrossValidate:
         predict_proba=False,
         early_stopping=False,
         fit_params=None,
+        regression=True
     ):
         self.train = data.copy()
         if test is None:
@@ -85,6 +86,7 @@ class CrossValidate:
         self.predict_proba = predict_proba
         self.early_stopping = early_stopping
         self.fit_params = fit_params
+        self.regression = regression
         self._initialize_loop()
 
     def score(self):
@@ -132,6 +134,8 @@ class CrossValidate:
             return self.oof, self.result_dict
         else:
             self.pred /= self.cv.get_n_splits()
+            if not self.regression:
+                self._postprocess_prediction()
             return self.oof, self.pred, self.result_dict
 
     def _initialize_loop(self):
@@ -172,7 +176,7 @@ class CrossValidate:
         val_data = transf_pipe.transform(val_data)
 
         if self.df_test is not None:
-            test_data = transf_pipe.transform(self.test_df)
+            test_data = transf_pipe.transform(self.df_test)
         else:
             test_data = val_data
 
@@ -219,3 +223,12 @@ class CrossValidate:
             feat_pdp = self.feat_pdp.groupby(["feat", "x"])["y"].agg(["mean", "std"]).reset_index()
             feat_pdp["std"] = feat_pdp["std"] / np.sqrt(self.cv.get_n_splits() - 1)
             self.result_dict["pdp"] = feat_pdp
+
+    def _postprocess_prediction(self):
+        self.pred /= self.cv.get_n_splits()
+        if not (self.regression or self.predict_proba):
+            if self.cv.get_n_splits() % 2 == 0:
+                pass
+            else:
+                thr = 1 / (self.cv.get_n_splits() / 2)  # FIXME: this works only with binary classification
+                self.pred = np.array([int(i > thr) for i in self.pred])
