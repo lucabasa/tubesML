@@ -26,6 +26,18 @@ class CrossValidate:
     :param cv: KFold object.
             For cross-validation, the estimates will be done across these folds.
 
+    :param test: pandas DataFrame, default=None
+            Data to predict on within each fold. If provided, each model trained in each fold predicts
+            on this set. The predictions are then averaged across the folds. If it is a classification
+            problem and we are not predicting the probabilities, the most frequent class is used. If
+            there is no majority class (it can happen with an even number of folds), the class is chosen
+            at random.
+
+    :param target_proc: function, default=None.
+            It must take target as input (in this context it can be one or more arrays or series) and 2
+            indices for train and validation. It must return 2 series with the train and validation
+            targets
+
     :param imp_coef: bool, default=False.
             If True, returns the feature importance or the coefficient values averaged across the folds,
             with standard deviation on the mean.
@@ -46,15 +58,23 @@ class CrossValidate:
                         This is useful to control the verbosity of the fit method as some packages
                         like XGBoost and LightGBM do not do that in the estimator declaration.
 
-    :return oof: pd.Series with the out of fold predictions for the entire train set.
+    :param regression: bool, default=True.
+                        If True, the predictions on the test set will be averaged across folds. Set it to
+                        false if the problem is a binary classification problem and you are not using
+                        ``predict_proba``.
 
-    :return rep_res: A dictionary with additional results. If ``imp_coef=True``,
+    :return oof: numpy array with the out of fold predictions for the entire train set.
+
+    :return res_dict: A dictionary with additional results. If ``imp_coef=True``,
                     it contains a pd.DataFrame with the coefficients or
                     feature importances of the estimator, it can be found under the key ``feat_imp``.
                     If ``early_stopping=True``, it contains a list with the best iteration number per fold,
                     it can be found under the key ``iterations``. If ``pdp`` is not ``None``, it contains a
                     pd.DataFrame with the partial dependence of the given features, it can be found under
                     the key ``pdp``
+
+    :return pred: (optional) numpy array with the prediction done on the test set (if provided).
+
     """
 
     def __init__(
@@ -90,6 +110,11 @@ class CrossValidate:
         self._initialize_loop()
 
     def score(self):
+        """
+        Main method to loop over the folds, train and predict. It produces out of fold predictions
+        and, if provided, an average prediction on the test set. It can also produce various insights
+        on the model, like feature importance and pdp's.
+        """
         for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values)):
             trn_data = self.train.iloc[train_index, :]
             val_data = self.train.iloc[test_index, :]
@@ -139,6 +164,10 @@ class CrossValidate:
             return self.oof, self.pred, self.result_dict
 
     def _initialize_loop(self):
+        """
+        Prepares everything needed to loop over the folds.
+        The estimator must be a pipeline, so we make it one if it isn't
+        """
         self.oof = np.zeros(len(self.train))
         if self.df_test is not None:
             self.pred = np.zeros(len(self.df_test))
@@ -159,6 +188,9 @@ class CrossValidate:
             self.estimator = Pipeline([("transf", BaseTransformer()), ("model", self.estimator)])
 
     def _get_train_val_target(self, train_index, test_index):
+        """
+        Prepare the target for training and validation within the Fold
+        """
         if self.target_proc is None:
             trn_target = pd.Series(self.target.iloc[train_index].values.ravel())
             val_target = pd.Series(self.target.iloc[test_index].values.ravel())
@@ -168,6 +200,10 @@ class CrossValidate:
         return trn_target, val_target
 
     def _prepare_cv_iteration(self, trn_data, val_data, trn_target):
+        """
+        In each fold, make sure the data is processed without leaks. 
+        It separates the processing from the model in the pipeline.
+        """
         # create model and transform pipelines
         transf_pipe = clone(Pipeline(self.estimator.steps[:-1]))
         model = clone(self.estimator.steps[-1][1])  # it creates issues with match_cols in dummy otherwise
@@ -225,6 +261,11 @@ class CrossValidate:
             self.result_dict["pdp"] = feat_pdp
 
     def _postprocess_prediction(self):
+        """
+        Averages the predictions on the test set across the folds.
+        If it is a classification problem and we were not predicting the probabilities, the class
+        most often predicted is used. Ties are solved with a random choice.
+        """
         self.pred /= self.cv.get_n_splits()
         if not (self.regression or self.predict_proba):
             thr = 1 / (self.cv.get_n_splits() / 2)  # FIXME: this works only with binary classification
