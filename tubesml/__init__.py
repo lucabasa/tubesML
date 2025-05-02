@@ -16,7 +16,6 @@ from tubesml.model_inspection import plot_feat_imp
 from tubesml.model_inspection import plot_learning_curve
 from tubesml.model_inspection import plot_partial_dependence
 from tubesml.model_inspection import plot_pdp
-from tubesml.model_selection import cv_score
 from tubesml.model_selection import grid_search
 from tubesml.model_selection import make_test
 from tubesml.pca import DfPCA
@@ -41,7 +40,6 @@ __all__ = [
     DtypeSel,
     FeatureUnionDf,
     grid_search,
-    cv_score,
     make_test,
     get_coef,
     get_feature_importance,

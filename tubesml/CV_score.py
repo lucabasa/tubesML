@@ -9,6 +9,54 @@ from tubesml.base import BaseTransformer
 
 
 class CrossValidate:
+    """
+    Train and test a pipeline in kfold cross validation
+
+    :param data: pandas DataFrame.
+           Data to tune the hyperparameters.
+
+    :param target: numpy array or pandas Series.
+            Target column.
+
+    :param estimator: sklearn compatible estimator.
+            It must have a ``predict`` method and a ``get_params`` method.
+            It can be a Pipeline. If it is not a Pipeline, it will be made one for
+            compatibility with other functionalities.
+
+    :param cv: KFold object.
+            For cross-validation, the estimates will be done across these folds.
+
+    :param imp_coef: bool, default=False.
+            If True, returns the feature importance or the coefficient values averaged across the folds,
+            with standard deviation on the mean.
+
+    :param pdp: string or list, default=None.
+            If not None, returns the partial dependence of the given features averaged across the folds,
+            with standard deviation on the mean.
+            The partial dependence of 2 features simultaneously is not supported.
+
+    :param predict_proba: bool, default=False.
+            If True, calls the ``predict_proba`` method instead of the ``predict`` one.
+
+    :param early_stopping: bool, default=False.
+                        If True, uses early stopping within the folds for the estimators that support it.
+
+    :param fit_params: dict, default=None.
+                        If a dictionary is provided, it will pass it to the fit method.
+                        This is useful to control the verbosity of the fit method as some packages
+                        like XGBoost and LightGBM do not do that in the estimator declaration.
+
+    :return oof: pd.Series with the out of fold predictions for the entire train set.
+
+    :return rep_res: A dictionary with additional results. If ``imp_coef=True``,
+                    it contains a pd.DataFrame with the coefficients or
+                    feature importances of the estimator, it can be found under the key ``feat_imp``.
+                    If ``early_stopping=True``, it contains a list with the best iteration number per fold,
+                    it can be found under the key ``iterations``. If ``pdp`` is not ``None``, it contains a
+                    pd.DataFrame with the partial dependence of the given features, it can be found under
+                    the key ``pdp``
+    """
+
     def __init__(
         self,
         data,
