@@ -70,7 +70,7 @@ class CrossValidate:
         predict_proba=False,
         early_stopping=False,
         fit_params=None,
-        regression=True
+        regression=True,
     ):
         self.train = data.copy()
         if test is None:
@@ -227,8 +227,5 @@ class CrossValidate:
     def _postprocess_prediction(self):
         self.pred /= self.cv.get_n_splits()
         if not (self.regression or self.predict_proba):
-            if self.cv.get_n_splits() % 2 == 0:
-                pass
-            else:
-                thr = 1 / (self.cv.get_n_splits() / 2)  # FIXME: this works only with binary classification
-                self.pred = np.array([int(i > thr) for i in self.pred])
+            thr = 1 / (self.cv.get_n_splits() / 2)  # FIXME: this works only with binary classification
+            self.pred = np.array([int(i + np.random.choice([thr / 10, -thr / 10]) >= thr) for i in self.pred])

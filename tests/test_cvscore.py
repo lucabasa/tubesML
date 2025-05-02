@@ -288,8 +288,10 @@ def test_fit_params_pipeline():
     assert len(res_dict["iterations"]) == 3  # one per fold
 
 
-@pytest.mark.parametrize("predict_proba", [True, False])
-def test_cvpredict_probaclass(predict_proba):
+@pytest.mark.parametrize(
+    "predict_proba, n_folds, regression", [(False, 3, False), (False, 4, False), (True, 3, False), (False, 3, True)]
+)
+def test_cvpredict_probaclass(predict_proba, n_folds, regression):
     """
     Test it works with a classification where we predict the probabilities
     """
@@ -312,18 +314,24 @@ def test_cvpredict_probaclass(predict_proba):
 
     full_pipe = Pipeline([("pipe", pipe), ("logit", LogisticRegression(solver="lbfgs"))])
 
-    kfold = KFold(n_splits=3)
+    kfold = KFold(n_splits=n_folds)
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, test=df_test, estimator=full_pipe, cv=kfold, predict_proba=predict_proba
+                data=df_1,
+                target=y,
+                test=df_test,
+                estimator=full_pipe,
+                cv=kfold,
+                predict_proba=predict_proba,
+                regression=regression,
             )
             _, pred, _ = cv_score.score()
     assert len(pred) == len(df_1)
     assert pred.min() >= 0
     assert pred.max() <= 1
-    if not predict_proba:
+    if not (predict_proba or regression):
         assert len(np.unique(pred)) <= 2
