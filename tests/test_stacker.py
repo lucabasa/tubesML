@@ -418,10 +418,10 @@ def test_cv_score_stacker_simple(predict_proba):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        # with warnings.catch_warnings():
-        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
-        cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba)
-        _, _ = cv_score.score()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba)
+            _, _ = cv_score.score()
 
 
 @pytest.mark.parametrize("predict_proba, imp_coef", [(True, False), (False, False), (True, True)])
@@ -447,12 +447,12 @@ def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        # with warnings.catch_warnings():
-        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
-        cv_score = tubesml.CrossValidate(
-            data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
-        )
-        _, _ = cv_score.score()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tubesml.CrossValidate(
+                data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
+            )
+            _, _ = cv_score.score()
 
 
 @pytest.mark.parametrize("passthrough", [True, False, "hybrid"])
@@ -482,7 +482,7 @@ def test_cv_score_stacker_passthrough(passthrough):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        # with warnings.catch_warnings():
-        #     warnings.filterwarnings("ignore", category=DeprecationWarning)
-        cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=True)
-        _, _ = cv_score.score()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=True)
+            _, _ = cv_score.score()

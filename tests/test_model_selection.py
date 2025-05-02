@@ -27,6 +27,7 @@ def create_data():
 
 df = create_data()
 
+
 def test_make_test():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
