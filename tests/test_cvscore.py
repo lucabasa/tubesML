@@ -2,22 +2,26 @@ import random
 import string
 import warnings
 
+import numpy as np
 import pandas as pd
 import pytest
 from lightgbm import early_stopping
 from lightgbm import LGBMClassifier
-from sklearn.datasets import make_classification
+from sklearn.datasets import make_classification, make_regression
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
 from sklearn.pipeline import Pipeline
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from xgboost import XGBClassifier
 
 import tubesml as tml
 
 
-def create_data():
-    df, target = make_classification(n_features=10)
+def create_data(classification=True):
+    if classification:
+        df, target = make_classification(n_features=10)
+    else:
+        df, target = make_regression(n_features=10)
 
     i = 0
     random_names = []
@@ -282,3 +286,44 @@ def test_fit_params_pipeline():
 
     assert len(res) == len(df_1)
     assert len(res_dict["iterations"]) == 3  # one per fold
+
+
+@pytest.mark.parametrize("predict_proba", [True, False])
+def test_cvpredict_probaclass(predict_proba):
+    """
+    Test it works with a classification where we predict the probabilities
+    """
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+    df_test = df_1.copy()
+
+    pipe_transf = Pipeline(
+        [
+            ("fs", tml.DtypeSel(dtype="numeric")),
+            ("imp", tml.DfImputer(strategy="mean")),
+            ("poly", tml.DfPolynomial()),
+            ("sca", tml.DfScaler(method="standard")),
+            ("tarenc", tml.TargetEncoder()),
+            ("dummify", tml.Dummify()),
+            ("pca", tml.DfPCA(n_components=0.9)),
+        ]
+    )
+    pipe = tml.FeatureUnionDf([("transf", pipe_transf)])
+
+    full_pipe = Pipeline([("pipe", pipe), ("logit", LogisticRegression(solver="lbfgs"))])
+
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tml.CrossValidate(
+                data=df_1, target=y, test=df_test, estimator=full_pipe, cv=kfold, predict_proba=predict_proba
+            )
+            _, pred, _ = cv_score.score()
+    assert len(pred) == len(df_1)
+    assert pred.min() >= 0
+    assert pred.max() <= 1
+    if not predict_proba:
+        assert len(np.unique(pred)) <= 2
