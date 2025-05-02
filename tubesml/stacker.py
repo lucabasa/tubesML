@@ -5,7 +5,7 @@ __status__ = "development"
 
 from tubesml.base import BaseTransformer
 from tubesml.model_inspection import get_coef, get_feature_importance
-from tubesml.model_selection import cv_score
+from tubesml.CV_score import CrossValidate
 
 import pandas as pd
 import numpy as np
@@ -150,7 +150,10 @@ class Stacker(BaseTransformer):
 
         out_of_fold_predictions = np.zeros((X.shape[0], len(self.estimators)))
         for i, est in enumerate(self._estimators):
-            oof, res = cv_score(data=X, target=y, estimator=est, cv=self.cv, **self.lay1_kwargs[self.estimators[i][0]])
+            cv_score = CrossValidate(
+                data=X, target=y, estimator=est, cv=self.cv, **self.lay1_kwargs[self.estimators[i][0]]
+            )
+            oof, res = cv_score.score()
             out_of_fold_predictions[:, i] = oof
 
             if self.lay1_kwargs[self.estimators[i][0]]["early_stopping"]:

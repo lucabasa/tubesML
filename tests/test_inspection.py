@@ -208,7 +208,8 @@ def test_plot_feat_imp(_):
     full_pipe = Pipeline([("scaler", tml.DfScaler()), ("lgb", LGBMClassifier(n_estimators=10))])
 
     kfold = KFold(n_splits=3)
-    oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True)
+    oof, coef = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -347,7 +348,8 @@ def test_plot_pdp(_):
     pdp = df_1.columns[:3].to_list()
 
     kfold = KFold(n_splits=3)
-    oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=pdp)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=pdp)
+    oof, res = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -387,7 +389,8 @@ def test_plot_pdp_singleplot_mean(_):
     fig, ax = plt.subplots(1, 1, figsize=(12, 5))
 
     kfold = KFold(n_splits=3)
-    oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=df_1.columns[0])
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=df_1.columns[0])
+    oof, res = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
