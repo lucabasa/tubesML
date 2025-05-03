@@ -25,6 +25,7 @@ from tubesml.report import plot_classification_probs
 from tubesml.report import plot_confusion_matrix
 from tubesml.report import plot_regression_predictions
 from tubesml.scale import DfScaler
+from tubesml.shap_values import get_shap_values, get_shap_importance
 from tubesml.stacker import Stacker
 from tubesml.utility import DtypeSel
 from tubesml.utility import FeatureUnionDf
@@ -43,6 +44,8 @@ __all__ = [
     make_test,
     get_coef,
     get_feature_importance,
+    get_shap_importance,
+    get_shap_values,
     plot_regression_predictions,
     plot_learning_curve,
     plot_feat_imp,
