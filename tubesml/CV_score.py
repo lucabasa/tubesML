@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 
+import shap
+
 from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
 from tubesml.base import BaseTransformer
 
