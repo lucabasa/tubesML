@@ -17,6 +17,7 @@ from xgboost import XGBClassifier, XGBRegressor
 
 import tubesml as tml
 
+
 def create_data(classification=True):
     if classification:
         df, target = make_classification(n_features=10, n_samples=100)
@@ -35,12 +36,20 @@ def create_data(classification=True):
 
     return df
 
+
 df_c = create_data()
 df_r = create_data(classification=False)
 
+
 @pytest.mark.parametrize(
-    "model", [LogisticRegression(solver="lbfgs"), DecisionTreeClassifier(),
-              RandomForestClassifier(), XGBClassifier(), LGBMClassifier()]
+    "model",
+    [
+        LogisticRegression(solver="lbfgs"),
+        DecisionTreeClassifier(),
+        RandomForestClassifier(),
+        XGBClassifier(),
+        LGBMClassifier(),
+    ],
 )
 def test_shap_values_classification(model):
     y = df_c["target"]
@@ -55,8 +64,7 @@ def test_shap_values_classification(model):
 
 
 @pytest.mark.parametrize(
-    "model", [Ridge(), DecisionTreeRegressor(),
-              RandomForestRegressor(), XGBRegressor(), LGBMRegressor()]
+    "model", [Ridge(), DecisionTreeRegressor(), RandomForestRegressor(), XGBRegressor(), LGBMRegressor()]
 )
 def test_shap_values_regression(model):
     y = df_r["target"]
@@ -82,4 +90,4 @@ def test_shap_importance():
     assert shap_importance.shape == (10, 3)
     assert "Feature" in shap_importance.columns
     assert "shap_importance" in shap_importance.columns
-    assert "std" in shap_importance.columns
+    assert "shap_std" in shap_importance.columns
