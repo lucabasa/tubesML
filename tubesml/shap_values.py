@@ -56,7 +56,7 @@ def get_shap_importance(data, shap_values):
         shap_df.agg(["mean", "std"])
         .T.reset_index()
         .rename(columns={"index": "Feature", "mean": "shap_importance", "std": "shap_std"})
-        .sort_values(by="shap_importance", ascending=False)
+        .sort_values(by="shap_importance", ascending=False).reset_index(drop=True)
     )
 
 
