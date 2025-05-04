@@ -115,6 +115,8 @@ def plot_feat_imp(data, n=-1, imp="shap", savename=None):
     else:
         ax[0].barh(y=fi["Feature"], width=fi["shap_importance"], xerr=fi["shap_std"], left=0)
         ax[1].barh(y=fi["Feature"], width=fi["mean"], xerr=fi["std"], left=0)
+        ax[0].set_title("Average shap values", fontsize=14)
+        ax[1].set_title("Model properties", fontsize=14)
 
     if savename is not None:
         plt.savefig(savename)
