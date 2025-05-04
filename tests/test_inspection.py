@@ -198,22 +198,23 @@ def test_learning_curves_lgb(_):
 
 
 @patch("matplotlib.pyplot.show")
-def test_plot_feat_imp(_):
+@pytest.mark.parametrize("imp", ["shap", "standard", "both"])
+def test_plot_feat_imp(_, imp):
     """
     Test if plot feat importance works
     """
     y = df["target"]
     df_1 = df.drop("target", axis=1)
 
-    full_pipe = Pipeline([("scaler", tml.DfScaler()), ("lgb", LGBMClassifier(n_estimators=10))])
+    full_pipe = Pipeline([("scaler", tml.DfScaler()), ("lgb", LGBMClassifier(n_estimators=10, verbose=-1))])
 
     kfold = KFold(n_splits=3)
-    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True, shap=True)
     oof, coef = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_feat_imp(coef["feat_imp"])
+        tml.plot_feat_imp(coef["feat_imp"], imp=imp)
 
 
 def test_plot_feat_imp_warning():

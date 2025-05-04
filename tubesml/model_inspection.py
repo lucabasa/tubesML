@@ -1,8 +1,3 @@
-__author__ = "lucabasa"
-__version__ = "1.1.0"
-__status__ = "development"
-
-
 import pandas as pd
 import numpy as np
 import matplotlib.tri as tri
@@ -27,7 +22,7 @@ def get_coef(pipe, feats=None):
 
     :param feats: (optional) list of features the estimator uses.
 
-    :return result: pandas DataFrame with a ``feat`` column with the feature names and a ``score`` column with the
+    :return result: pandas DataFrame with a ``Feature`` column with the feature names and a ``score`` column with the
                     coefficients values ordere by absolute magnitude.
     """
     try:  # If estimator is not a pipeline, make a pipeline
@@ -38,7 +33,7 @@ def get_coef(pipe, feats=None):
     if hasattr(pipe.steps[-1][1], "is_stacker"):
         feats = pipe.steps[-1][1].get_feature_names_out()
     imp = pipe.steps[-1][1].coef_.ravel().tolist()
-    result = pd.DataFrame({"feat": feats, "score": imp})
+    result = pd.DataFrame({"Feature": feats, "score": imp})
     result["abs_res"] = abs(result["score"])
     result = result.sort_values(by=["abs_res"], ascending=False)
     del result["abs_res"]
@@ -58,7 +53,7 @@ def get_feature_importance(pipe, feats=None):
 
     :param feats: (optional) list of features the estimator uses.
 
-    :return result: pandas DataFrame with a ``feat`` column with the feature names and a ``score`` column with the
+    :return result: pandas DataFrame with a ``Feature`` column with the feature names and a ``score`` column with the
                     feature importances values ordere by magnitude.
 
     """
@@ -70,7 +65,7 @@ def get_feature_importance(pipe, feats=None):
     if hasattr(pipe.steps[-1][1], "is_stacker"):
         feats = pipe.steps[-1][1].get_feature_names_out()
     imp = pipe.steps[-1][1].feature_importances_.tolist()  # it's a pipeline
-    result = pd.DataFrame({"feat": feats, "score": imp})
+    result = pd.DataFrame({"Feature": feats, "score": imp})
     result = result.sort_values(by=["score"], ascending=False)
     return result
 
@@ -93,21 +88,6 @@ def plot_feat_imp(data, n=-1, imp="shap", savename=None):
     :param savename: (optional) str with the name of the file to use to save the figure.
                 If not provided, the function simply plots the figure.
     """
-    if imp == "shap":
-        cols = ["shap_importance", "shap_std"]
-        fig, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
-    elif imp == "standard":
-        cols = ["mean", "std"]
-        fig, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
-    elif imp == "both":
-        cols = ["shap_importance", "std_importance"] + ["mean", "std"]
-        fig, ax = plt.subplots(1, 2, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
-    else:
-        raise ValueError("imp can only be shap, standard, or both")
-
-    if not set(cols).issubset(data.columns):
-        raise KeyError(f"data must contain the columns {cols}")
-
     if n > 0:
         fi = data.head(n).copy()
     else:
@@ -115,11 +95,26 @@ def plot_feat_imp(data, n=-1, imp="shap", savename=None):
 
     fi = fi.reset_index().iloc[::-1]
 
-    if imp == "shap" or imp == "standard":
-        ax.barh(y=fi["feat"], width=fi[cols[0]], xerr=fi[cols[1]], left=0)
+    if imp == "shap":
+        cols = ["shap_importance", "shap_std"]
+        _, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    elif imp == "standard":
+        cols = ["mean", "std"]
+        _, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    elif imp == "both":
+        cols = ["shap_importance", "shap_std"] + ["mean", "std"]
+        _, ax = plt.subplots(1, 2, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
     else:
-        ax[0].barh(y=fi["feat"], width=fi["shap_importance"], xerr=fi["shap_std"], left=0)
-        ax[1].barh(y=fi["feat"], width=fi["mean"], xerr=fi["std"], left=0)
+        raise ValueError("imp can only be shap, standard, or both")
+
+    if not set(cols).issubset(data.columns):
+        raise KeyError(f"data must contain the columns {cols}")
+
+    if imp == "shap" or imp == "standard":
+        ax.barh(y=fi["Feature"], width=fi[cols[0]], xerr=fi[cols[1]], left=0)
+    else:
+        ax[0].barh(y=fi["Feature"], width=fi["shap_importance"], xerr=fi["shap_std"], left=0)
+        ax[1].barh(y=fi["Feature"], width=fi["mean"], xerr=fi["std"], left=0)
 
     if savename is not None:
         plt.savefig(savename)

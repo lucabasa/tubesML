@@ -85,7 +85,7 @@ def test_shap_importance():
     model = LogisticRegression(solver="lbfgs")
     model.fit(df_1, y)
     shap_values = tml.get_shap_values(data=df_1, model=model)
-    shap_importance = tml.get_shap_importance(data=df_1, shap_values=shap_values)
+    shap_importance = tml.get_shap_importance(shap_values=shap_values)
 
     assert shap_importance.shape == (10, 3)
     assert "Feature" in shap_importance.columns

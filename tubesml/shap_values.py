@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 import shap
@@ -36,7 +37,7 @@ def get_shap_values(data, model, sample=700, class_pos=1):
     return shap_values
 
 
-def get_shap_importance(data, shap_values):
+def get_shap_importance(shap_values):
     """
     Summarizes the shap values to get the feature importance. It takes the mean
     and standard deviation of the absolute shap values
@@ -50,14 +51,19 @@ def get_shap_importance(data, shap_values):
         feature, order by magnitude
     """
 
-    shap_df = pd.DataFrame(shap_values.values, columns=data.columns).abs()
-
-    return (
+    shap_df = pd.DataFrame(shap_values.values, columns=shap_values.feature_names).abs()
+    shap_df = (
         shap_df.agg(["mean", "std"])
         .T.reset_index()
         .rename(columns={"index": "Feature", "mean": "shap_importance", "std": "shap_std"})
-        .sort_values(by="shap_importance", ascending=False).reset_index(drop=True)
+        .sort_values(by="shap_importance", ascending=False)
+        .reset_index(drop=True)
     )
+
+    # std of the mean
+    shap_df["shap_std"] = shap_df["shap_std"] / np.sqrt(len(shap_values.data))
+
+    return shap_df
 
 
 def _fix_format(shap_values, class_pos):

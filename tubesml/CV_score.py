@@ -279,7 +279,7 @@ class CrossValidate:
 
     def _summarize_results(self, data):
         if self.imp_coef:
-            feat_df = self.feat_df.groupby("feat")["score"].agg(["mean", "std"])
+            feat_df = self.feat_df.groupby("Feature")["score"].agg(["mean", "std"])
             feat_df["abs_sco"] = abs(feat_df["mean"])
             feat_df = feat_df.sort_values(by=["abs_sco"], ascending=False)
             feat_df["std"] = feat_df["std"] / np.sqrt(self.cv.get_n_splits() - 1)  # std of the mean, unbiased
@@ -295,10 +295,9 @@ class CrossValidate:
             self.result_dict["pdp"] = feat_pdp
 
         if self.shap:
-            feat_df = get_shap_importance(data=data, shap_values=self.shap_values)
-            feat_df = feat_df.rename(columns={"Feature": "feat"})
+            feat_df = get_shap_importance(shap_values=self.shap_values)
             if self.imp_coef:
-                tmp = pd.merge(feat_df, self.result_dict["feat_imp"], on="feat")
+                tmp = pd.merge(feat_df, self.result_dict["feat_imp"], on="Feature")
                 self.result_dict["feat_imp"] = tmp
             else:
                 self.result_dict["feat_imp"] = feat_df
