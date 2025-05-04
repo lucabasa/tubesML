@@ -75,22 +75,38 @@ def get_feature_importance(pipe, feats=None):
     return result
 
 
-def plot_feat_imp(data, n=-1, savename=None):
+def plot_feat_imp(data, n=-1, imp="shap", savename=None):
     """
     Plots a barplot with error bars of feature importance.
     It works with coefficients too.
 
     :param data: pandas DataFrame with a ``mean`` and a ``std`` column. A KeyError is raised
-                if any of these columns is missing.
+                if any of these columns is missing. If ``shap`` is selected, the columns has to
+                be ``shap_importance`` and ``shap_std``.
 
     :param n: int, default=-1. Number of features to display.
+
+    :param imp: string, default=shap. Allowed values are shap, standard, or both. If shap, the
+                importances coming from shap values will be in the plot. If standard, the one
+                coming from the model method. If both, 2 plots will be produced side by side.
 
     :param savename: (optional) str with the name of the file to use to save the figure.
                 If not provided, the function simply plots the figure.
     """
+    if imp == "shap":
+        cols = ["shap_importance", "shap_std"]
+        fig, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    elif imp == "standard":
+        cols = ["mean", "std"]
+        fig, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    elif imp == "both":
+        cols = ["shap_importance", "std_importance"] + ["mean", "std"]
+        fig, ax = plt.subplots(1, 2, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    else:
+        raise ValueError("imp can only be shap, standard, or both")
 
-    if not set(["mean", "std"]).issubset(data.columns):
-        raise KeyError("data must contain the columns feat, mean, and std")
+    if not set(cols).issubset(data.columns):
+        raise KeyError(f"data must contain the columns {cols}")
 
     if n > 0:
         fi = data.head(n).copy()
@@ -99,9 +115,11 @@ def plot_feat_imp(data, n=-1, savename=None):
 
     fi = fi.reset_index().iloc[::-1]
 
-    fig, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
-
-    ax.barh(y=fi["feat"], width=fi["mean"], xerr=fi["std"], left=0)
+    if imp == "shap" or imp == "standard":
+        ax.barh(y=fi["feat"], width=fi[cols[0]], xerr=fi[cols[1]], left=0)
+    else:
+        ax[0].barh(y=fi["feat"], width=fi["shap_importance"], xerr=fi["shap_std"], left=0)
+        ax[1].barh(y=fi["feat"], width=fi["mean"], xerr=fi["std"], left=0)
 
     if savename is not None:
         plt.savefig(savename)
