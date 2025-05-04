@@ -16,6 +16,7 @@ from tubesml.model_inspection import plot_feat_imp
 from tubesml.model_inspection import plot_learning_curve
 from tubesml.model_inspection import plot_partial_dependence
 from tubesml.model_inspection import plot_pdp
+from tubesml.model_inspection import plot_shap_values
 from tubesml.model_selection import grid_search
 from tubesml.model_selection import make_test
 from tubesml.pca import DfPCA
@@ -63,6 +64,7 @@ __all__ = [
     plot_classification_probs,
     plot_feat_imp,
     plot_pdp,
+    plot_shap_values,
     eval_classification,
     Stacker,
 ]

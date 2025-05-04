@@ -69,5 +69,11 @@ def get_shap_importance(shap_values):
 def _fix_format(shap_values, class_pos):
 
     shap_values.values = shap_values.values[:, :, class_pos]
+    shap_values.base_values = shap_values.base_values[:, class_pos]
+    shap_values.output_dims = ()
+    try:  # this triggers an error but AFTER the replacement we need took place
+        shap_values.output_names = shap_values.output_names[class_pos]
+    except AttributeError:
+        pass  # so yay. (This will likely break sometime in the future)
 
     return shap_values

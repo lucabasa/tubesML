@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.tri as tri
 import matplotlib.pyplot as plt
+import shap
 from sklearn.model_selection import learning_curve
 from sklearn.inspection import partial_dependence
 from sklearn.pipeline import Pipeline
@@ -401,7 +402,7 @@ def plot_partial_dependence(pdps, savename=None):
     rows = int(num / 2) + (num % 2 > 0)
     feats = pdps.feat.unique()
 
-    fig, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
+    _, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
     i = 0
     j = 0
     for feat in feats:
@@ -411,6 +412,33 @@ def plot_partial_dependence(pdps, savename=None):
             i = i + 1 - j
         else:
             ax[i] = plot_pdp(pdps, feat, feat, ax[i])
+            i = i + 1
+
+    if savename is not None:
+        plt.savefig(savename)
+        plt.close()
+    else:
+        plt.show()
+
+
+def plot_shap_values(shap_values, features="all", savename=None):
+
+    if features == "all":
+        features = shap_values.feature_names
+
+    num = len(features)
+    rows = int(num / 2) + (num % 2 > 0)
+
+    _, ax = plt.subplots(rows, 2, figsize=(15, 5 * (rows)))
+    i = 0
+    j = 0
+    for feat in features:
+        if rows > 1:
+            shap.plots.scatter(shap_values[:, feat], color=shap_values, ax=ax[i][j], show=False)
+            j = (j + 1) % 2
+            i = i + 1 - j
+        else:
+            shap.plots.scatter(shap_values[:, feat], color=shap_values, ax=ax[i], show=False)
             i = i + 1
 
     if savename is not None:
