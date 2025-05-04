@@ -424,3 +424,4 @@ def test_plot_shap(_, model):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         tml.plot_shap_values(res["shap_values"])
+        plt.close()
