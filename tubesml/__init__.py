@@ -16,6 +16,7 @@ from tubesml.model_inspection import plot_feat_imp
 from tubesml.model_inspection import plot_learning_curve
 from tubesml.model_inspection import plot_partial_dependence
 from tubesml.model_inspection import plot_pdp
+from tubesml.model_inspection import plot_shap_values
 from tubesml.model_selection import grid_search
 from tubesml.model_selection import make_test
 from tubesml.pca import DfPCA
@@ -25,6 +26,7 @@ from tubesml.report import plot_classification_probs
 from tubesml.report import plot_confusion_matrix
 from tubesml.report import plot_regression_predictions
 from tubesml.scale import DfScaler
+from tubesml.shap_values import get_shap_values, get_shap_importance
 from tubesml.stacker import Stacker
 from tubesml.utility import DtypeSel
 from tubesml.utility import FeatureUnionDf
@@ -43,6 +45,8 @@ __all__ = [
     make_test,
     get_coef,
     get_feature_importance,
+    get_shap_importance,
+    get_shap_values,
     plot_regression_predictions,
     plot_learning_curve,
     plot_feat_imp,
@@ -60,6 +64,7 @@ __all__ = [
     plot_classification_probs,
     plot_feat_imp,
     plot_pdp,
+    plot_shap_values,
     eval_classification,
     Stacker,
 ]
