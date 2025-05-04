@@ -336,8 +336,8 @@ def test_cvpredict_probaclass(predict_proba, n_folds, regression):
     if not (predict_proba or regression):
         assert len(np.unique(pred)) <= 2
 
-
-def test_shap_values():
+@pytest.mark.parametrize("feat_imp", [True, False])
+def test_shap_values(feat_imp):
     y = df["target"]
     df_1 = df.drop("target", axis=1)
 
@@ -362,14 +362,7 @@ def test_shap_values():
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tml.CrossValidate(
-                data=df_1,
-                target=y,
-                estimator=full_pipe,
-                cv=kfold,
-                shap=True,
-                shap_sample=10
-            )
+            cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, shap=True, shap_sample=10, imp_coef=feat_imp)
             _, res = cv_score.score()
     assert len(cv_score.shap_values.values) == 10 * 3
     assert len(cv_score.shap_values.data) == 10 * 3
@@ -379,4 +372,5 @@ def test_shap_values():
     assert "feat" in res["feat_imp"]
     assert len(res["feat_imp"]) == 15
     assert len(res["shap_values"].values) == 10 * 3
-    assert len(res["shap_values"].data) == 10 * 3   
+    assert len(res["shap_values"].data) == 10 * 3
+    assert len(res["shap_values"].feature_names) == 15

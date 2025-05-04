@@ -48,6 +48,18 @@ class CrossValidate:
             with standard deviation on the mean.
             The partial dependence of 2 features simultaneously is not supported.
 
+    :param shap: bool, default=False.
+            If True, it calculates the shape values for a sample of the data in each fold. In that case
+            the results will also have the shap values (concatenated) and the feature importance will have
+            the one coming from the shap values.
+
+    :param class_pos: bool, default=1.
+            Position of the class of interest, relevant if using ``predict_proba`` and for some shap values
+            explainers
+
+    :param shap_sample: int, default=700.
+            Number of samples to calculate the shap values in each fold.
+
     :param predict_proba: bool, default=False.
             If True, calls the ``predict_proba`` method instead of the ``predict`` one.
 
@@ -72,7 +84,8 @@ class CrossValidate:
                     If ``early_stopping=True``, it contains a list with the best iteration number per fold,
                     it can be found under the key ``iterations``. If ``pdp`` is not ``None``, it contains a
                     pd.DataFrame with the partial dependence of the given features, it can be found under
-                    the key ``pdp``
+                    the key ``pdp``. If ``shap`` is true, it contains the shap values under the key ``shap_values``,
+                    moreover, the feature importance will also have the average shap values.
 
     :return pred: (optional) numpy array with the prediction done on the test set (if provided).
 
@@ -189,7 +202,7 @@ class CrossValidate:
         self.feat_df = pd.DataFrame()
         self.iteration = []
         self.feat_pdp = pd.DataFrame()
-        self.shap_values = np.ndarray(shape=(0,1))
+        self.shap_values = np.ndarray(shape=(0, 1))
 
         if self.fit_params is None:
             self.fit_params = {}
@@ -213,7 +226,7 @@ class CrossValidate:
 
     def _prepare_cv_iteration(self, trn_data, val_data, trn_target):
         """
-        In each fold, make sure the data is processed without leaks. 
+        In each fold, make sure the data is processed without leaks.
         It separates the processing from the model in the pipeline.
         """
         # create model and transform pipelines
@@ -256,9 +269,7 @@ class CrossValidate:
         self.feat_pdp = pd.concat([self.feat_pdp, fold_pdp], axis=0)
 
     def _fold_shap(self, model, trn_data):
-        shap_values = get_shap_values(trn_data, model,
-                                      sample=self.shap_sample,
-                                      class_pos=self.class_pos)
+        shap_values = get_shap_values(trn_data, model, sample=self.shap_sample, class_pos=self.class_pos)
         if len(self.shap_values) == 0:
             self.shap_values = shap_values
         else:
