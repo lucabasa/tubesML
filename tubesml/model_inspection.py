@@ -422,6 +422,13 @@ def plot_partial_dependence(pdps, savename=None):
 
 
 def plot_shap_values(shap_values, features="all", savename=None):
+    """
+    Plots the shap values and interaction for all the specified features used in the model
+
+    :param shap_values, the model shap values object (values, data, etc)
+    :param features, string or list, default = "all". List of features to plot. If all, 
+        all the features will be used.
+    """
 
     if features == "all":
         features = shap_values.feature_names
