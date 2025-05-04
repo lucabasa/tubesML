@@ -396,3 +396,31 @@ def test_plot_pdp_singleplot_mean(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         ax = tml.plot_pdp(res["pdp"], df_1.columns[0], "", ax)
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.parametrize(
+    "model",
+    [
+        LogisticRegression(solver="lbfgs"),
+        DecisionTreeClassifier(),
+        XGBClassifier(n_estimators=10),
+        LGBMClassifier(n_estimators=10, verbose=-1),
+    ],
+)
+def test_plot_shap(_, model):
+    """
+    Test if plotting the shap values works
+    """
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+
+    full_pipe = Pipeline([("imputer", tml.DfImputer()), ("model", model)])
+
+    kfold = KFold(n_splits=3)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, shap=True)
+    oof, res = cv_score.score()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tml.plot_shap_values(res["shap_values"])
