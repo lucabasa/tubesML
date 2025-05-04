@@ -335,3 +335,48 @@ def test_cvpredict_probaclass(predict_proba, n_folds, regression):
     assert pred.max() <= 1
     if not (predict_proba or regression):
         assert len(np.unique(pred)) <= 2
+
+
+def test_shap_values():
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+
+    pipe_transf = Pipeline(
+        [
+            ("fs", tml.DtypeSel(dtype="numeric")),
+            ("imp", tml.DfImputer(strategy="mean")),
+            ("poly", tml.DfPolynomial()),
+            ("sca", tml.DfScaler(method="standard")),
+            ("tarenc", tml.TargetEncoder()),
+            ("dummify", tml.Dummify()),
+            ("pca", tml.DfPCA(n_components=15)),
+        ]
+    )
+    pipe = tml.FeatureUnionDf([("transf", pipe_transf)])
+
+    full_pipe = Pipeline([("pipe", pipe), ("logit", LogisticRegression(solver="lbfgs"))])
+
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tml.CrossValidate(
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                shap=True,
+                shap_sample=10
+            )
+            _, res = cv_score.score()
+    assert len(cv_score.shap_values.values) == 10 * 3
+    assert len(cv_score.shap_values.data) == 10 * 3
+    assert len(cv_score.shap_values.base_values) == 10 * 3
+    assert "shap_importance" in res["feat_imp"]
+    assert "shap_std" in res["feat_imp"]
+    assert "feat" in res["feat_imp"]
+    assert len(res["feat_imp"]) == 15
+    assert len(res["shap_values"].values) == 10 * 3
+    assert len(res["shap_values"].data) == 10 * 3   

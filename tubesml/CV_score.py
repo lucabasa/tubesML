@@ -4,10 +4,9 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.base import clone
 
-import shap
-
-from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
 from tubesml.base import BaseTransformer
+from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
+from tubesml.shap_values import get_shap_values, get_shap_importance
 
 
 class CrossValidate:
@@ -89,6 +88,9 @@ class CrossValidate:
         target_proc=None,
         imp_coef=False,
         pdp=None,
+        shap=False,
+        class_pos=1,
+        shap_sample=700,
         predict_proba=False,
         early_stopping=False,
         fit_params=None,
@@ -105,6 +107,9 @@ class CrossValidate:
         self.target_proc = target_proc
         self.imp_coef = imp_coef
         self.pdp = pdp
+        self.shap = shap
+        self.class_pos = class_pos
+        self.shap_sample = shap_sample
         self.predict_proba = predict_proba
         self.early_stopping = early_stopping
         self.fit_params = fit_params
@@ -141,9 +146,9 @@ class CrossValidate:
                 model.fit(trn_data, trn_target, **self.fit_params)
 
             if self.predict_proba:
-                self.oof[test_index] = model.predict_proba(val_data)[:, 1]
+                self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
                 if self.df_test is not None:
-                    self.pred += model.predict_proba(test_data)[:, 1]
+                    self.pred += model.predict_proba(test_data)[:, self.class_pos]
             else:
                 self.oof[test_index] = model.predict(val_data).ravel()
                 if self.df_test is not None:
@@ -155,7 +160,11 @@ class CrossValidate:
             if self.pdp is not None:
                 self._fold_pdp(model, transf_pipe, n_fold)
 
-        self._summarize_results()
+            if self.shap:
+                self._fold_shap(model, trn_data)
+
+        self._summarize_results(trn_data)
+
         if self.df_test is None:
             self.pred = None
             return self.oof, self.result_dict
@@ -180,6 +189,7 @@ class CrossValidate:
         self.feat_df = pd.DataFrame()
         self.iteration = []
         self.feat_pdp = pd.DataFrame()
+        self.shap_values = np.ndarray(shape=(0,1))
 
         if self.fit_params is None:
             self.fit_params = {}
@@ -245,7 +255,18 @@ class CrossValidate:
         fold_pdp = pd.concat(fold_pdp, axis=0)
         self.feat_pdp = pd.concat([self.feat_pdp, fold_pdp], axis=0)
 
-    def _summarize_results(self):
+    def _fold_shap(self, model, trn_data):
+        shap_values = get_shap_values(trn_data, model,
+                                      sample=self.shap_sample,
+                                      class_pos=self.class_pos)
+        if len(self.shap_values) == 0:
+            self.shap_values = shap_values
+        else:
+            self.shap_values.values = np.append(self.shap_values.values, shap_values.values, axis=0)
+            self.shap_values.data = np.append(self.shap_values.data, shap_values.data, axis=0)
+            self.shap_values.base_values = np.append(self.shap_values.base_values, shap_values.base_values, axis=0)
+
+    def _summarize_results(self, data):
         if self.imp_coef:
             feat_df = self.feat_df.groupby("feat")["score"].agg(["mean", "std"])
             feat_df["abs_sco"] = abs(feat_df["mean"])
@@ -261,6 +282,17 @@ class CrossValidate:
             feat_pdp = self.feat_pdp.groupby(["feat", "x"])["y"].agg(["mean", "std"]).reset_index()
             feat_pdp["std"] = feat_pdp["std"] / np.sqrt(self.cv.get_n_splits() - 1)
             self.result_dict["pdp"] = feat_pdp
+
+        if self.shap:
+            feat_df = get_shap_importance(data=data, shap_values=self.shap_values)
+            feat_df = feat_df.rename(columns={"Feature": "feat"})
+            if self.imp_coef:
+                tmp = pd.merge(feat_df, self.result_dict["feat_imp"], on="feat")
+                self.result_dict["feat_imp"] = tmp
+            else:
+                self.result_dict["feat_imp"] = feat_df
+
+            self.result_dict["shap_values"] = self.shap_values
 
     def _postprocess_prediction(self):
         """
