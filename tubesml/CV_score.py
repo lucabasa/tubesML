@@ -136,8 +136,8 @@ class CrossValidate:
         on the model, like feature importance and pdp's.
         """
         for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values)):
-            trn_data = self.train.iloc[train_index, :]
-            val_data = self.train.iloc[test_index, :]
+            trn_data = self.train.iloc[train_index, :].reset_index(drop=True)
+            val_data = self.train.iloc[test_index, :].reset_index(drop=True)
 
             trn_target, val_target = self._get_train_val_target(train_index, test_index)
 
