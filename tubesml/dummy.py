@@ -1,8 +1,5 @@
-__author__ = "lucabasa"
-__version__ = "0.0.3"
-__status__ = "development"
-
 from tubesml.base import BaseTransformer, transform_wrapper
+import numpy as np
 import pandas as pd
 import warnings
 
@@ -80,11 +77,11 @@ class Dummify(BaseTransformer):
         :return: pandas DataFrame with dummified columns
         """
         if len(self.columns) == 0:  # if it the first time, run it as specified and populate self.columns
-            X_tr = pd.get_dummies(X, drop_first=self.drop_first)
+            X_tr = pd.get_dummies(X, drop_first=self.drop_first, dtype=np.uint8)
             self.columns = X_tr.columns
             self.is_fit = True
         else:  # if it is not the first time, do not use drop_first and let match_cols work
-            X_tr = pd.get_dummies(X, drop_first=False)
+            X_tr = pd.get_dummies(X, drop_first=False, dtype=np.uint8)
             if self.match_cols:
                 X_tr = self._match_columns(X_tr)
         return X_tr
