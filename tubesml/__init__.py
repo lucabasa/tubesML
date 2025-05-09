@@ -29,6 +29,7 @@ from tubesml.report import plot_regression_predictions
 from tubesml.scale import DfScaler
 from tubesml.shap_values import get_shap_values, get_shap_importance
 from tubesml.stacker import Stacker
+from tubesml.visualize_error import VisualizeError
 from tubesml.utility import DtypeSel
 from tubesml.utility import FeatureUnionDf
 
@@ -43,6 +44,7 @@ __all__ = [
     DtypeSel,
     FeatureUnionDf,
     ErrorAnalyzer,
+    VisualizeError,
     grid_search,
     make_test,
     get_coef,
