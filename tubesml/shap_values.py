@@ -29,7 +29,10 @@ def get_shap_values(data, model, sample=700, class_pos=1, check_additivity=True)
 
     n_samples = min(sample, len(data))
 
-    shap_values = expl(data.sample(n_samples), check_additivity=check_additivity)
+    try:
+        shap_values = expl(data.sample(n_samples), check_additivity=check_additivity)
+    except TypeError:  # not all the explainers have check_additivity
+        shap_values = expl(data.sample(n_samples))
 
     if len(shap_values.values.shape) == 3:
         shap_values = _fix_format(shap_values, class_pos)
