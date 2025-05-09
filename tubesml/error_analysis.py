@@ -61,12 +61,23 @@ class ErrorAnalyzer(BaseTransformer):
 
     :param random_state: int. Random state of the surrogate model. We recommend setting this to reproduce your results.
     """
-    def __init__(self, data, prediction_column=None, surrogate_model=None, 
-                 error_column=None, true_label=None, param_grid=None, regression=True,
-                 error_class_idx=1, fidelity_threshold=0.9, probability_threshold=0.5,
-                 n_leaves=3, random_state=None
-                 ):
-       
+
+    def __init__(
+        self,
+        data,
+        prediction_column=None,
+        surrogate_model=None,
+        error_column=None,
+        true_label=None,
+        param_grid=None,
+        regression=True,
+        error_class_idx=1,
+        fidelity_threshold=0.9,
+        probability_threshold=0.5,
+        n_leaves=3,
+        random_state=None,
+    ):
+
         self.data = data
         self.param_grid = param_grid
         self.regression = regression
@@ -133,8 +144,9 @@ class ErrorAnalyzer(BaseTransformer):
                 self._get_tree_structure()
                 for leaf in range(min(self.n_leaves, len(self.leaf_nodes))):  # just in case the tree is too simple
                     self.leaves_summary[leaf] = self._get_leaf_summary(leaf)
-            self.shap_values = get_shap_values(data=self._error_train_x, model=self._error_tree,
-                                               check_additivity=False, sample=1000)
+            self.shap_values = get_shap_values(
+                data=self._error_train_x, model=self._error_tree, check_additivity=False, sample=1000
+            )
             shap_importance = get_shap_importance(shap_values=self.shap_values)
             feats = self._error_train_x.columns
             try:
@@ -332,7 +344,7 @@ class ErrorAnalyzer(BaseTransformer):
 
         path_to_node = max_values + min_values
 
-        return path_to_node  
+        return path_to_node
 
 
 def get_epsilon(difference):

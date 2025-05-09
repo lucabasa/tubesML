@@ -16,7 +16,7 @@ from tubesml.visualize_error import VisualizeError
 
 def create_data(n_samples):
     df, target = make_regression(n_features=10, n_samples=n_samples)
-    
+
     i = 0
     random_names = []
     # generate n_features random strings of 5 characters

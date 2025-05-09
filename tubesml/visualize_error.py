@@ -13,9 +13,8 @@ class VisualizeError:
     Using the feature importance of the analysis, it shows the error rates and partial
     dependency plots for the most important features to determine the error of the model
     """
-    def __init__(
-        self, analysis, original_feature_columns=None, show=False
-    ):
+
+    def __init__(self, analysis, original_feature_columns=None, show=False):
         self.analysis = analysis
         self.original_columns = None
         self.feature_idxs = None
@@ -30,7 +29,7 @@ class VisualizeError:
         if original_feature_columns is not None:
             self.original_columns = original_feature_columns
         else:
-            self.original_columns = self.analysis._error_train_x.columns          
+            self.original_columns = self.analysis._error_train_x.columns
 
     def _validate_input(self):
         """Checks that the analysis object contains all the attributes we need"""
@@ -124,11 +123,11 @@ class VisualizeError:
         :param imp: string. It can be either shap, standard, or bool
         """
         plot_feat_imp(data=self.analysis.feature_importance.loc[self.feature_idxs], n=n, imp=imp)
-        
+
     def plot_pdp(self, features=None, n=4):
         """
         Wrapper around ``tubesml.model_inspection.plot_shap_values``
-        
+
         :param features: list of features to display, optional.
         :param n: int, if no feature is provided, it determines how many of the most important features
             we display.
@@ -215,5 +214,5 @@ class VisualizeError:
             features = self.analysis.feature_importance.loc[self.feature_idxs]["Feature"].tolist()
 
         features = [f for f in features if f in data]
-        
+
         return features

@@ -9,6 +9,7 @@ from sklearn.datasets import make_regression
 
 from tubesml.error_analysis import ErrorAnalyzer
 
+
 def create_data():
     df, target = make_regression(n_features=10)
 
@@ -95,16 +96,14 @@ def test_analyzer_classification():
     assert len(analyzer.feature_importance) == 10
 
     assert len(analyzer.shap_values) == min(len(df), 1000)  # one value per sample
-    assert len(analyzer.shap_values[0]) == 10 # for each sample, one value per feature
+    assert len(analyzer.shap_values[0]) == 10  # for each sample, one value per feature
 
 
 def test_analyzer_regression_error_column():
     df_1 = df.copy()
     df_1 = df_1.drop("is_error", axis=1)
 
-    analyzer = ErrorAnalyzer(
-        data=df_1.copy(), prediction_column="prediction", true_label="target"
-    )
+    analyzer = ErrorAnalyzer(data=df_1.copy(), prediction_column="prediction", true_label="target")
 
     assert analyzer.error_column == "is_error"
     assert "is_error" in analyzer.data.columns
