@@ -9,6 +9,7 @@ from tubesml.explore import plot_bivariate
 from tubesml.explore import plot_correlations
 from tubesml.explore import plot_distribution
 from tubesml.explore import segm_target
+from tubesml.error_analysis import ErrorAnalyzer
 from tubesml.model_inspection import get_coef
 from tubesml.model_inspection import get_feature_importance
 from tubesml.model_inspection import get_pdp
@@ -41,6 +42,7 @@ __all__ = [
     DfPolynomial,
     DtypeSel,
     FeatureUnionDf,
+    ErrorAnalyzer,
     grid_search,
     make_test,
     get_coef,
