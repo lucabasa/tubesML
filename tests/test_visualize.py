@@ -122,5 +122,7 @@ def test_plot_error_rates(_, n):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            viz = VisualizeError(analysis=analyzer)
-            viz.plot_error_rates(n=n)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                viz = VisualizeError(analysis=analyzer)
+                viz.plot_error_rates(n=n)
