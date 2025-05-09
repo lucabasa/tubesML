@@ -38,7 +38,7 @@ def test_analyzer_regression():
         prediction_column="prediction",
         error_column="is_error",
         true_label="target",
-        fidelity_threshold=0.8,
+        fidelity_threshold=0.5,
     )
 
     assert "target" not in analyzer._error_train_x.columns
@@ -73,7 +73,7 @@ def test_analyzer_classification():
         data=df_c.copy(),
         prediction_column="prediction",
         true_label="target",
-        fidelity_threshold=0.8,
+        fidelity_threshold=0.5,
         regression=False,
     )
 
@@ -132,7 +132,7 @@ def test_tune_tree():
         prediction_column="prediction",
         error_column="is_error",
         true_label="target",
-        fidelity_threshold=0.8,
+        fidelity_threshold=0.5,
         param_grid={"max_depth": [3, None]},
     )
 

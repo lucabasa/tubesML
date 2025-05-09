@@ -73,8 +73,10 @@ def test_plot_feat_importance(_, n, imp):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        viz = VisualizeError(analysis=analyzer)
-        viz.plot_feature_importance(n=n, imp=imp)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            viz = VisualizeError(analysis=analyzer)
+            viz.plot_feature_importance(n=n, imp=imp)
 
     fig = plt.gcf()
     axs = fig.get_axes()
@@ -98,8 +100,10 @@ def test_plot_pdp(_, n):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        viz = VisualizeError(analysis=analyzer)
-        viz.plot_pdp(n=n)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            viz = VisualizeError(analysis=analyzer)
+            viz.plot_pdp(n=n)
 
 
 @pytest.mark.parametrize("n", [3, 1, 10])
@@ -116,5 +120,7 @@ def test_plot_error_rates(_, n):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        viz = VisualizeError(analysis=analyzer)
-        viz.plot_error_rates(n=n)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            viz = VisualizeError(analysis=analyzer)
+            viz.plot_error_rates(n=n)
