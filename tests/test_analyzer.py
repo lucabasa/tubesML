@@ -58,7 +58,7 @@ def test_analyzer_regression():
 
     assert len(analyzer.feature_importance) == 10
 
-    assert len(analyzer.shap_values) == min(len(df), 700)  # one value per sample
+    assert len(analyzer.shap_values) == min(len(df), 1000)  # one value per sample
     assert len(analyzer.shap_values[0]) == 10  # for each sample, one value per feature
 
 
@@ -94,7 +94,7 @@ def test_analyzer_classification():
 
     assert len(analyzer.feature_importance) == 10
 
-    assert len(analyzer.shap_values) == min(len(df), 700)  # one value per sample
+    assert len(analyzer.shap_values) == min(len(df), 1000)  # one value per sample
     assert len(analyzer.shap_values[0]) == 10 # for each sample, one value per feature
 
 

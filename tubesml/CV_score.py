@@ -176,7 +176,7 @@ class CrossValidate:
             if self.shap:
                 self._fold_shap(model, trn_data)
 
-        self._summarize_results(trn_data)
+        self._summarize_results()
 
         if self.df_test is None:
             self.pred = None

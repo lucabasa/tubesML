@@ -133,7 +133,8 @@ class ErrorAnalyzer(BaseTransformer):
                 self._get_tree_structure()
                 for leaf in range(min(self.n_leaves, len(self.leaf_nodes))):  # just in case the tree is too simple
                     self.leaves_summary[leaf] = self._get_leaf_summary(leaf)
-            self.shap_values = get_shap_values(data=self._error_train_x, model=self._error_tree, check_additivity=False)
+            self.shap_values = get_shap_values(data=self._error_train_x, model=self._error_tree,
+                                               check_additivity=False, sample=1000)
             shap_importance = get_shap_importance(shap_values=self.shap_values)
             feats = self._error_train_x.columns
             try:
@@ -142,7 +143,7 @@ class ErrorAnalyzer(BaseTransformer):
                 feat_imp = get_feature_importance(self._error_tree, feats)
             feat_df = feat_imp.groupby("Feature")["score"].agg(["mean", "std"])
             feat_df["std"] = 0
-            self.feature_importance = pd.merge(feat_df, shap_importance, on="Feature")
+            self.feature_importance = pd.merge(shap_importance, feat_df, on="Feature")
         else:
             print(
                 "The predicted model accuracy is too different from the true model accuracy."
