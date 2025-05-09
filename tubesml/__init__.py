@@ -9,6 +9,7 @@ from tubesml.explore import plot_bivariate
 from tubesml.explore import plot_correlations
 from tubesml.explore import plot_distribution
 from tubesml.explore import segm_target
+from tubesml.error_analysis import ErrorAnalyzer
 from tubesml.model_inspection import get_coef
 from tubesml.model_inspection import get_feature_importance
 from tubesml.model_inspection import get_pdp
@@ -28,6 +29,7 @@ from tubesml.report import plot_regression_predictions
 from tubesml.scale import DfScaler
 from tubesml.shap_values import get_shap_values, get_shap_importance
 from tubesml.stacker import Stacker
+from tubesml.visualize_error import VisualizeError
 from tubesml.utility import DtypeSel
 from tubesml.utility import FeatureUnionDf
 
@@ -41,6 +43,8 @@ __all__ = [
     DfPolynomial,
     DtypeSel,
     FeatureUnionDf,
+    ErrorAnalyzer,
+    VisualizeError,
     grid_search,
     make_test,
     get_coef,

@@ -176,7 +176,7 @@ class CrossValidate:
             if self.shap:
                 self._fold_shap(model, trn_data)
 
-        self._summarize_results(trn_data)
+        self._summarize_results()
 
         if self.df_test is None:
             self.pred = None
@@ -277,7 +277,7 @@ class CrossValidate:
             self.shap_values.data = np.append(self.shap_values.data, shap_values.data, axis=0)
             self.shap_values.base_values = np.append(self.shap_values.base_values, shap_values.base_values, axis=0)
 
-    def _summarize_results(self, data):
+    def _summarize_results(self):
         if self.imp_coef:
             feat_df = self.feat_df.groupby("Feature")["score"].agg(["mean", "std"])
             feat_df["abs_sco"] = abs(feat_df["mean"])

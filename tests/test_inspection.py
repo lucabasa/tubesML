@@ -22,7 +22,7 @@ import tubesml as tml
 
 def create_data(classification=True):
     if classification:
-        df, target = make_classification(n_features=10)
+        df, target = make_classification(n_features=10, random_state=325)
     else:
         df, target = make_regression(n_features=10)
 

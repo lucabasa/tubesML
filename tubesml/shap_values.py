@@ -4,7 +4,7 @@ import pandas as pd
 import shap
 
 
-def get_shap_values(data, model, sample=700, class_pos=1):
+def get_shap_values(data, model, sample=700, class_pos=1, check_additivity=True):
     """
     Uses the ``shap.Explainer`` to generate shap values. This is done
     on a sample of the data to save time. For some classification models,
@@ -29,7 +29,10 @@ def get_shap_values(data, model, sample=700, class_pos=1):
 
     n_samples = min(sample, len(data))
 
-    shap_values = expl(data.sample(n_samples))
+    try:
+        shap_values = expl(data.sample(n_samples), check_additivity=check_additivity)
+    except TypeError:  # not all the explainers have check_additivity
+        shap_values = expl(data.sample(n_samples))
 
     if len(shap_values.values.shape) == 3:
         shap_values = _fix_format(shap_values, class_pos)
