@@ -3,14 +3,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-class CompareModels():
-    def __init__(self, data, true_label,
-                 pred_1, pred_2,
-                 metric_func,
-                 regression=True,
-                 probabilities=True,
-                 fe_1=None, fe_2=None,
-                 shap_1=None, shap_2=None):
+
+class CompareModels:
+    def __init__(
+        self,
+        data,
+        true_label,
+        pred_1,
+        pred_2,
+        metric_func,
+        regression=True,
+        probabilities=True,
+        fe_1=None,
+        fe_2=None,
+        shap_1=None,
+        shap_2=None,
+    ):
         self.data = data
         self.true_label = true_label
         self.metric_func = metric_func
@@ -23,9 +31,7 @@ class CompareModels():
         self.shap_1 = shap_1
         self.shap_2 = shap_2
 
-        self.pred_df = pd.DataFrame({"True Value": true_label,
-                                     "Model 1": pred_1,
-                                     "Model 2": pred_2})
+        self.pred_df = pd.DataFrame({"True Value": true_label, "Model 1": pred_1, "Model 2": pred_2})
 
     def compare_metrics(self, ax=None):
         if ax is None:
@@ -41,27 +47,26 @@ class CompareModels():
             adj = "bigger"
         else:
             adj = "smaller"
-        metric_comp = pd.DataFrame({"Model": ["Model 1", "Model 2"],
-                                    "Metric": [eval_1, eval_2]}).set_index("Model")
+        metric_comp = pd.DataFrame({"Model": ["Model 1", "Model 2"], "Metric": [eval_1, eval_2]}).set_index("Model")
         ax = metric_comp["Metric"].plot(kind="bar", rot=0)
         ax.bar_label(ax.containers[0])
         ax.set_title(f"Model 1 metric is {diff}% {adj} than model 2")
         if show:
             plt.show()
-        
+
     def compare_predictions(self, error_margin=0.05, ax=None):
         if ax is None:
             _, ax = plt.subplots(1, 2, figsize=(15, 5))
             show = True
-            residuals=False
+            residuals = False
         else:
             show = False
-            residuals=True
+            residuals = True
 
         if self.regression:
             self._regression_predictions(error_margin, ax, residuals)
         else:
-            self._classification_predictions(error_margin, ax)       
+            self._classification_predictions(error_margin, ax)
 
         if show:
             plt.show()
@@ -100,7 +105,7 @@ class CompareModels():
     def _classification_predictions(self, error_margin, ax):
         if self.probabilities:
             self._regression_predictions(error_margin, ax, residuals=False)
-        
+
         else:
             df = self.pred_df.copy()
             df["M1_right"] = np.where(df["True Value"] == df["Model 1"], 1, 0)
@@ -114,7 +119,6 @@ class CompareModels():
             cm = np.array[[two_right, both_righ], [both_wrong, one_right]]
 
             sns.heatmap(cm, ax=ax, annot=True, fmt=".2%", annot_kws={"size": 15}, linewidths=0.5, cmap="coolwarm")
-        
 
     def compare_feature_importances(self, n=10):
         pass
