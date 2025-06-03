@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from scipy.stats import ttest_rel
+from statsmodels.stats.contingency_tables import mcnemar
 
 
 class CompareModels:
@@ -123,26 +124,44 @@ class CompareModels:
 
             sns.heatmap(cm, ax=ax, annot=True, fmt=".2%", annot_kws={"size": 15}, linewidths=0.5, cmap="coolwarm")
 
-    def statistical_significance(self):
+    def statistical_significance(self, error_margin=0.49):
         loss_folds_1 = []
         loss_folds_2 = []
 
-        if self.kfold is not None:
-            for _, (_, test_index) in enumerate(self.kfolds.split(self.true_label.values)):
-                mod_1 = self.pred_1[test_index]
-                mod_2 = self.pred_2[test_index]
-                tar = self.true_label[test_index]
+        if self.regression:
+            if self.kfold is not None:
+                for n_fold, (_, test_index) in enumerate(self.kfolds.split(self.true_label.values)):
+                    mod_1 = self.pred_1[test_index]
+                    mod_2 = self.pred_2[test_index]
+                    tar = self.true_label[test_index]
 
-                loss_1 = (tar - mod_1) ** 2
-                loss_2 = (tar - mod_2) ** 2
-                print(ttest_rel(loss_1, loss_2))
+                    loss_1 = (tar - mod_1) ** 2
+                    loss_2 = (tar - mod_2) ** 2
+                    result = ttest_rel(loss_1, loss_2)
+                    print(
+                        f"Fold {n_fold + 1} - statistic={round(result.statistic, 3)}, p-value={round(result.pvalue, 3)}"
+                    )
 
-                loss_folds_1.append(np.mean(loss_1))
-                loss_folds_2.append(np.mean(loss_2))
+                    loss_folds_1.append(np.mean(loss_1))
+                    loss_folds_2.append(np.mean(loss_2))
 
-        res = ttest_rel(loss_folds_1, loss_folds_2)
+                result = ttest_rel(loss_folds_1, loss_folds_2)
+                print(f"Across Folds - statistic={round(result.statistic, 3)}, p-value={round(result.pvalue, 3)}")
+            else:
+                loss_1 = (self.pred_1 - self.true_label) ** 2
+                loss_2 = (self.pred_2 - self.true_label) ** 2
+                result = ttest_rel(loss_1, loss_2)
+                print(f"statistic={round(result.statistic, 3)}, p-value={round(result.pvalue, 3)}")
 
-        return res
+        else:
+            if self.probabilities:
+                m1_right = np.where(abs(self.true_label - self.pred_1) < error_margin, 1, 0)
+                m2_right = np.where(abs(self.true_label - self.pred_2) < error_margin, 1, 0)
+            else:
+                m1_right = np.where(self.true_label == self.pred_1, 1, 0)
+                m2_right = np.where(self.true_label == self.pred_2, 1, 0)
+            contingency_table = pd.crosstab(m1_right, m2_right).sort_index(ascending=False)[[1, 0]].values
+            result = mcnemar(contingency_table, exact=True)
 
     def compare_feature_importances(self, n=10):
         pass
