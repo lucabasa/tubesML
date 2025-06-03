@@ -1,7 +1,8 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
+from scipy.stats import ttest_rel
 
 
 class CompareModels:
@@ -18,6 +19,7 @@ class CompareModels:
         fe_2=None,
         shap_1=None,
         shap_2=None,
+        kfold=None,
     ):
         self.data = data
         self.true_label = true_label
@@ -30,6 +32,7 @@ class CompareModels:
         self.fe_2 = fe_2
         self.shap_1 = shap_1
         self.shap_2 = shap_2
+        self.kfold = kfold
 
         self.pred_df = pd.DataFrame({"True Value": true_label, "Model 1": pred_1, "Model 2": pred_2})
 
@@ -119,6 +122,27 @@ class CompareModels:
             cm = np.array[[two_right, both_righ], [both_wrong, one_right]]
 
             sns.heatmap(cm, ax=ax, annot=True, fmt=".2%", annot_kws={"size": 15}, linewidths=0.5, cmap="coolwarm")
+
+    def statistical_significance(self):
+        loss_folds_1 = []
+        loss_folds_2 = []
+
+        if self.kfold is not None:
+            for _, (_, test_index) in enumerate(self.kfolds.split(self.true_label.values)):
+                mod_1 = self.pred_1[test_index]
+                mod_2 = self.pred_2[test_index]
+                tar = self.true_label[test_index]
+
+                loss_1 = (tar - mod_1) ** 2
+                loss_2 = (tar - mod_2) ** 2
+                print(ttest_rel(loss_1, loss_2))
+
+                loss_folds_1.append(np.mean(loss_1))
+                loss_folds_2.append(np.mean(loss_2))
+
+        res = ttest_rel(loss_folds_1, loss_folds_2)
+
+        return res
 
     def compare_feature_importances(self, n=10):
         pass
