@@ -11,4 +11,5 @@ seaborn==0.12.2
 shap==0.44.1
 Sphinx==7.3.7
 sphinx-rtd-theme==2.0.0
+statsmodels==0.14.4
 xgboost==2.0.3
