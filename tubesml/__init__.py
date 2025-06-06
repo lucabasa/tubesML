@@ -10,6 +10,7 @@ from tubesml.explore import plot_bivariate
 from tubesml.explore import plot_correlations
 from tubesml.explore import plot_distribution
 from tubesml.explore import segm_target
+from tubesml.model_comparison import CompareModels
 from tubesml.model_inspection import get_coef
 from tubesml.model_inspection import get_feature_importance
 from tubesml.model_inspection import get_pdp
@@ -72,4 +73,5 @@ __all__ = [
     "plot_shap_values",
     "eval_classification",
     "Stacker",
+    "CompareModels",
 ]
