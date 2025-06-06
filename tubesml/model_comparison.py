@@ -162,15 +162,4 @@ class CompareModels:
                 m2_right = np.where(self.true_label == self.pred_2, 1, 0)
             contingency_table = pd.crosstab(m1_right, m2_right).sort_index(ascending=False)[[1, 0]].values
             result = mcnemar(contingency_table, exact=True)
-
-    def compare_feature_importances(self, n=10):
-        pass
-
-    def compare_pdp(self, n=10):
-        pass
-
-    def compare_error_rates(self, n=10):
-        pass
-
-    def compare(self):
-        pass
+            print(f"statistic={round(result.statistic, 3)}, p-value={round(result.pvalue, 3)}")
