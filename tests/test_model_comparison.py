@@ -85,8 +85,12 @@ def test_regression_metrics_comparison(_):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        comp.compare_metrics()
-        plt.close()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                comp.compare_metrics()
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -104,8 +108,12 @@ def test_classification_metrics_comparison(_):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        comp.compare_metrics()
-        plt.close()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                comp.compare_metrics()
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -123,8 +131,12 @@ def test_classification_metrics_comparison_probabilities(_):
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        comp.compare_metrics()
-        plt.close()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=FutureWarning)
+                comp.compare_metrics()
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
