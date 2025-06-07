@@ -11,11 +11,6 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-import warnings  # Fixme: remove this when Seaborn is updated to 0.13
-
-warnings.filterwarnings("ignore", "is_categorical_dtype")
-warnings.filterwarnings("ignore", "use_inf_as_na")
-
 
 def list_missing(data, verbose=True):
     """
@@ -147,12 +142,13 @@ def corr_target(data, target, cols, x_estimator=None):
     num = len(cols)
     rows = int(num / 2) + (num % 2 > 0)
     cols = list(cols)
-    y = data[target]
+    to_plot = data.sample(min(len(data), 20000))
+    y = to_plot[target]
     fig, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
     i = 0
     j = 0
     for feat in cols:
-        x = data[feat]
+        x = to_plot[feat]
         if rows > 1:
             sns.regplot(x=x, y=y, ax=ax[i][j], x_estimator=x_estimator)
             j = (j + 1) % 2
@@ -217,7 +213,7 @@ def segm_target(data, cat, target):
     :param cat: str, name of the category used to cut the data
     :param target: str, name of the continuous target variable
     """
-    df = data.groupby(cat)[target].agg(["count", "mean", "max", "min", "median", "std"])
+    df = data.groupby(cat, observed=False)[target].agg(["count", "mean", "max", "min", "median", "std"])
     fig, ax = plt.subplots(1, 2, figsize=(12, 5))
     sns.boxplot(x=cat, y=target, data=data, ax=ax[0])
     for val in data[cat].unique():

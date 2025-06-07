@@ -14,9 +14,9 @@ PROJECT_URLS = {
     "Documentation": "https://tubesml.readthedocs.io/",
     "Source Code": "https://github.com/lucabasa/tubesML",
 }
+
 VERSION = "1.0.0"
 PYTHON_REQUIRES = ">=3.7"
-
 INSTALL_REQUIRES = ["kneed==0.8.5",
                     "matplotlib>=3.7.5",
                     "pandas>=2.2.2",
