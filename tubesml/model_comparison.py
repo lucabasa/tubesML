@@ -7,6 +7,33 @@ from statsmodels.stats.contingency_tables import mcnemar
 
 
 class CompareModels:
+    """
+    This class has methods to compare the results of 2 models. The user must provide the data used for
+    the predictions, the true label, and the predictions of both models on said data. The comparison is done
+    based on a (user provided) metric function, statistical significance tests, and visual comparison of the
+    predictions
+
+    :param data: pandas DataFrame with the data used to create the predictions of both models
+
+    :param true_label: pandas Series with the true label
+
+    :param pred_1: pandas Series with the predictions of the first model
+
+    :param pred_2: pandas Series with the predictions of the second model
+
+    :param metric_func: function that takes `y_true` and `y_pred` or `y_score` as input. This function calculates
+        the models metric
+
+    :param regression: boolean, to flag is the problem is a regression problem. This determines the type of statistical
+        test and plots
+
+    :param probabilities: boolean, to flag if the predictions are in the form of probabilities. Relevant only if
+        `regression` is False
+
+    :param kfold: kfold object used to produce the prediction, if any. If the regression predictions were made with
+        kfold, we strongly recommend providing this for a meaningful test.
+    """
+
     def __init__(
         self,
         data,
@@ -29,7 +56,10 @@ class CompareModels:
 
         self.pred_df = pd.DataFrame({"True Value": true_label, "Model 1": pred_1, "Model 2": pred_2})
 
-    def compare_metrics(self, ax=None):
+    def compare_metrics(self):
+        """
+        Calculates the provided metric for both models and produces a plot to compare them visually
+        """
         _, ax = plt.subplots(1, 1, figsize=(15, 5))
 
         try:
@@ -51,6 +81,17 @@ class CompareModels:
         plt.show()
 
     def compare_predictions(self, error_margin=0.05):
+        """
+        Visual comparison of the model predictions. For a regression problem, the comparison is done via
+        a scatter plot of the 2 sets of prediction and via a confusion matrix. The conflusion matrix is showing
+        the combinations of prediction that are 'correct'. A correct prediction is defined as one with a
+        percentage error below the provided `error_margin`.
+
+        For a classification problem, if the predictions are probabilities, the result is the same as for a
+        regression problem. Othewise, only a confusion matrix of the 2 models correct classifications is shown.
+
+        :param error_margin: float, the margin of error to consider a prediction correct.
+        """
         if self.regression:
             _, ax = plt.subplots(1, 2, figsize=(15, 5))
             self._regression_predictions(error_margin, ax)
@@ -102,6 +143,20 @@ class CompareModels:
         ax = self._plot_labels(ax)
 
     def statistical_significance(self, error_margin=0.49):
+        """
+        Performs a statistical test to see if the differences between the 2 models are statistically significant.
+        For regression problems, the test is a paired t-test on the losses of each model.
+        If the predictions were produced via a Kfold process, we must perform the test on each fold in order to
+        compare samples that are fairly independend. Subsequently, we can compare the mean losses of each fold
+        via another paired t-test. Generally speaking, the results will be in agreement, but keep in mind that
+        repeated statistical tests increase the probability of false positive.
+
+        For classification problems, the test is the Mcnemar on the contingency table of the 2 models, showing how
+        many predictions were correct from both models, and how many are misclassified by either or both models.
+        If the predictions were probabilities, we consider an `error_margin` to define a correct prediction
+
+        :param error_margin: float, margin of error for probability predictions.
+        """
         loss_folds_1 = []
         loss_folds_2 = []
 
