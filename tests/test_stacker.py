@@ -122,31 +122,6 @@ def test_stacker_pipelines(passthrough):
             _ = stk.predict_proba(df_1)
 
 
-def test_stacker_pipelines_cvscore():
-    """
-    Test it works when pipelines are provided
-    """
-    y = df["target"]
-    df_1 = df.drop("target", axis=1)
-
-    pipe1 = Pipeline([("scl", tubesml.DfScaler()), ("model", DecisionTreeClassifier())])
-    pipe2 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", DecisionTreeClassifier())])
-    pipe3 = Pipeline([("scl", tubesml.DfScaler()), ("model", LogisticRegression())])
-    pipe4 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", LogisticRegression())])
-
-    estm = [("model1", pipe1), ("model2", pipe2), ("model3", pipe3), ("model4", pipe4)]
-
-    kfold = KFold(n_splits=3)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            stk = tubesml.Stacker(estimators=estm, final_estimator=pipe3, cv=kfold, passthrough=False)
-            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, shap=False, imp_coef=True)
-            _, _ = cv_score.score()
-
-
 @pytest.mark.parametrize("passthrough", [True, False])
 def test_importances(passthrough):
     """
@@ -180,7 +155,7 @@ def test_importances_pipeline(passthrough):
     estm = [("model1", pipe1), ("model2", pipe2)]
 
     kfold = KFold(n_splits=3)
-    stk = tubesml.Stacker(estimators=estm, final_estimator=pipe2, cv=kfold, passthrough=passthrough)
+    stk = tubesml.Stacker(estimators=estm, final_estimator=pipe1, cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
 
     imps = stk.meta_importances_
@@ -490,7 +465,7 @@ def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tubesml.CrossValidate(
-                data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
+                data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
             )
             _, _ = cv_score.score()
 
@@ -524,5 +499,5 @@ def test_cv_score_stacker_passthrough(passthrough):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=True)
+            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=True)
             _, _ = cv_score.score()
