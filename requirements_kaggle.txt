@@ -2,7 +2,7 @@ coverage==7.5.3
 jupyterlab==4.2.2
 kneed==0.8.5
 lightgbm==4.5.0
-matplotlib==3.7.5
+matplotlib==3.7.2
 numpy==1.26.4
 pandas==2.2.3
 pytest==8.2.2

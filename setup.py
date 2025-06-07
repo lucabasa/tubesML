@@ -17,12 +17,14 @@ PROJECT_URLS = {
 
 VERSION = "1.0.0"
 PYTHON_REQUIRES = ">=3.7"
-INSTALL_REQUIRES = ["kneed==0.8.5",
-                    "matplotlib>=3.7.5",
-                    "pandas>=2.2.2",
-                    "scikit-learn>=1.2.2,<1.6",
-                    "seaborn>=0.12.2",
-                    "shap>=0.45.0"]
+INSTALL_REQUIRES = [
+    "kneed==0.8.5",
+    "matplotlib>=3.7.2",
+    "pandas>=2.2.2",
+    "scikit-learn>=1.2.2,<1.6",
+    "seaborn>=0.12.2",
+    "shap>=0.44.1",
+]
 
 PACKAGES = [
     "tubesml",
