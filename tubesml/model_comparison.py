@@ -103,8 +103,6 @@ class CompareModels:
                 _, ax = plt.subplots(1, 1, figsize=(10, 5))
                 self._classification_predictions(ax)
 
-        plt.show()
-
     def _regression_predictions(self, error_margin, ax):
         df = self.pred_df.copy()
         if self.probabilities:
@@ -126,6 +124,7 @@ class CompareModels:
 
         self.pred_df.plot.scatter(x="Model 1", y="Model 2", ax=ax[1])
         ax[1].set_title("Prediction comparion")
+        plt.show()
 
     def _classification_predictions(self, ax):
         df = self.pred_df.copy()
@@ -141,6 +140,7 @@ class CompareModels:
 
         sns.heatmap(cm, ax=ax, annot=True, fmt=".2%", annot_kws={"size": 15}, linewidths=0.5, cmap="coolwarm")
         ax = self._plot_labels(ax)
+        plt.show()
 
     def statistical_significance(self, error_margin=0.49):
         """

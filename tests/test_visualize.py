@@ -1,7 +1,6 @@
 import random
 import string
 import warnings
-
 from unittest.mock import patch
 
 import matplotlib.pyplot as plt
@@ -42,7 +41,6 @@ df, original_cols = create_data(n_samples=100)
 
 @pytest.mark.parametrize("fit", [True, False])
 def test_input_validation(fit):
-
     analyzer = ErrorAnalyzer(
         data=df.copy(),
         prediction_column="prediction",
@@ -62,7 +60,6 @@ def test_input_validation(fit):
 @pytest.mark.parametrize("imp", ["shap", "standard", "both"])
 @patch("matplotlib.pyplot.show")
 def test_plot_feat_importance(_, n, imp):
-
     analyzer = ErrorAnalyzer(
         data=df.copy(),
         prediction_column="prediction",
@@ -84,12 +81,12 @@ def test_plot_feat_importance(_, n, imp):
         assert len(axs) == 2
     else:
         assert len(axs) == 1
+    plt.close()
 
 
 @pytest.mark.parametrize("n", [3, 1, 10])
 @patch("matplotlib.pyplot.show")
 def test_plot_pdp(_, n):
-
     analyzer = ErrorAnalyzer(
         data=df.copy(),
         prediction_column="prediction",
@@ -104,12 +101,12 @@ def test_plot_pdp(_, n):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             viz = VisualizeError(analysis=analyzer)
             viz.plot_pdp(n=n)
+            plt.close()
 
 
 @pytest.mark.parametrize("n", [3, 1, 10])
 @patch("matplotlib.pyplot.show")
 def test_plot_error_rates(_, n):
-
     analyzer = ErrorAnalyzer(
         data=df.copy(),
         prediction_column="prediction",
@@ -126,3 +123,4 @@ def test_plot_error_rates(_, n):
                 warnings.filterwarnings("ignore", category=FutureWarning)
                 viz = VisualizeError(analysis=analyzer)
                 viz.plot_error_rates(n=n)
+                plt.close()

@@ -4,6 +4,7 @@ import warnings
 from unittest.mock import patch
 
 import lightgbm as lgb
+import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.datasets import make_classification
 from sklearn.datasets import make_regression
@@ -85,6 +86,7 @@ def test_regression_metrics_comparison(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         comp.compare_metrics()
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -103,6 +105,7 @@ def test_classification_metrics_comparison(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         comp.compare_metrics()
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -121,6 +124,7 @@ def test_classification_metrics_comparison_probabilities(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         comp.compare_metrics()
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -139,6 +143,7 @@ def test_regression_prediction_comparison(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         comp.compare_predictions()
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -157,6 +162,7 @@ def test_classification_prediction_comparison(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         comp.compare_predictions()
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -175,6 +181,7 @@ def test_classification_prediction_comparison_probabilities(_):
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         comp.compare_predictions()
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
