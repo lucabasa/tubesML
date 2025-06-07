@@ -95,6 +95,26 @@ def test_stacker_reg():
             _ = stk.predict(df_1)
 
 
+def test_stacker_blend():
+    """
+    Test the model works for regression
+    """
+    y = df_r["target"]
+    df_1 = df_r.drop("target", axis=1)
+
+    estm = [("tree1", DecisionTreeRegressor(max_depth=3)), ("tree2", DecisionTreeRegressor(max_depth=5))]
+
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, final_estimator="blend", cv=kfold)
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+
+
 @pytest.mark.parametrize("passthrough", [True, False])
 def test_stacker_pipelines(passthrough):
     """

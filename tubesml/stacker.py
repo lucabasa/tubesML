@@ -56,7 +56,16 @@ class Stacker(BaseTransformer):
                     Returns the correlation between the first set of estimator's predictions.
     """
 
-    def __init__(self, estimators, final_estimator, cv, lay1_kwargs=None, passthrough=False, verbose=False):
+    def __init__(
+        self,
+        estimators,
+        final_estimator,
+        cv,
+        lay1_kwargs=None,
+        passthrough=False,
+        verbose=False,
+        bypass_importances=False,
+    ):
         self.estimators = estimators
         self.final_estimator = final_estimator
         self.cv = cv
@@ -68,6 +77,7 @@ class Stacker(BaseTransformer):
         self.is_stacker = True
         self.passthrough = passthrough
         self.verbose = verbose
+        self.bypass_importances = bypass_importances
 
         if not type(self.passthrough) in [list, bool]:
             warnings.warn(
@@ -75,6 +85,9 @@ class Stacker(BaseTransformer):
                 UserWarning,
             )
             self.passthrough = False
+
+        if isinstance(self.final_estimator, str):
+            self.passthrough = False  # if we blend the models, we don't need other inputs
 
     def _lay1_kwargs_input(self, lay1_kwargs):
         if lay1_kwargs is None:
@@ -173,6 +186,10 @@ class Stacker(BaseTransformer):
         if self.verbose:
             self._check_correlated_predictions(final_train)
         final_train = self._get_passthrough_features(X, final_train)
+
+        if isinstance(self.final_estimator, str):  # if final_estimator is a string, we don't need to fit a model
+            return self
+
         self.final_estimator.fit(final_train, y)
 
         try:  # this is useful to well behave with other sklearn methods
@@ -180,7 +197,8 @@ class Stacker(BaseTransformer):
         except AttributeError:  # if the final_estimator does not have classes, we don't care
             pass
 
-        self.meta_importances_ = self.return_feature_importances(final_train)
+        if not self.bypass_importances:  # FIXME: had it failing on kaggle, unclear how or why
+            self.meta_importances_ = self.return_feature_importances(final_train)
         self.columns = final_train.columns
 
         return self
@@ -215,7 +233,10 @@ class Stacker(BaseTransformer):
         """
 
         final_predict = self._make_predict_test(X)
-        preds = self.final_estimator.predict(final_predict)
+        if isinstance(self.final_estimator, str):
+            preds = final_predict.mean(axis=1)
+        else:
+            preds = self.final_estimator.predict(final_predict)
         return preds
 
     def predict_proba(self, X, y=None):
@@ -238,5 +259,8 @@ class Stacker(BaseTransformer):
             The class probabilities of the input samples.
         """
         final_predict = self._make_predict_test(X)
-        preds = self.final_estimator.predict_proba(final_predict)
+        if isinstance(self.final_estimator, str):
+            preds = final_predict.mean(axis=1)
+        else:
+            preds = self.final_estimator.predict_proba(final_predict)
         return preds
