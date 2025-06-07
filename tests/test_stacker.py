@@ -16,6 +16,9 @@ from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBClassifier
 
 import tubesml
+from tubesml.base import BaseTransformer
+from tubesml.base import fit_wrapper
+from tubesml.base import transform_wrapper
 
 
 def create_data(classification=True):
@@ -35,6 +38,16 @@ def create_data(classification=True):
     df["target"] = target
 
     return df
+
+
+class CustomTransf(BaseTransformer):
+    @fit_wrapper
+    def fit(self, X, y=None):
+        return self
+
+    @transform_wrapper
+    def transform(self, X, y=None):
+        return X
 
 
 df = create_data()
@@ -82,6 +95,26 @@ def test_stacker_reg():
             _ = stk.predict(df_1)
 
 
+def test_stacker_blend():
+    """
+    Test the model works for regression
+    """
+    y = df_r["target"]
+    df_1 = df_r.drop("target", axis=1)
+
+    estm = [("tree1", DecisionTreeRegressor(max_depth=3)), ("tree2", DecisionTreeRegressor(max_depth=5))]
+
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, final_estimator="blend", cv=kfold)
+            stk.fit(df_1, y)
+            _ = stk.predict(df_1)
+
+
 @pytest.mark.parametrize("passthrough", [True, False])
 def test_stacker_pipelines(passthrough):
     """
@@ -91,9 +124,11 @@ def test_stacker_pipelines(passthrough):
     df_1 = df.drop("target", axis=1)
 
     pipe1 = Pipeline([("scl", tubesml.DfScaler()), ("model", DecisionTreeClassifier())])
-    pipe2 = Pipeline([("scl", tubesml.DfScaler()), ("model", LogisticRegression())])
+    pipe2 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", DecisionTreeClassifier())])
+    pipe3 = Pipeline([("scl", tubesml.DfScaler()), ("model", LogisticRegression())])
+    pipe4 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", LogisticRegression())])
 
-    estm = [("model1", pipe1), ("model2", pipe2)]
+    estm = [("model1", pipe1), ("model2", pipe2), ("model3", pipe3), ("model4", pipe4)]
 
     kfold = KFold(n_splits=3)
 
@@ -101,7 +136,7 @@ def test_stacker_pipelines(passthrough):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            stk = tubesml.Stacker(estimators=estm, final_estimator=pipe2, cv=kfold, passthrough=passthrough)
+            stk = tubesml.Stacker(estimators=estm, final_estimator=pipe3, cv=kfold, passthrough=passthrough)
             stk.fit(df_1, y)
             _ = stk.predict(df_1)
             _ = stk.predict_proba(df_1)
@@ -140,7 +175,7 @@ def test_importances_pipeline(passthrough):
     estm = [("model1", pipe1), ("model2", pipe2)]
 
     kfold = KFold(n_splits=3)
-    stk = tubesml.Stacker(estimators=estm, final_estimator=pipe2, cv=kfold, passthrough=passthrough)
+    stk = tubesml.Stacker(estimators=estm, final_estimator=pipe1, cv=kfold, passthrough=passthrough)
     stk.fit(df_1, y)
 
     imps = stk.meta_importances_
@@ -450,7 +485,7 @@ def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tubesml.CrossValidate(
-                data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
+                data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
             )
             _, _ = cv_score.score()
 
@@ -484,5 +519,5 @@ def test_cv_score_stacker_passthrough(passthrough):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=True)
+            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=True)
             _, _ = cv_score.score()
