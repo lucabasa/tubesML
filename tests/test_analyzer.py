@@ -4,14 +4,13 @@ import string
 import numpy as np
 import pandas as pd
 import pytest
-
 from sklearn.datasets import make_regression
 
 from tubesml.error_analysis import ErrorAnalyzer
 
 
 def create_data():
-    df, target = make_regression(n_features=10)
+    df, target = make_regression(n_features=10, random_state=45)
 
     i = 0
     random_names = []
@@ -32,7 +31,6 @@ df = create_data()
 
 
 def test_analyzer_regression():
-
     analyzer = ErrorAnalyzer(
         data=df.copy(),
         prediction_column="prediction",
@@ -112,13 +110,11 @@ def test_analyzer_regression_error_column():
 
 
 def test_analyzer_keyerror_no_pred():
-
     with pytest.raises(KeyError):
         _ = ErrorAnalyzer(data=df.copy(), prediction_column=None, error_column=None, true_label=None)
 
 
 def test_analyzer_keyerror_wrong_col():
-
     with pytest.raises(KeyError):
         _ = ErrorAnalyzer(
             data=df.copy(), prediction_column="prediction", error_column="some wrong name", true_label="true_label"
@@ -126,7 +122,6 @@ def test_analyzer_keyerror_wrong_col():
 
 
 def test_tune_tree():
-
     analyzer = ErrorAnalyzer(
         data=df.copy(),
         prediction_column="prediction",

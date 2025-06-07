@@ -3,6 +3,7 @@ import string
 import warnings
 from unittest.mock import patch
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
 from sklearn.datasets import make_classification
@@ -60,6 +61,7 @@ def test_plot_regression_pred_nohue(_):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=FutureWarning)
                 tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof)
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -85,6 +87,7 @@ def test_plot_regression_pred_hue(_):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=FutureWarning)
                 tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue="cat")
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -105,6 +108,7 @@ def test_plot_regression_pred_huemany(_):
 
     with pytest.warns(UserWarning):
         tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, hue="many_cat")
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -130,6 +134,7 @@ def test_plot_regression_features(_):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=FutureWarning)
                 tml.plot_regression_predictions(data=df_1, true_label=y, pred_label=oof, feature="feature")
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -158,6 +163,7 @@ def test_plot_regression_two_features(_):
                 tml.plot_regression_predictions(
                     data=df_1, true_label=y, pred_label=oof, feature=["feature", "feature2"]
                 )
+                plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -173,6 +179,7 @@ def test_plot_confusion_matrix_binary(_):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
+            plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -188,6 +195,7 @@ def test_plot_confusion_matrix_nonbinary(_):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             tml.plot_confusion_matrix(true_label=true, pred_label=pred, ax=None)
+            plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -210,6 +218,7 @@ def test_plot_classification_probs(_):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof)
+            plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -230,6 +239,7 @@ def test_plot_classification_probs_wronginput(_):
 
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, feat="non_existing_feat")
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -255,6 +265,7 @@ def test_plot_classification_probs_hue(_):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat="cat")
+            plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -276,6 +287,7 @@ def test_plot_classification_probs_manyhue(_):
 
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat="many_cat")
+        plt.close()
 
 
 @patch("matplotlib.pyplot.show")
@@ -296,3 +308,4 @@ def test_plot_classification_probs_wronghue(_):
 
     with pytest.warns(UserWarning):
         tml.plot_classification_probs(data=df_1, true_label=y, pred_label=oof, hue_feat="non_existing_feat")
+        plt.close()

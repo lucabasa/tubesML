@@ -3,6 +3,7 @@ black==24.10.0
 coverage==7.5.3
 jupyterlab==4.2.2
 lightgbm==4.4.0
+pre-commit==4.2.0
 pytest==8.2.2
 Sphinx==7.3.7
 sphinx-rtd-theme==2.0.0
