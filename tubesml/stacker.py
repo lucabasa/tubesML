@@ -28,7 +28,9 @@ class Stacker(BaseTransformer):
                         These estimators will generate the first layer of predictions.
 
     :param final_estimator: estimator with a fit and a predict (or predict_proba) methods.
-                            This estimator will create the final prediction.
+                            This estimator will create the final prediction. Alternatively,
+                            it can be just passed the string `blend` to not fit any final estimator
+                            and just take an average of the predictions at level 1.
 
     :param cv: KFold (or similar) generator.
                 The CV scheme to use to generate the first layer of predictions.
