@@ -16,6 +16,9 @@ from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBClassifier
 
 import tubesml
+from tubesml.base import BaseTransformer
+from tubesml.base import fit_wrapper
+from tubesml.base import transform_wrapper
 
 
 def create_data(classification=True):
@@ -35,6 +38,16 @@ def create_data(classification=True):
     df["target"] = target
 
     return df
+
+
+class CustomTransf(BaseTransformer):
+    @fit_wrapper
+    def fit(self, X, y=None):
+        return self
+
+    @transform_wrapper
+    def transform(self, X, y=None):
+        return X
 
 
 df = create_data()
@@ -91,9 +104,11 @@ def test_stacker_pipelines(passthrough):
     df_1 = df.drop("target", axis=1)
 
     pipe1 = Pipeline([("scl", tubesml.DfScaler()), ("model", DecisionTreeClassifier())])
-    pipe2 = Pipeline([("scl", tubesml.DfScaler()), ("model", LogisticRegression())])
+    pipe2 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", DecisionTreeClassifier())])
+    pipe3 = Pipeline([("scl", tubesml.DfScaler()), ("model", LogisticRegression())])
+    pipe4 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", LogisticRegression())])
 
-    estm = [("model1", pipe1), ("model2", pipe2)]
+    estm = [("model1", pipe1), ("model2", pipe2), ("model3", pipe3), ("model4", pipe4)]
 
     kfold = KFold(n_splits=3)
 
@@ -101,10 +116,35 @@ def test_stacker_pipelines(passthrough):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            stk = tubesml.Stacker(estimators=estm, final_estimator=pipe2, cv=kfold, passthrough=passthrough)
+            stk = tubesml.Stacker(estimators=estm, final_estimator=pipe3, cv=kfold, passthrough=passthrough)
             stk.fit(df_1, y)
             _ = stk.predict(df_1)
             _ = stk.predict_proba(df_1)
+
+
+def test_stacker_pipelines_cvscore():
+    """
+    Test it works when pipelines are provided
+    """
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+
+    pipe1 = Pipeline([("scl", tubesml.DfScaler()), ("model", DecisionTreeClassifier())])
+    pipe2 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", DecisionTreeClassifier())])
+    pipe3 = Pipeline([("scl", tubesml.DfScaler()), ("model", LogisticRegression())])
+    pipe4 = Pipeline([("scl", tubesml.DfScaler()), ("custom", CustomTransf()), ("model", LogisticRegression())])
+
+    estm = [("model1", pipe1), ("model2", pipe2), ("model3", pipe3), ("model4", pipe4)]
+
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            stk = tubesml.Stacker(estimators=estm, final_estimator=pipe3, cv=kfold, passthrough=False)
+            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, shap=False, imp_coef=True)
+            _, _ = cv_score.score()
 
 
 @pytest.mark.parametrize("passthrough", [True, False])
