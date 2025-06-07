@@ -1,12 +1,15 @@
 coverage==7.5.3
 jupyterlab==4.2.2
-lightgbm==4.2.0
+kneed==0.8.5
+lightgbm==4.5.0
 matplotlib==3.7.5
 numpy==1.26.4
-pandas==2.2.2
+pandas==2.2.3
 pytest==8.2.2
 scikit-learn==1.2.2
 seaborn==0.12.2
+shap==0.44.1
 Sphinx==7.3.7
 sphinx-rtd-theme==2.0.0
+statsmodels==0.14.4
 xgboost==2.0.3

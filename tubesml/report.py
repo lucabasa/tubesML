@@ -259,3 +259,5 @@ def eval_classification(data, target, preds, proba=False, thrs=0.5, plot=True, *
     print(f"Accuracy score: \t{round(accuracy_score(target, preds_bin), 4)}")
     print(f"AUC ROC: \t\t{round(roc_auc_score(target, preds), 4)}")
     print(classification_report(target, preds_bin))
+
+    plt.show()

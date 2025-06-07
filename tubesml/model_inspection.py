@@ -1,12 +1,8 @@
-__author__ = "lucabasa"
-__version__ = "1.1.0"
-__status__ = "development"
-
-
 import pandas as pd
 import numpy as np
 import matplotlib.tri as tri
 import matplotlib.pyplot as plt
+import shap
 from sklearn.model_selection import learning_curve
 from sklearn.inspection import partial_dependence
 from sklearn.pipeline import Pipeline
@@ -27,7 +23,7 @@ def get_coef(pipe, feats=None):
 
     :param feats: (optional) list of features the estimator uses.
 
-    :return result: pandas DataFrame with a ``feat`` column with the feature names and a ``score`` column with the
+    :return result: pandas DataFrame with a ``Feature`` column with the feature names and a ``score`` column with the
                     coefficients values ordere by absolute magnitude.
     """
     try:  # If estimator is not a pipeline, make a pipeline
@@ -38,7 +34,7 @@ def get_coef(pipe, feats=None):
     if hasattr(pipe.steps[-1][1], "is_stacker"):
         feats = pipe.steps[-1][1].get_feature_names_out()
     imp = pipe.steps[-1][1].coef_.ravel().tolist()
-    result = pd.DataFrame({"feat": feats, "score": imp})
+    result = pd.DataFrame({"Feature": feats, "score": imp})
     result["abs_res"] = abs(result["score"])
     result = result.sort_values(by=["abs_res"], ascending=False)
     del result["abs_res"]
@@ -58,7 +54,7 @@ def get_feature_importance(pipe, feats=None):
 
     :param feats: (optional) list of features the estimator uses.
 
-    :return result: pandas DataFrame with a ``feat`` column with the feature names and a ``score`` column with the
+    :return result: pandas DataFrame with a ``Feature`` column with the feature names and a ``score`` column with the
                     feature importances values ordere by magnitude.
 
     """
@@ -70,28 +66,29 @@ def get_feature_importance(pipe, feats=None):
     if hasattr(pipe.steps[-1][1], "is_stacker"):
         feats = pipe.steps[-1][1].get_feature_names_out()
     imp = pipe.steps[-1][1].feature_importances_.tolist()  # it's a pipeline
-    result = pd.DataFrame({"feat": feats, "score": imp})
+    result = pd.DataFrame({"Feature": feats, "score": imp})
     result = result.sort_values(by=["score"], ascending=False)
     return result
 
 
-def plot_feat_imp(data, n=-1, savename=None):
+def plot_feat_imp(data, n=-1, imp="shap", savename=None):
     """
     Plots a barplot with error bars of feature importance.
     It works with coefficients too.
 
     :param data: pandas DataFrame with a ``mean`` and a ``std`` column. A KeyError is raised
-                if any of these columns is missing.
+                if any of these columns is missing. If ``shap`` is selected, the columns has to
+                be ``shap_importance`` and ``shap_std``.
 
     :param n: int, default=-1. Number of features to display.
+
+    :param imp: string, default=shap. Allowed values are shap, standard, or both. If shap, the
+                importances coming from shap values will be in the plot. If standard, the one
+                coming from the model method. If both, 2 plots will be produced side by side.
 
     :param savename: (optional) str with the name of the file to use to save the figure.
                 If not provided, the function simply plots the figure.
     """
-
-    if not set(["mean", "std"]).issubset(data.columns):
-        raise KeyError("data must contain the columns feat, mean, and std")
-
     if n > 0:
         fi = data.head(n).copy()
     else:
@@ -99,9 +96,28 @@ def plot_feat_imp(data, n=-1, savename=None):
 
     fi = fi.reset_index().iloc[::-1]
 
-    fig, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    if imp == "shap":
+        cols = ["shap_importance", "shap_std"]
+        _, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    elif imp == "standard":
+        cols = ["mean", "std"]
+        _, ax = plt.subplots(1, 1, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    elif imp == "both":
+        cols = ["shap_importance", "shap_std"] + ["mean", "std"]
+        _, ax = plt.subplots(1, 2, figsize=(13, max(1, int(0.3 * fi.shape[0]))))
+    else:
+        raise ValueError("imp can only be shap, standard, or both")
 
-    ax.barh(y=fi["feat"], width=fi["mean"], xerr=fi["std"], left=0)
+    if not set(cols).issubset(data.columns):
+        raise KeyError(f"data must contain the columns {cols}")
+
+    if imp == "shap" or imp == "standard":
+        ax.barh(y=fi["Feature"], width=fi[cols[0]], xerr=fi[cols[1]], left=0)
+    else:
+        ax[0].barh(y=fi["Feature"], width=fi["shap_importance"], xerr=fi["shap_std"], left=0)
+        ax[1].barh(y=fi["Feature"], width=fi["mean"], xerr=fi["std"], left=0)
+        ax[0].set_title("Average shap values", fontsize=14)
+        ax[1].set_title("Model properties", fontsize=14)
 
     if savename is not None:
         plt.savefig(savename)
@@ -386,7 +402,7 @@ def plot_partial_dependence(pdps, savename=None):
     rows = int(num / 2) + (num % 2 > 0)
     feats = pdps.feat.unique()
 
-    fig, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
+    _, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
     i = 0
     j = 0
     for feat in feats:
@@ -396,6 +412,40 @@ def plot_partial_dependence(pdps, savename=None):
             i = i + 1 - j
         else:
             ax[i] = plot_pdp(pdps, feat, feat, ax[i])
+            i = i + 1
+
+    if savename is not None:
+        plt.savefig(savename)
+        plt.close()
+    else:
+        plt.show()
+
+
+def plot_shap_values(shap_values, features="all", savename=None):
+    """
+    Plots the shap values and interaction for all the specified features used in the model
+
+    :param shap_values, the model shap values object (values, data, etc)
+    :param features, string or list, default = "all". List of features to plot. If all,
+        all the features will be used.
+    """
+
+    if features == "all":
+        features = shap_values.feature_names
+
+    num = len(features)
+    rows = int(num / 2) + (num % 2 > 0)
+
+    _, ax = plt.subplots(rows, 2, figsize=(15, 5 * (rows)))
+    i = 0
+    j = 0
+    for feat in features:
+        if rows > 1:
+            shap.plots.scatter(shap_values[:, feat], color=shap_values, ax=ax[i][j], show=False)
+            j = (j + 1) % 2
+            i = i + 1 - j
+        else:
+            shap.plots.scatter(shap_values[:, feat], color=shap_values, ax=ax[i], show=False)
             i = i + 1
 
     if savename is not None:

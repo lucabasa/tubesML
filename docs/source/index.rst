@@ -21,10 +21,11 @@ The package contains also several methods to inspect the models and its predicti
    feat_en
    utility
    model_selection
+   model_comparison
    data_exploration
    report
    models
-
+   error_analysis
 
 
 Indices and tables

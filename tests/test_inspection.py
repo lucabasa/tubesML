@@ -22,7 +22,7 @@ import tubesml as tml
 
 def create_data(classification=True):
     if classification:
-        df, target = make_classification(n_features=10)
+        df, target = make_classification(n_features=10, random_state=325)
     else:
         df, target = make_regression(n_features=10)
 
@@ -198,21 +198,23 @@ def test_learning_curves_lgb(_):
 
 
 @patch("matplotlib.pyplot.show")
-def test_plot_feat_imp(_):
+@pytest.mark.parametrize("imp", ["shap", "standard", "both"])
+def test_plot_feat_imp(_, imp):
     """
     Test if plot feat importance works
     """
     y = df["target"]
     df_1 = df.drop("target", axis=1)
 
-    full_pipe = Pipeline([("scaler", tml.DfScaler()), ("lgb", LGBMClassifier(n_estimators=10))])
+    full_pipe = Pipeline([("scaler", tml.DfScaler()), ("lgb", LGBMClassifier(n_estimators=10, verbose=-1))])
 
     kfold = KFold(n_splits=3)
-    oof, coef = tml.cv_score(df_1, y, full_pipe, kfold, imp_coef=True, predict_proba=False)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True, shap=True)
+    oof, coef = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        tml.plot_feat_imp(coef["feat_imp"])
+        tml.plot_feat_imp(coef["feat_imp"], imp=imp)
 
 
 def test_plot_feat_imp_warning():
@@ -347,7 +349,8 @@ def test_plot_pdp(_):
     pdp = df_1.columns[:3].to_list()
 
     kfold = KFold(n_splits=3)
-    oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=pdp)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=pdp)
+    oof, res = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -387,8 +390,38 @@ def test_plot_pdp_singleplot_mean(_):
     fig, ax = plt.subplots(1, 1, figsize=(12, 5))
 
     kfold = KFold(n_splits=3)
-    oof, res = tml.cv_score(df_1, y, full_pipe, kfold, pdp=df_1.columns[0])
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=df_1.columns[0])
+    oof, res = cv_score.score()
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         ax = tml.plot_pdp(res["pdp"], df_1.columns[0], "", ax)
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.parametrize(
+    "model",
+    [
+        LogisticRegression(solver="lbfgs"),
+        DecisionTreeClassifier(),
+        XGBClassifier(n_estimators=10),
+        LGBMClassifier(n_estimators=10, verbose=-1),
+    ],
+)
+def test_plot_shap(_, model):
+    """
+    Test if plotting the shap values works
+    """
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+
+    full_pipe = Pipeline([("imputer", tml.DfImputer()), ("model", model)])
+
+    kfold = KFold(n_splits=3)
+    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, shap=True)
+    oof, res = cv_score.score()
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tml.plot_shap_values(res["shap_values"])
+        plt.close()
