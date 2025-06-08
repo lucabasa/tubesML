@@ -434,7 +434,7 @@ def test_shap_values_pipeline(model):
             ("pca", tml.DfPCA(n_components=15)),
         ]
     )
-    pipe = tml.FeatureUnionDf([("transf", pipe_transf)])
+    pipe = tml.FeatureUnionDf(transformer_list=[("transf", pipe_transf)])
 
     full_pipe = Pipeline([("pipe", pipe), ("model", model)])
 
