@@ -1,15 +1,7 @@
-__author__ = "lucabasa"
-__version__ = "1.2.0"
-__status__ = "development"
-
-
-import pandas as pd
-import numpy as np
-
-from scipy import stats
-
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
+from scipy import stats
 
 
 def list_missing(data, verbose=True):
@@ -29,7 +21,7 @@ def list_missing(data, verbose=True):
         return mis_cols
     tot_rows = len(data)
     for col in mis_cols:
-        print(f"Column {col}: {round(data[col].isna().sum()*100/tot_rows, 2)}% missing")
+        print(f"Column {col}: {round(data[col].isna().sum() * 100 / tot_rows, 2)}% missing")
     return mis_cols
 
 
@@ -91,9 +83,9 @@ def plot_distribution(data, column, bins=50, correlation=None):
     """
     plt.figure(figsize=(12, 8))
     data[column].hist(bins=bins)
-    if not correlation is None:
+    if correlation is not None:
         value = correlation[column]
-        column = column + f" - {round(value,2)}"
+        column = column + f" - {round(value, 2)}"
     plt.title(f"Distribution of {column}", fontsize=18)
     plt.grid(False)
     plt.show()

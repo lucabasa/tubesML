@@ -1,12 +1,14 @@
 import numpy as np
 import pandas as pd
-
-from sklearn.pipeline import Pipeline
 from sklearn.base import clone
+from sklearn.pipeline import Pipeline
 
 from tubesml.base import BaseTransformer
-from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
-from tubesml.shap_values import get_shap_values, get_shap_importance
+from tubesml.model_inspection import get_coef
+from tubesml.model_inspection import get_feature_importance
+from tubesml.model_inspection import get_pdp
+from tubesml.shap_values import get_shap_importance
+from tubesml.shap_values import get_shap_values
 
 
 class CrossValidate:

@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 import shap
 
 
@@ -70,7 +69,6 @@ def get_shap_importance(shap_values):
 
 
 def _fix_format(shap_values, class_pos):
-
     shap_values.values = shap_values.values[:, :, class_pos]
     shap_values.base_values = shap_values.base_values[:, class_pos]
     shap_values.output_dims = ()

@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from tubesml.model_inspection import plot_feat_imp, plot_shap_values
+from tubesml.model_inspection import plot_feat_imp
+from tubesml.model_inspection import plot_shap_values
 
 
 class VisualizeError:

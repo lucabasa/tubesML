@@ -3,14 +3,17 @@ import collections
 import numpy as np
 import pandas as pd
 from kneed import KneeLocator
-import shap
 from sklearn.metrics import make_scorer
-from sklearn.model_selection import GridSearchCV, KFold, cross_val_score
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 
 from tubesml.base import BaseTransformer
-from tubesml.model_inspection import get_coef, get_feature_importance
-from tubesml.shap_values import get_shap_importance, get_shap_values
+from tubesml.model_inspection import get_coef
+from tubesml.model_inspection import get_feature_importance
+from tubesml.shap_values import get_shap_importance
+from tubesml.shap_values import get_shap_values
 
 
 class ErrorAnalyzer(BaseTransformer):
@@ -77,7 +80,6 @@ class ErrorAnalyzer(BaseTransformer):
         n_leaves=3,
         random_state=None,
     ):
-
         self.data = data
         self.param_grid = param_grid
         self.regression = regression

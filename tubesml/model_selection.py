@@ -1,17 +1,8 @@
-__author__ = "lucabasa"
-__version__ = "1.3.0"
-__status__ = "development"
-
 import pandas as pd
-import numpy as np
-
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.base import clone
-
-from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
-from tubesml.base import BaseTransformer
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 
 
 def grid_search(data, target, estimator, param_grid, scoring, cv, random=False):
