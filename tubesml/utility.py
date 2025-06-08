@@ -73,13 +73,20 @@ class FeatureUnionDf(BaseTransformer):
     """
 
     def __init__(
-        self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False, verbose_feature_names_out=False
+        self,
+        transformer_list,
+        n_jobs=None,
+        transformer_weights=None,
+        verbose=False,
+        verbose_feature_names_out=False,
+        to_numpy=False,
     ):
         super().__init__()
         self.transformer_list = transformer_list
         self.n_jobs = n_jobs
         self.transformer_weights = transformer_weights
         self.verbose = verbose  # these are necessary to work inside of GridSearch or similar
+        self.to_numpy = to_numpy
         try:
             self.feat_un = FeatureUnion(
                 self.transformer_list,
@@ -140,7 +147,8 @@ class FeatureUnionDf(BaseTransformer):
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
 
         X_tr = X_tr.convert_dtypes()  # This is to avoid returning all objects if one column is not numeric
-        X_tr = X_tr.astype({col: X_tr[col].to_numpy().dtype for col in X_tr})
+        if self.to_numpy:
+            X_tr = X_tr.astype({col: X_tr[col].to_numpy().dtype for col in X_tr})
         # FIXME: this is necessary only because of shap, if the requirements become higher than 0.47, it should
         # be fixed
 
