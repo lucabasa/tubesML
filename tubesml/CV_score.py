@@ -1,12 +1,14 @@
 import numpy as np
 import pandas as pd
-
-from sklearn.pipeline import Pipeline
 from sklearn.base import clone
+from sklearn.pipeline import Pipeline
 
 from tubesml.base import BaseTransformer
-from tubesml.model_inspection import get_coef, get_feature_importance, get_pdp
-from tubesml.shap_values import get_shap_values, get_shap_importance
+from tubesml.model_inspection import get_coef
+from tubesml.model_inspection import get_feature_importance
+from tubesml.model_inspection import get_pdp
+from tubesml.shap_values import get_shap_importance
+from tubesml.shap_values import get_shap_values
 
 
 class CrossValidate:
@@ -52,6 +54,8 @@ class CrossValidate:
             If True, it calculates the shape values for a sample of the data in each fold. In that case
             the results will also have the shap values (concatenated) and the feature importance will have
             the one coming from the shap values.
+            WARNING: if you can't guarantee the same number of features in each fold, the shap calculation
+            will break.
 
     :param class_pos: bool, default=1.
             Position of the class of interest, relevant if using ``predict_proba`` and for some shap values

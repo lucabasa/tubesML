@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 import shap
 
 
@@ -10,6 +9,8 @@ def get_shap_values(data, model, sample=700, class_pos=1, check_additivity=True)
     on a sample of the data to save time. For some classification models,
     itwill return a shap value per class. If that's the case, the shap values
     will be the ones of the class of interest
+
+    The data is converted to numpy dtypes to avoid issues, it might not work with categories
 
     :param data: pandas DataFrame with the data to calculate the shap values on
         It must have the same features used to train the model
@@ -24,6 +25,8 @@ def get_shap_values(data, model, sample=700, class_pos=1, check_additivity=True)
     :return shap_values. It has 3 attributes: values, base values, data.
         ``values`` is an ndarray of shape (n_samples, n_features) with the shap values
     """
+
+    data = data.copy().astype({col: data[col].to_numpy().dtype for col in data})
 
     expl = shap.Explainer(model, data)
 
@@ -70,7 +73,6 @@ def get_shap_importance(shap_values):
 
 
 def _fix_format(shap_values, class_pos):
-
     shap_values.values = shap_values.values[:, :, class_pos]
     shap_values.base_values = shap_values.base_values[:, class_pos]
     shap_values.output_dims = ()

@@ -1,10 +1,10 @@
-import pandas as pd
-import numpy as np
-import matplotlib.tri as tri
 import matplotlib.pyplot as plt
+import matplotlib.tri as tri
+import numpy as np
+import pandas as pd
 import shap
-from sklearn.model_selection import learning_curve
 from sklearn.inspection import partial_dependence
+from sklearn.model_selection import learning_curve
 from sklearn.pipeline import Pipeline
 
 from tubesml.base import BaseTransformer

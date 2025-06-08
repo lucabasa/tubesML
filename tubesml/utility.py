@@ -51,7 +51,9 @@ class DtypeSel(BaseTransformer):
 class FeatureUnionDf(BaseTransformer):
     """
     Wrapper of `FeatureUnion` but returning a Dataframe,
-    the column order follows the concatenation done by FeatureUnion
+    the column order follows the concatenation done by FeatureUnion.
+
+    It is now returning pandas dtypes.
 
     :param transformer_list: list of (string, transformer) tuples
         List of transformer objects to be applied to the data. The first
@@ -73,7 +75,12 @@ class FeatureUnionDf(BaseTransformer):
     """
 
     def __init__(
-        self, transformer_list, n_jobs=None, transformer_weights=None, verbose=False, verbose_feature_names_out=False
+        self,
+        transformer_list,
+        n_jobs=None,
+        transformer_weights=None,
+        verbose=False,
+        verbose_feature_names_out=False,
     ):
         super().__init__()
         self.transformer_list = transformer_list
@@ -139,7 +146,7 @@ class FeatureUnionDf(BaseTransformer):
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
 
-        return X_tr.convert_dtypes()
+        return X_tr.convert_dtypes()  # This is to avoid returning all objects if one column is not numeric
 
     def get_params(self, deep=True):  # necessary to well behave in GridSearch
         return self.feat_un.get_params(deep=deep)

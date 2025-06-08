@@ -1,19 +1,20 @@
 import random
 import string
-import warnings
 
-import numpy as np
 import pandas as pd
 import pytest
-from lightgbm import early_stopping
-from lightgbm import LGBMClassifier, LGBMRegressor
-from sklearn.datasets import make_classification, make_regression
-from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.model_selection import KFold
-from sklearn.pipeline import Pipeline
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from xgboost import XGBClassifier, XGBRegressor
+from lightgbm import LGBMClassifier
+from lightgbm import LGBMRegressor
+from sklearn.datasets import make_classification
+from sklearn.datasets import make_regression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Ridge
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeRegressor
+from xgboost import XGBClassifier
+from xgboost import XGBRegressor
 
 import tubesml as tml
 

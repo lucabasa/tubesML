@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tubesml"
-version = "1.0.0"
+version = "1.0.1"
 description = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 readme = "README.rst"
 authors = [
@@ -28,7 +28,7 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: MacOS",
 ]
-dependencies = ["kneed==0.8.5", "matplotlib>=3.7.5", "pandas>=2.2.2", "scikit-learn>=1.2.2,<1.6.1", "seaborn>=0.12.2", "shap>=0.45.0"]
+dependencies = ["kneed==0.8.5", "matplotlib>=3.7.2", "pandas>=2.2.2", "scikit-learn>=1.2.2,<1.6.1", "seaborn>=0.12.2", "shap>=0.45.0"]
 
 [project.optional-dependencies]
 testing = [
