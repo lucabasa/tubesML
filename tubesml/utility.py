@@ -51,7 +51,10 @@ class DtypeSel(BaseTransformer):
 class FeatureUnionDf(BaseTransformer):
     """
     Wrapper of `FeatureUnion` but returning a Dataframe,
-    the column order follows the concatenation done by FeatureUnion
+    the column order follows the concatenation done by FeatureUnion.
+
+    It is now returning numpy dtypes, this is to solve a conflict with shap.
+    When shap gets updated we can go back to pandas dtypes.
 
     :param transformer_list: list of (string, transformer) tuples
         List of transformer objects to be applied to the data. The first

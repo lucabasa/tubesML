@@ -54,6 +54,8 @@ class CrossValidate:
             If True, it calculates the shape values for a sample of the data in each fold. In that case
             the results will also have the shap values (concatenated) and the feature importance will have
             the one coming from the shap values.
+            WARNING: if you can't guarantee the same number of features in each fold, the shap calculation
+            will break.
 
     :param class_pos: bool, default=1.
             Position of the class of interest, relevant if using ``predict_proba`` and for some shap values
