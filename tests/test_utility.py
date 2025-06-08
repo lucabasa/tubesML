@@ -129,3 +129,15 @@ def test_get_feature_names_featun():
     trsf = tubesml.FeatureUnionDf(transformer_list=[("cat", cat_pipe), ("num", num_pipe)])
     res = trsf.fit_transform(df)
     assert trsf.get_feature_names_out()[0] == df.columns[0]
+
+
+def test_feature_union_dypes():
+    """
+    Test it is not accidentally returning all objects when a non-numeric is involved
+    """
+    num_pipe = Pipeline([("num", tubesml.DtypeSel(dtype="numeric"))])
+    cat_pipe = Pipeline([("cat", tubesml.DtypeSel(dtype="category"))])
+    trsf = tubesml.FeatureUnionDf(transformer_list=[("num", num_pipe), ("cat", cat_pipe)])
+    res = trsf.fit_transform(df)
+    assert res["a"].dtype == "O"
+    assert res["b"].dtype == "int64"
