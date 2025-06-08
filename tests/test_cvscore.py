@@ -434,7 +434,8 @@ def test_shap_values_pipeline(model):
             ("pca", tml.DfPCA(n_components=15)),
         ]
     )
-    pipe = tml.FeatureUnionDf([("transf", pipe_transf)])
+    pipe = tml.FeatureUnionDf([("transf", pipe_transf)])  # FIXME: this makes the test fail with shap
+    # There is an open issue about it
 
     full_pipe = Pipeline([("pipe", pipe), ("model", model)])
 
