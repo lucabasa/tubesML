@@ -139,7 +139,7 @@ class FeatureUnionDf(BaseTransformer):
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
 
-        return X_tr  # .convert_dtypes()
+        return X_tr
 
     def get_params(self, deep=True):  # necessary to well behave in GridSearch
         return self.feat_un.get_params(deep=deep)
