@@ -53,8 +53,7 @@ class FeatureUnionDf(BaseTransformer):
     Wrapper of `FeatureUnion` but returning a Dataframe,
     the column order follows the concatenation done by FeatureUnion.
 
-    It is now returning numpy dtypes, this is to solve a conflict with shap.
-    When shap gets updated we can go back to pandas dtypes.
+    It is now returning pandas dtypes.
 
     :param transformer_list: list of (string, transformer) tuples
         List of transformer objects to be applied to the data. The first
@@ -147,13 +146,7 @@ class FeatureUnionDf(BaseTransformer):
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
 
-        X_tr = X_tr.convert_dtypes()  # This is to avoid returning all objects if one column is not numeric
-
-        X_tr = X_tr.astype({col: X_tr[col].to_numpy().dtype for col in X_tr})
-        # FIXME: this is necessary only because of shap, if the requirements become higher than 0.47, it should
-        # be fixed
-
-        return X_tr
+        return X_tr.convert_dtypes()  # This is to avoid returning all objects if one column is not numeric
 
     def get_params(self, deep=True):  # necessary to well behave in GridSearch
         return self.feat_un.get_params(deep=deep)
