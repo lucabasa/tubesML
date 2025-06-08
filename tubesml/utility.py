@@ -139,6 +139,11 @@ class FeatureUnionDf(BaseTransformer):
 
         X_tr = pd.DataFrame(X_tr, index=X.index, columns=columns)
 
+        X_tr = X_tr.convert_dtypes()  # This is to avoid returning all objects if one column is not numeric
+        X_tr = X_tr.astype({col: X_tr[col].to_numpy().dtype for col in X_tr})
+        # FIXME: this is necessary only because of shap, if the requirements become higher than 0.47, it should
+        # be fixed
+
         return X_tr
 
     def get_params(self, deep=True):  # necessary to well behave in GridSearch
