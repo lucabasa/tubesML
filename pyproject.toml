@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tubesml"
-version = "1.0.1"
+version = "1.0.2"
 description = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 readme = "README.rst"
 authors = [
