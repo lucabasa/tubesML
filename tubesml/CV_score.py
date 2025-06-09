@@ -59,7 +59,8 @@ class CrossValidate:
 
     :param class_pos: bool, default=1.
             Position of the class of interest, relevant if using ``predict_proba`` and for some shap values
-            explainers
+            explainers. If None, all the classes probabilities will be returned but it will conflict with
+            some shap values explainers.
 
     :param shap_sample: int, default=700.
             Number of samples to calculate the shap values in each fold.
@@ -163,9 +164,15 @@ class CrossValidate:
                 model.fit(trn_data, trn_target, **self.fit_params)
 
             if self.predict_proba:
-                self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
+                if self.class_pos is None:
+                    self.oof[test_index] = model.predict_proba(val_data)[:, :]
+                else:
+                    self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
                 if self.df_test is not None:
-                    self.pred += model.predict_proba(test_data)[:, self.class_pos]
+                    if self.class_pos is None:
+                        self.pred += model.predict_proba(test_data)[:, :]
+                    else:
+                        self.pred += model.predict_proba(test_data)[:, self.class_pos]
             else:
                 self.oof[test_index] = model.predict(val_data).ravel()
                 if self.df_test is not None:
@@ -186,9 +193,7 @@ class CrossValidate:
             self.pred = None
             return self.oof, self.result_dict
         else:
-            self.pred /= self.cv.get_n_splits()
-            if not self.regression:
-                self._postprocess_prediction()
+            self._postprocess_prediction()
             return self.oof, self.pred, self.result_dict
 
     def _initialize_loop(self):
