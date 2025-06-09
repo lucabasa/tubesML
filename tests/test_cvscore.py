@@ -381,7 +381,6 @@ def test_cvpredict_proba_multiclass():
     assert len(pred) == len(df_1)
     assert pred.min() >= 0
     assert pred.max() <= 1
-    raise ValueError(pred)
 
 
 @pytest.mark.parametrize("feat_imp", [True, False])
