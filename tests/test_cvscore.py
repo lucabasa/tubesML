@@ -338,6 +338,51 @@ def test_cvpredict_probaclass(predict_proba, n_folds, regression):
         assert len(np.unique(pred)) <= 2
 
 
+def test_cvpredict_proba_multiclass():
+    """
+    Test it works with a multi classification where we predict the probabilities
+    """
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+    df_test = df_1.copy()
+
+    pipe_transf = Pipeline(
+        [
+            ("fs", tml.DtypeSel(dtype="numeric")),
+            ("imp", tml.DfImputer(strategy="mean")),
+            ("poly", tml.DfPolynomial()),
+            ("sca", tml.DfScaler(method="standard")),
+            ("tarenc", tml.TargetEncoder()),
+            ("dummify", tml.Dummify()),
+            ("pca", tml.DfPCA(n_components=0.9)),
+        ]
+    )
+    pipe = tml.FeatureUnionDf([("transf", pipe_transf)])
+
+    full_pipe = Pipeline([("pipe", pipe), ("logit", LogisticRegression(solver="lbfgs"))])
+
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tml.CrossValidate(
+                data=df_1,
+                target=y,
+                test=df_test,
+                estimator=full_pipe,
+                cv=kfold,
+                class_pos=None,  # This is what it is testing
+                predict_proba=True,
+                regression=False,
+            )
+            _, pred, _ = cv_score.score()
+    assert len(pred) == len(df_1)
+    assert pred.min() >= 0
+    assert pred.max() <= 1
+
+
 @pytest.mark.parametrize("feat_imp", [True, False])
 def test_shap_values(feat_imp):
     y = df["target"]

@@ -15,7 +15,7 @@ PROJECT_URLS = {
     "Source Code": "https://github.com/lucabasa/tubesML",
 }
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 PYTHON_REQUIRES = ">=3.7"
 INSTALL_REQUIRES = [
     "kneed==0.8.5",
