@@ -201,9 +201,15 @@ class CrossValidate:
         Prepares everything needed to loop over the folds.
         The estimator must be a pipeline, so we make it one if it isn't
         """
-        self.oof = np.zeros(len(self.train))
+        if self.class_pos is None:
+            self.oof = np.zeros((len(self.train), self.target.nunique()))
+        else:
+            self.oof = np.zeros(len(self.train))
         if self.df_test is not None:
-            self.pred = np.zeros(len(self.df_test))
+            if self.class_pos is None:
+                self.pred = np.zeros((len(self.df_test), self.target.nunique()))
+            else:
+                self.pred = np.zeros(len(self.df_test))
         else:
             self.pred = self.oof
         self.result_dict = {}
