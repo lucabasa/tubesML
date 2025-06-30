@@ -38,21 +38,18 @@ def test_targetencoder_toencode():
 
 @pytest.mark.parametrize(
     "agg_func, has_warn",
-    [("mean", None), ("median", None), ("std", None), ("min", None), ("max", None), ("sum", None), ("count", 1)],
+    [("mean", None), ("median", None), ("std", None), ("min", None), ("max", None), ("sum", None), ("count", None)],
 )
 def test_variousencodings(agg_func, has_warn):
     """
     Test several agg functions, including a forbidden one to check the error
     """
-    if has_warn is None:
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            enc = tubesml.TargetEncoder(agg_func=agg_func)
-            res = enc.fit_transform(df, df["b"])
-    else:
-        with pytest.raises(UserWarning):
-            enc = tubesml.TargetEncoder(agg_func=agg_func)
-            res = enc.fit_transform(df, df["b"])
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        enc = tubesml.TargetEncoder(agg_func=agg_func)
+        res = enc.fit_transform(df, df["b"])
+
 
 
 def test_get_feature_names():

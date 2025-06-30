@@ -3,12 +3,13 @@ __version__ = "0.0.2"
 __status__ = "development"
 
 from tubesml.base import BaseTransformer, fit_wrapper, transform_wrapper
-
+import collections
 
 class TargetEncoder(BaseTransformer):
     """
     Heavily inspired by
     `MaxHalford <https://github.com/MaxHalford/xam/blob/93c066990d976c7d4d74b63fb6fb3254ee8d9b48/xam/feature_extraction/encoding/bayesian_target.py#L8>`__ # noqa
+    `MaxHalford <https://github.com/MaxHalford/xam/blob/93c066990d976c7d4d74b63fb6fb3254ee8d9b48/xam/feature_extraction/encoding/count.py#L9>`__ # noqa
 
     Encodes categorical features with statistics of the target variable. For example, by using the mean target value.
 
@@ -40,6 +41,7 @@ class TargetEncoder(BaseTransformer):
         self.prior_ = None
         self.posteriors_ = None
         self.agg_func = agg_func
+        self.counts_ = None
 
     @fit_wrapper
     def fit(self, X, y):
@@ -56,8 +58,7 @@ class TargetEncoder(BaseTransformer):
         :param y: array-like of shape (n_samples,) or (n_samples, n_outputs).
             The target values (or class labels) as integers or floats.
         """
-        if self.agg_func == "count":
-            raise UserWarning("Frequency encoding not supported")  # TODO: allow this in the future
+        
         # Encode all categorical cols by default
         if self.to_encode is None:
             self.to_encode = [c for c in X if str(X[c].dtype) == "object" or str(X[c].dtype) == "category"]
@@ -65,15 +66,20 @@ class TargetEncoder(BaseTransformer):
         tmp = X.copy()
         tmp["target"] = y
 
-        self.prior_ = tmp["target"].agg(self.agg_func)
-        self.posteriors_ = {}
-
-        for col in self.to_encode:
-            agg = tmp.groupby(col)["target"].agg(["count", self.agg_func])
-            counts = agg["count"]
-            data = agg[self.agg_func]
-            pw = self.prior_weight
-            self.posteriors_[col] = ((pw * self.prior_ + counts * data) / (pw + counts)).to_dict()
+        if self.agg_func == "count":
+            self.counts_ = {}
+            for col in self.to_encode:
+                counts = tmp[col].value_counts()
+                self.counts_[col] = collections.defaultdict(lambda: 0, counts.to_dict())
+        else:
+            self.prior_ = tmp["target"].agg(self.agg_func)
+            self.posteriors_ = {}
+            for col in self.to_encode:
+                agg = tmp.groupby(col)["target"].agg(["count", self.agg_func])
+                counts = agg["count"]
+                data = agg[self.agg_func]
+                pw = self.prior_weight
+                self.posteriors_[col] = ((pw * self.prior_ + counts * data) / (pw + counts)).to_dict()
 
         del tmp
         return self
@@ -99,7 +105,11 @@ class TargetEncoder(BaseTransformer):
         """
         X_tr = X.copy()
 
-        for col in self.to_encode:
-            X_tr[col] = X_tr[col].map(self.posteriors_[col]).fillna(self.prior_).astype(float)
+        if self.agg_func == "count":
+            for col in self.to_encode:
+                X_tr[col] = X_tr[col].map(self.counts_[col]).astype(float)
+        else:
+            for col in self.to_encode:
+                X_tr[col] = X_tr[col].map(self.posteriors_[col]).fillna(self.prior_).astype(float)
 
         return X_tr
