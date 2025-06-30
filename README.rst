@@ -1,4 +1,4 @@
-.. |PythonMinVersion| replace:: 3.7
+.. |PythonMinVersion| replace:: 3.9
 .. |PandasMinVersion| replace:: 2.2.2
 .. |SklearnMinVersion| replace:: 1.2.2
 .. |PltMinVersion| replace:: 3.7.5
