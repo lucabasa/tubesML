@@ -41,7 +41,6 @@ class TargetEncoder(BaseTransformer):
         self.prior_ = None
         self.posteriors_ = None
         self.agg_func = agg_func
-        self.counts_ = None
 
     @fit_wrapper
     def fit(self, X, y):
@@ -67,10 +66,11 @@ class TargetEncoder(BaseTransformer):
         tmp["target"] = y
 
         if self.agg_func == "count":
-            self.counts_ = {}
+            self.prior_ = 0
+            self.posteriors_ = {}
             for col in self.to_encode:
                 counts = tmp[col].value_counts()
-                self.counts_[col] = collections.defaultdict(lambda: 0, counts.to_dict())
+                self.posteriors_[col] = collections.defaultdict(lambda: 0, counts.to_dict())
         else:
             self.prior_ = tmp["target"].agg(self.agg_func)
             self.posteriors_ = {}
@@ -105,11 +105,7 @@ class TargetEncoder(BaseTransformer):
         """
         X_tr = X.copy()
 
-        if self.agg_func == "count":
-            for col in self.to_encode:
-                X_tr[col] = X_tr[col].map(self.counts_[col]).astype(float)
-        else:
-            for col in self.to_encode:
-                X_tr[col] = X_tr[col].map(self.posteriors_[col]).fillna(self.prior_).astype(float)
+        for col in self.to_encode:
+            X_tr[col] = X_tr[col].map(self.posteriors_[col]).fillna(self.prior_).astype(float)
 
         return X_tr
