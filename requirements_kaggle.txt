@@ -1,4 +1,4 @@
-coverage==7.5.3
+coverage==7.10.7
 jupyterlab==4.2.2
 kneed==0.8.5
 lightgbm==4.5.0

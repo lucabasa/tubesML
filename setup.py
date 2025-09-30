@@ -42,7 +42,7 @@ CLASSIFIERS = [
     "Operating System :: MacOS",
 ]
 
-TEST_REQUIRE = ["pytest==8.2.2", "coverage==7.5.3", "xgboost==2.1.0", "lightgbm==4.4.0"]
+TEST_REQUIRE = ["pytest==8.2.2", "coverage==7.10.7", "xgboost==2.1.0", "lightgbm==4.4.0"]
 
 
 if __name__ == "__main__":
