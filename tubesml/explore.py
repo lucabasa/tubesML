@@ -115,7 +115,7 @@ def plot_bivariate(data, x, y, hue=None, **kwargs):
     plt.show()
 
 
-def corr_target(data, target, cols, x_estimator=None):
+def corr_target(data, target, cols, x_estimator=None, **kwargs):
     """
     Scatterplot + linear regression of a list of columns against the target.
     A correlation matrix is also printed.
@@ -136,17 +136,17 @@ def corr_target(data, target, cols, x_estimator=None):
     cols = list(cols)
     to_plot = data.sample(min(len(data), 20000))
     y = to_plot[target]
-    fig, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
+    _, ax = plt.subplots(rows, 2, figsize=(12, 5 * (rows)))
     i = 0
     j = 0
     for feat in cols:
         x = to_plot[feat]
         if rows > 1:
-            sns.regplot(x=x, y=y, ax=ax[i][j], x_estimator=x_estimator)
+            sns.regplot(x=x, y=y, ax=ax[i][j], x_estimator=x_estimator, **kwargs)
             j = (j + 1) % 2
             i = i + 1 - j
         else:
-            sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator)
+            sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator, **kwargs)
             i = i + 1
     plt.show()
 
@@ -206,7 +206,7 @@ def segm_target(data, cat, target):
     :param target: str, name of the continuous target variable
     """
     df = data.groupby(cat, observed=False)[target].agg(["count", "mean", "max", "min", "median", "std"])
-    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+    _, ax = plt.subplots(1, 2, figsize=(12, 5))
     sns.boxplot(x=cat, y=target, data=data, ax=ax[0])
     for val in data[cat].unique():
         tmp = data[data[cat] == val]
