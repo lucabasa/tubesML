@@ -26,7 +26,7 @@ class CrossValidate:
             It can be a Pipeline. If it is not a Pipeline, it will be made one for
             compatibility with other functionalities.
 
-    :param cv: KFold object.
+    :param cv: KFold or StratifiedKFold object.
             For cross-validation, the estimates will be done across these folds.
 
     :param test: pandas DataFrame, default=None
@@ -140,7 +140,7 @@ class CrossValidate:
         and, if provided, an average prediction on the test set. It can also produce various insights
         on the model, like feature importance and pdp's.
         """
-        for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values)):
+        for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values, self.target.values)):
             trn_data = self.train.iloc[train_index, :].reset_index(drop=True)
             val_data = self.train.iloc[test_index, :].reset_index(drop=True)
 

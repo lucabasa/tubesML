@@ -11,6 +11,7 @@ from sklearn.datasets import make_classification
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
@@ -41,7 +42,8 @@ df = create_data()
 
 
 @pytest.mark.parametrize("predict_proba", [True, False])
-def test_cvscore(predict_proba):
+@pytest.mark.parametrize("stratified", [True, False])
+def test_cvscore(predict_proba, stratified):
     """
     Test it works without warnings with both the normal prediction and the predict_proba
     """
@@ -63,7 +65,10 @@ def test_cvscore(predict_proba):
 
     full_pipe = Pipeline([("pipe", pipe), ("logit", LogisticRegression(solver="lbfgs"))])
 
-    kfold = KFold(n_splits=3)
+    if stratified:
+        kfold = StratifiedKFold(n_splits=3)
+    else:
+        kfold = KFold(n_splits=3)
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
