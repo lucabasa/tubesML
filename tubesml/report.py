@@ -119,14 +119,14 @@ def plot_regression_predictions(data, true_label, pred_label, hue=None, feature=
         plt.close()
 
 
-def plot_confusion_matrix(true_label, pred_label, ax=None, thrs=0.5):
+def plot_confusion_matrix(true_label, pred_label, ax=None, thrs=0.5, proba=True):
     if ax is None:
-        fig, ax = plt.subplots(1, figsize=(12, 12))
+        _, ax = plt.subplots(1, figsize=(12, 12))
         end_action = True
     else:
         end_action = False
 
-    if len(set(pred_label)) > 2:
+    if proba:
         preds = pred_label > thrs
     else:
         preds = pred_label
@@ -178,7 +178,7 @@ def plot_classification_probs(
     ax[0][0].set_title("Predicted Probability vs True Label", fontsize=14)
 
     # Confusion matrix
-    ax[0][1] = plot_confusion_matrix(tmp["True Label"], tmp["Prediction"], ax=ax[0][1], thrs=thrs)
+    ax[0][1] = plot_confusion_matrix(tmp["True Label"], tmp["Prediction"], ax=ax[0][1], thrs=thrs, proba=True)
 
     # This is to allow for segmenting the data by a categorical feature
     addition = ""
@@ -254,7 +254,7 @@ def eval_classification(data, target, preds, proba=False, thrs=0.5, plot=True, *
     else:
         preds_bin = preds
         if plot > 0:
-            plot_confusion_matrix(target, preds)
+            plot_confusion_matrix(target, preds, thrs=None, proba=False)
 
     print(f"Accuracy score: \t{round(accuracy_score(target, preds_bin), 4)}")
     print(f"AUC ROC: \t\t{round(roc_auc_score(target, preds), 4)}")
