@@ -54,7 +54,7 @@ class ErrorAnalyzer(BaseTransformer):
     :param error_class_idx: integer, default=1. Index of the classi indicating the error.
 
     :param fidelity_threshold: float. We trust a surrogate model that has a fidelity higher than this threshold.
-        Fidelity is defined as 1 - |actual_accuracy - estimated_accuracy|
+        Fidelity is defined as ``1 - |actual_accuracy - estimated_accuracy|``
 
     :param probablity_threshold: float. In case we have to determine the error column for a classification problem,
         this is the threshold to consider an observation an error.
@@ -353,11 +353,16 @@ def get_epsilon(difference):
     """
     Compute the threshold used to decide whether a prediction is wrong or correct (for regression tasks).
 
-    :param difference (1D-array): The absolute differences between the true target values and the predicted ones
-    (by the primary model).
+    Compute the threshold used to decide whether a prediction is wrong or correct
+    for regression tasks.
 
-    :return: epsilon (float): The value of the threshold used to decide whether the prediction for a regression task
-    is wrong or correct
+    :param difference: 1D-array.
+                       The absolute differences between the true target values and
+                       the predicted ones (from the primary model).
+
+    :return: float.
+             The threshold value used to decide whether a regression prediction
+             is wrong or correct.
     """
     epsilon_range = np.linspace(min(difference), max(difference), num=50)
     cdf_error = []

@@ -1,5 +1,5 @@
 Model Comparison
-===============
+================
 
 In this section, we find a class to compare 2 models.
 
