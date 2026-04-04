@@ -21,7 +21,7 @@ INSTALL_REQUIRES = [
     "kneed==0.8.5",
     "matplotlib>=3.10.0",
     "pandas>=2.3.3",
-    "scikit-learn>=1.2.2",
+    "scikit-learn>=1.6.1",
     "scipy>=1.16.3",
     "seaborn>=0.13.2",
     "shap>=0.50.0",
