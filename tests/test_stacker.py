@@ -334,7 +334,10 @@ def test_high_correlation_warning():
     y = df["target"]
     df_1 = df.drop("target", axis=1)
 
-    estm = [("tree", DecisionTreeClassifier(max_depth=3)), ("tree2", DecisionTreeClassifier(max_depth=3))]
+    estm = [
+        ("tree", DecisionTreeClassifier(max_depth=3, random_state=13)),
+        ("tree2", DecisionTreeClassifier(max_depth=3, random_state=13)),
+    ]
 
     kfold = KFold(n_splits=3)
 
