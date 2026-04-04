@@ -41,6 +41,29 @@ def create_data(classification=True):
 df = create_data()
 
 
+def test_initialization():
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+    model = LogisticRegression()
+    kfold = KFold(n_splits=3)
+
+    with pytest.raises(AttributeError):
+        _ = tml.CrossValidate(data=df_1, target=y, estimator=model, cv=kfold, regression=True, multiclass=True)
+
+    with pytest.raises(AttributeError):
+        _ = tml.CrossValidate(
+            data=df_1, target=y, estimator=model, cv=kfold, regression=False, multiclass=True, class_pos=1
+        )
+
+    with pytest.raises(AttributeError):
+        _ = tml.CrossValidate(
+            data=df_1, target=y, estimator=model, cv=kfold, regression=False, multiclass=False, class_pos=None
+        )
+
+    with pytest.raises(AttributeError):
+        _ = tml.CrossValidate(data=df_1, target=y, estimator=model, cv=kfold, regression=True, predict_proba=True)
+
+
 @pytest.mark.parametrize("predict_proba", [True, False])
 @pytest.mark.parametrize("stratified", [True, False])
 def test_cvscore(predict_proba, stratified):
@@ -75,7 +98,7 @@ def test_cvscore(predict_proba, stratified):
         with warnings.catch_warnings():  # FIXME: clean before release
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=predict_proba
+                data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=predict_proba, regression=False
             )
             res, _ = cv_score.score()
     assert len(res) == len(df_1)
@@ -96,7 +119,9 @@ def test_cvscore_nopipe():
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+            cv_score = tml.CrossValidate(
+                data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True, regression=False
+            )
             res, _ = cv_score.score()
     assert len(res) == len(df_1)
 
@@ -132,7 +157,9 @@ def test_cvscore_coef_imp(model):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True)
+            cv_score = tml.CrossValidate(
+                data=df_1, target=y, estimator=full_pipe, cv=kfold, imp_coef=True, regression=False
+            )
             res, coef = cv_score.score()
     assert len(coef["feat_imp"]) == df_1.shape[1] * 2 + 45  # to account for the combinations
 
@@ -151,7 +178,9 @@ def test_cvscore_nopipeline(model):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tml.CrossValidate(data=df_1, target=y, estimator=model, cv=kfold, imp_coef=True)
+            cv_score = tml.CrossValidate(
+                data=df_1, target=y, estimator=model, cv=kfold, imp_coef=True, regression=False
+            )
             res, coef = cv_score.score()
     assert len(res) == len(df_1)
     assert len(coef["feat_imp"]) == df_1.shape[1]
@@ -180,7 +209,7 @@ def test_cvscore_pdp(model):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=pdp)
+            cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, pdp=pdp, regression=False)
             res, pdp_res = cv_score.score()
     assert set(pdp_res["pdp"]["feat"]) == set(pdp)
     assert pdp_res["pdp"]["mean"].notna().all()
@@ -209,7 +238,13 @@ def test_fit_params():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=model, cv=kfold, early_stopping=True, fit_params=fit_params
+                data=df_1,
+                target=y,
+                estimator=model,
+                cv=kfold,
+                early_stopping=True,
+                fit_params=fit_params,
+                regression=False,
             )
             res, res_dict = cv_score.score()
 
@@ -225,7 +260,13 @@ def test_fit_params():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=model, cv=kfold, early_stopping=True, fit_params=fit_params
+                data=df_1,
+                target=y,
+                estimator=model,
+                cv=kfold,
+                early_stopping=True,
+                fit_params=fit_params,
+                regression=False,
             )
             res, res_dict = cv_score.score()
 
@@ -269,7 +310,13 @@ def test_fit_params_pipeline():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                early_stopping=True,
+                fit_params=fit_params,
+                regression=False,
             )
             res, res_dict = cv_score.score()
 
@@ -286,7 +333,13 @@ def test_fit_params_pipeline():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=full_pipe, cv=kfold, early_stopping=True, fit_params=fit_params
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                early_stopping=True,
+                fit_params=fit_params,
+                regression=False,
             )
             res, res_dict = cv_score.score()
 
@@ -381,6 +434,7 @@ def test_cvpredict_proba_multiclass():
                 class_pos=None,  # This is what it is testing
                 predict_proba=True,
                 regression=False,
+                multiclass=True,
             )
             _, pred, _ = cv_score.score()
     assert len(pred) == len(df_1)
@@ -415,7 +469,14 @@ def test_shap_values(feat_imp):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=full_pipe, cv=kfold, shap=True, shap_sample=10, imp_coef=feat_imp
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                shap=True,
+                shap_sample=10,
+                imp_coef=feat_imp,
+                regression=False,
             )
             _, res = cv_score.score()
     assert len(cv_score.shap_values.values) == 10 * 3
@@ -450,12 +511,7 @@ def test_shap_values_nopipeline(model):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1,
-                target=y,
-                estimator=model,
-                cv=kfold,
-                shap=True,
-                shap_sample=10,
+                data=df_1, target=y, estimator=model, cv=kfold, shap=True, shap_sample=10, regression=False
             )
             _, res = cv_score.score()
 
@@ -495,11 +551,6 @@ def test_shap_values_pipeline(model):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1,
-                target=y,
-                estimator=full_pipe,
-                cv=kfold,
-                shap=True,
-                shap_sample=10,
+                data=df_1, target=y, estimator=full_pipe, cv=kfold, shap=True, shap_sample=10, regression=False
             )
             _, res = cv_score.score()

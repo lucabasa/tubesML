@@ -52,10 +52,10 @@ cv_score = tml.CrossValidate(data=df_r_m, target=y_r, estimator=model, cv=kfold)
 res_1_r, _ = cv_score.score()
 
 model = lgb.LGBMClassifier(verbose=-1)
-cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold)
+cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold, regression=False)
 res_1_c, _ = cv_score.score()
 
-cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold, predict_proba=True)
+cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold, predict_proba=True, regression=False)
 res_1_c_p, _ = cv_score.score()
 
 model = RandomForestRegressor(n_jobs=-1)
@@ -63,10 +63,10 @@ cv_score = tml.CrossValidate(data=df_r_m, target=y_r, estimator=model, cv=kfold)
 res_2_r, _ = cv_score.score()
 
 model = RandomForestClassifier(n_jobs=-1)
-cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold)
+cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold, regression=False)
 res_2_c, _ = cv_score.score()
 
-cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold, predict_proba=True)
+cv_score = tml.CrossValidate(data=df_c_m, target=y_c, estimator=model, cv=kfold, predict_proba=True, regression=False)
 res_2_c_p, _ = cv_score.score()
 
 

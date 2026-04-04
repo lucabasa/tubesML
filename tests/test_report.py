@@ -210,7 +210,9 @@ def test_plot_classification_probs(_):
 
     kfold = KFold(n_splits=3)
 
-    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+    cv_score = tml.CrossValidate(
+        data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True, regression=False
+    )
     oof, _ = cv_score.score()
 
     with warnings.catch_warnings():
@@ -234,7 +236,9 @@ def test_plot_classification_probs_wronginput(_):
 
     kfold = KFold(n_splits=3)
 
-    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+    cv_score = tml.CrossValidate(
+        data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True, regression=False
+    )
     oof, _ = cv_score.score()
 
     with pytest.warns(UserWarning):
@@ -257,7 +261,9 @@ def test_plot_classification_probs_hue(_):
 
     kfold = KFold(n_splits=3)
 
-    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+    cv_score = tml.CrossValidate(
+        data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True, regression=False
+    )
     oof, _ = cv_score.score()
 
     with warnings.catch_warnings():
@@ -282,7 +288,9 @@ def test_plot_classification_probs_manyhue(_):
 
     kfold = KFold(n_splits=3)
 
-    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+    cv_score = tml.CrossValidate(
+        data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True, regression=False
+    )
     oof, _ = cv_score.score()
 
     with pytest.warns(UserWarning):
@@ -303,7 +311,9 @@ def test_plot_classification_probs_wronghue(_):
 
     kfold = KFold(n_splits=3)
 
-    cv_score = tml.CrossValidate(data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True)
+    cv_score = tml.CrossValidate(
+        data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=True, regression=False
+    )
     oof, _ = cv_score.score()
 
     with pytest.warns(UserWarning):

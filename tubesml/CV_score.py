@@ -78,8 +78,12 @@ class CrossValidate:
 
     :param regression: bool, default=True.
                         If True, the predictions on the test set will be averaged across folds. Set it to
-                        false if the problem is a binary classification problem and you are not using
+                        false if the problem is a classification problem and you are not using
                         ``predict_proba``.
+
+    :param multiclass: bool, default=False.
+                        Set to true to deal with multiclassification problems. The test set predictions in this
+                        case are a vote across the folds.
 
     :param check_shap_additivity: bool, default=True.
                         If False, it will skip the additivity check during the shap values calculation,
@@ -118,6 +122,7 @@ class CrossValidate:
         early_stopping=False,
         fit_params=None,
         regression=True,
+        multiclass=False,
         check_shap_additivity=True,
     ):
         self.train = data.copy()
@@ -138,7 +143,9 @@ class CrossValidate:
         self.early_stopping = early_stopping
         self.fit_params = fit_params
         self.regression = regression
+        self.multiclass = multiclass
         self.check_shap_additivity = check_shap_additivity
+        self._check_input()
         self._initialize_loop()
 
     def score(self):
@@ -170,20 +177,30 @@ class CrossValidate:
             else:
                 model.fit(trn_data, trn_target, **self.fit_params)
 
-            if self.predict_proba:
-                if self.class_pos is None:
-                    self.oof[test_index] = model.predict_proba(val_data)[:, :]
-                else:
-                    self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
-                if self.df_test is not None:
-                    if self.class_pos is None:
-                        self.pred += model.predict_proba(test_data)[:, :]
-                    else:
-                        self.pred += model.predict_proba(test_data)[:, self.class_pos]
-            else:
+            if self.regression:
                 self.oof[test_index] = model.predict(val_data).ravel()
                 if self.df_test is not None:
                     self.pred += model.predict(test_data).ravel()
+
+            elif self.multiclass:
+                if self.predict_proba:
+                    self.oof[test_index] = model.predict_proba(val_data)[:, :]
+                    if self.df_test is not None:
+                        self.pred += model.predict_proba(test_data)[:, :]
+                else:
+                    self.oof[test_index] = model.predict(val_data).ravel()
+                    if self.df_test is not None:
+                        self.pred[:, n_fold] = model.predict(test_data).ravel()
+
+            else:
+                if self.predict_proba:
+                    self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
+                    if self.df_test is not None:
+                        self.pred += model.predict_proba(test_data)[:, self.class_pos]
+                else:
+                    self.oof[test_index] = model.predict(val_data).ravel()
+                    if self.df_test is not None:
+                        self.pred[:, n_fold] = model.predict(test_data).ravel()
 
             if self.imp_coef:
                 self._fold_imp(model, trn_data, n_fold)
@@ -203,20 +220,46 @@ class CrossValidate:
             self._postprocess_prediction()
             return self.oof, self.pred, self.result_dict
 
+    def _check_input(self):
+        """
+        Check the consistency of the input to avoid weird behaviors
+        """
+        if self.regression and self.predict_proba:
+            raise AttributeError("It can't be both a regression problem and predict probabilities")
+        if self.regression and self.multiclass:
+            raise AttributeError("It can't be both a regression problem and a multiclassification one")
+        if self.multiclass and self.class_pos is not None:
+            raise AttributeError(
+                "Providing the position of the class of interest makes this problem not a multiclassification one"
+            )
+        if not self.multiclass and self.class_pos is None:
+            raise AttributeError("Provide a class position if it is not a multiclassification problem")
+
     def _initialize_loop(self):
         """
         Prepares everything needed to loop over the folds.
         The estimator must be a pipeline, so we make it one if it isn't
         """
-        if self.class_pos is None:
+        if self.multiclass and self.predict_proba:
             self.oof = np.zeros((len(self.train), self.target.nunique()))
-        else:
+        else:  # regressions, and classification of any kind if we don't care about probabilities of each class
             self.oof = np.zeros(len(self.train))
+
         if self.df_test is not None:
-            if self.class_pos is None:
-                self.pred = np.zeros((len(self.df_test), self.target.nunique()))
+            n = len(self.df_test)
+            if self.regression:
+                # regression → 1D
+                self.pred = np.zeros(n)
+            elif self.predict_proba:
+                # classification with predict_proba
+                if self.multiclass:
+                    self.pred = np.zeros((n, self.target.nunique()))
+                else:
+                    # binary predict_proba → 1D (probability of positive class)
+                    self.pred = np.zeros(n)
             else:
-                self.pred = np.zeros(len(self.df_test))
+                # classification without predict_proba → store per-fold predictions
+                self.pred = np.zeros((n, self.cv.get_n_splits()))
         else:
             self.pred = self.oof
         self.result_dict = {}
@@ -338,7 +381,16 @@ class CrossValidate:
         If it is a classification problem and we were not predicting the probabilities, the class
         most often predicted is used. Ties are solved with a random choice.
         """
-        self.pred /= self.cv.get_n_splits()
-        if not (self.regression or self.predict_proba):
-            thr = 1 / (self.cv.get_n_splits() / 2)  # FIXME: this works only with binary classification
-            self.pred = np.array([int(i + np.random.choice([thr / 10, -thr / 10]) >= thr) for i in self.pred])
+        if self.regression or self.predict_proba:
+            self.pred /= self.cv.get_n_splits()
+        else:
+            self.pred = self._get_modes()
+
+    def _get_modes(self):
+        rng = np.random.default_rng()
+        modes = []
+        for row in self.pred:
+            vals, counts = np.unique(row, return_counts=True)
+            tied = vals[counts == counts.max()]
+            modes.append(rng.choice(tied))
+        return np.array(modes)

@@ -202,7 +202,7 @@ def test_hybrid_params():
                 estimators=estm,
                 final_estimator=DecisionTreeClassifier(),
                 cv=kfold,
-                lay1_kwargs={"logit": {"predict_proba": True}},
+                lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
             )
             stk.fit(df_1, y)
             _ = stk.predict(df_1)
@@ -235,7 +235,12 @@ def test_early_stopping():
                 final_estimator=DecisionTreeClassifier(),
                 cv=kfold,
                 lay1_kwargs={
-                    "xgb": {"predict_proba": True, "early_stopping": True, "fit_params": {"verbose": False}},
+                    "xgb": {
+                        "predict_proba": True,
+                        "early_stopping": True,
+                        "fit_params": {"verbose": False},
+                        "regression": False,
+                    },
                     "lgb": {"early_stopping": True, "fit_params": fit_params},
                 },
             )
@@ -281,7 +286,12 @@ def test_early_stopping_pipeline_estimators():
                 final_estimator=DecisionTreeClassifier(),
                 cv=kfold,
                 lay1_kwargs={
-                    "xgb": {"predict_proba": True, "early_stopping": True, "fit_params": {"verbose": False}},
+                    "xgb": {
+                        "predict_proba": True,
+                        "early_stopping": True,
+                        "fit_params": {"verbose": False},
+                        "regression": False,
+                    },
                     "lgb": {"early_stopping": True, "fit_params": fit_params},
                 },
             )
@@ -349,7 +359,7 @@ def test_gridsearch_stacker_simple(scoring):
         estimators=estm,
         final_estimator=DecisionTreeClassifier(),
         cv=kfold,
-        lay1_kwargs={"logit": {"predict_proba": True}},
+        lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
     )
 
     param_grid = {"final_estimator__max_depth": [3, 4, 5]}
@@ -379,7 +389,7 @@ def test_gridsearch_stacker_pipeline(scoring):
         estimators=estm,
         final_estimator=DecisionTreeClassifier(),
         cv=kfold,
-        lay1_kwargs={"logit": {"predict_proba": True}},
+        lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
     )
 
     pipe = Pipeline([("scl", tubesml.DfScaler()), ("model", stk)])
@@ -414,7 +424,7 @@ def test_gridsearch_stacker_passthrough(passthrough):
         estimators=estm,
         final_estimator=DecisionTreeClassifier(),
         cv=kfold,
-        lay1_kwargs={"logit": {"predict_proba": True}},
+        lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
         passthrough=passthrough,
     )
 
@@ -447,14 +457,16 @@ def test_cv_score_stacker_simple(predict_proba):
         estimators=estm,
         final_estimator=DecisionTreeClassifier(),
         cv=kfold,
-        lay1_kwargs={"logit": {"predict_proba": True}},
+        lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
     )
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba)
+            cv_score = tubesml.CrossValidate(
+                data=df_1, target=y, estimator=stk, cv=kfold, predict_proba=predict_proba, regression=False
+            )
             _, _ = cv_score.score()
 
 
@@ -474,7 +486,7 @@ def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
         estimators=estm,
         final_estimator=Pipeline([("scl", tubesml.DfScaler()), ("logit", LogisticRegression())]),
         cv=kfold,
-        lay1_kwargs={"logit": {"predict_proba": True}},
+        lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
     )
 
     pipe = Pipeline([("scl", tubesml.DfScaler()), ("model", stk)])
@@ -484,7 +496,13 @@ def test_cv_score_stacker_pipeline(predict_proba, imp_coef):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tubesml.CrossValidate(
-                data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=predict_proba, imp_coef=imp_coef
+                data=df_1,
+                target=y,
+                estimator=pipe,
+                cv=kfold,
+                predict_proba=predict_proba,
+                imp_coef=imp_coef,
+                regression=False,
             )
             _, _ = cv_score.score()
 
@@ -508,7 +526,7 @@ def test_cv_score_stacker_passthrough(passthrough):
         estimators=estm,
         final_estimator=Pipeline([("scl", tubesml.DfScaler()), ("logit", LogisticRegression())]),
         cv=kfold,
-        lay1_kwargs={"logit": {"predict_proba": True}},
+        lay1_kwargs={"logit": {"predict_proba": True, "regression": False}},
         passthrough=passthrough,
     )
 
@@ -518,5 +536,7 @@ def test_cv_score_stacker_passthrough(passthrough):
         warnings.simplefilter("error")
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-            cv_score = tubesml.CrossValidate(data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=True)
+            cv_score = tubesml.CrossValidate(
+                data=df_1, target=y, estimator=pipe, cv=kfold, predict_proba=True, regression=False
+            )
             _, _ = cv_score.score()
