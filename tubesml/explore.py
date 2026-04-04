@@ -115,7 +115,7 @@ def plot_bivariate(data, x, y, hue=None, **kwargs):
     plt.show()
 
 
-def corr_target(data, target, cols, x_estimator=None):
+def corr_target(data, target, cols, x_estimator=None, **kwargs):
     """
     Scatterplot + linear regression of a list of columns against the target.
     A correlation matrix is also printed.
@@ -142,11 +142,11 @@ def corr_target(data, target, cols, x_estimator=None):
     for feat in cols:
         x = to_plot[feat]
         if rows > 1:
-            sns.regplot(x=x, y=y, ax=ax[i][j], x_estimator=x_estimator)
+            sns.regplot(x=x, y=y, ax=ax[i][j], x_estimator=x_estimator, **kwargs)
             j = (j + 1) % 2
             i = i + 1 - j
         else:
-            sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator)
+            sns.regplot(x=x, y=y, ax=ax[i], x_estimator=x_estimator, **kwargs)
             i = i + 1
     plt.show()
 
