@@ -81,6 +81,11 @@ class CrossValidate:
                         false if the problem is a binary classification problem and you are not using
                         ``predict_proba``.
 
+    :param check_shap_additivity: bool, default=True.
+                        If False, it will skip the additivity check during the shap values calculation,
+                        this may be necessary for a few models when the discrapancy is really small.
+                        If often happens with infrequent dummies.
+
     :return oof: numpy array with the out of fold predictions for the entire train set.
 
     :return res_dict: A dictionary with additional results. If ``imp_coef=True``,
@@ -113,6 +118,7 @@ class CrossValidate:
         early_stopping=False,
         fit_params=None,
         regression=True,
+        check_shap_additivity=True,
     ):
         self.train = data.copy()
         if test is None:
@@ -132,6 +138,7 @@ class CrossValidate:
         self.early_stopping = early_stopping
         self.fit_params = fit_params
         self.regression = regression
+        self.check_shap_additivity = check_shap_additivity
         self._initialize_loop()
 
     def score(self):
@@ -284,7 +291,13 @@ class CrossValidate:
         self.feat_pdp = pd.concat([self.feat_pdp, fold_pdp], axis=0)
 
     def _fold_shap(self, model, trn_data):
-        shap_values = get_shap_values(trn_data, model, sample=self.shap_sample, class_pos=self.class_pos)
+        shap_values = get_shap_values(
+            trn_data,
+            model,
+            sample=self.shap_sample,
+            class_pos=self.class_pos,
+            check_additivity=self.check_shap_additivity,
+        )
         if len(self.shap_values) == 0:
             self.shap_values = shap_values
         else:
