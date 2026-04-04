@@ -277,9 +277,16 @@ def segm_target(data, cat, target):
              of the target for each category level.
     """
     df = data.groupby(cat, observed=False)[target].agg(["count", "mean", "max", "min", "median", "std"])
+
+    categories = data[cat].unique()
+    palette = sns.color_palette("tab10", len(categories))
+    color_map = dict(zip(categories, palette))  # to ensure the same colors in both plots
+
     fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-    sns.boxplot(x=cat, y=target, data=data, ax=ax[0])
+    sns.boxplot(x=cat, y=target, data=data, ax=ax[0], palette=color_map)
     for val in data[cat].unique():
         tmp = data[data[cat] == val]
-        sns.kdeplot(data=tmp[target], linewidth=3, alpha=0.7, label=val, ax=ax[1], warn_singular=False)
+        sns.kdeplot(
+            data=tmp[target], linewidth=3, alpha=0.7, label=val, ax=ax[1], warn_singular=False, color=color_map[val]
+        )
     return df
