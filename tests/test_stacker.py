@@ -319,13 +319,12 @@ def test_passthrough(passthrough, n_feats):
 def test_high_correlation_warning():
     """
     Test if the stacker raises a warning when the predictions are highly correlated
-    We don't drop the target feature from the training set to be sure both classifiers
-    predict perfectly
+    We use the same model twice so we are sure the predictions are correlated.
     """
     y = df["target"]
-    df_1 = df
+    df_1 = df.drop("target", axis=1)
 
-    estm = [("tree", DecisionTreeClassifier(max_depth=3)), ("logit", LogisticRegression())]
+    estm = [("tree", DecisionTreeClassifier(max_depth=3)), ("tree2", DecisionTreeClassifier(max_depth=3))]
 
     kfold = KFold(n_splits=3)
 

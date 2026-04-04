@@ -131,8 +131,14 @@ class Stacker(BaseTransformer):
                 self.feature_importances_ = self.final_estimator.feature_importances_
             return get_feature_importance(self.final_estimator, feats)
 
-    def _check_correlated_predictions(self, final_train):
-        if ((abs(final_train.corr()) > 0.8).sum() > 1).any():
+    def _calculate_correlation(self, final_train, y):
+        tmp = final_train.sub(
+            pd.Series(y, index=final_train.index), axis=0
+        )  # what counts is the correlation of the residuals
+        self.corr_ = tmp.corr()
+
+    def _check_correlated_predictions(self):
+        if ((abs(self.corr_) > 0.8).sum() > 1).any():
             warnings.warn(
                 "The predictions are highly correlated, this is not ideal. Check the ``corr_`` attribute for details",
                 UserWarning,
@@ -184,14 +190,15 @@ class Stacker(BaseTransformer):
             self._estimators[i].fit(X, y)
 
         final_train = pd.DataFrame(out_of_fold_predictions, columns=self.est_names)
-        self.corr_ = final_train.corr()
+        self._calculate_correlation(final_train, y)
         if self.verbose:
-            self._check_correlated_predictions(final_train)
+            self._check_correlated_predictions()
         final_train = self._get_passthrough_features(X, final_train)
 
         if isinstance(self.final_estimator, str):  # if final_estimator is a string, we don't need to fit a model
             return self
-
+        self.final_train = final_train
+        self.y = y
         self.final_estimator.fit(final_train, y)
 
         try:  # this is useful to well behave with other sklearn methods
