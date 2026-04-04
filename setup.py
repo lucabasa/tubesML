@@ -51,8 +51,8 @@ if __name__ == "__main__":
 
     import sys
 
-    if sys.version_info[:2] < (3, 10):
-        raise RuntimeError("tubesml requires python >= 3.10.")
+    if sys.version_info[:2] < (3, 11):
+        raise RuntimeError("tubesml requires python >= 3.11.")
 
     setup(
         name=DISTNAME,
