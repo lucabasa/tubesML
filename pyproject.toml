@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tubesml"
-version = "1.0.2"
+version = "1.1.0"
 description = "tubesML, a package that allows for flexible ML pipelines, model validation, and model inspection"
 readme = "README.rst"
 authors = [
@@ -15,7 +15,7 @@ maintainers = [
 ]
 license = { file="LICENSE" }
 
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -28,19 +28,19 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: MacOS",
 ]
-dependencies = ["kneed==0.8.5", "matplotlib>=3.7.2", "pandas>=2.2.2", "scikit-learn>=1.2.2,<1.6.1", "seaborn>=0.12.2", "shap>=0.44.1"]
+dependencies = ["kneed==0.8.5", "matplotlib>=3.10.0", "pandas>=2.3.3", "scikit-learn>=1.2.2", "scipy>=1.16.3", "seaborn>=0.13.2", "shap>=0.50.0"]
 
 [project.optional-dependencies]
 testing = [
-    "pytest==8.2.2",
-    "coverage==7.5.3",
-    "xgboost==2.1.0",
-    "lightgbm==4.4.0",
+    "pytest==9.0.2",
+    "coverage==7.13.5",
+    "xgboost>=3.2.0",
+    "lightgbm>=4.6.0",
 ]
 
 [tool.black]
 line-length = 120
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py310', 'py311', 'py312']
 include = '\.pyi?$'
 exclude = '''
 /( \.git
