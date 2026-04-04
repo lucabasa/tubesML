@@ -9,12 +9,12 @@ from tubesml.CV_score import CrossValidate
 
 import pandas as pd
 import numpy as np
-from sklearn.base import clone
+from sklearn.base import clone, RegressorMixin, ClassifierMixin
 
 import warnings
 
 
-class Stacker(BaseTransformer):
+class Stacker(BaseTransformer, RegressorMixin, ClassifierMixin):
     """
     Wrapper for stacking several estimators with a meta estimator. Each estimator creates
     out-of-fold predictions on the entire dataset via a KFold and is then re-fitted on the
