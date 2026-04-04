@@ -270,8 +270,6 @@ def test_get_pdp(model):
 def test_get_pdp_cats(model):
     """
     Test basic functioning for various models
-    XGB - Version 1.3.3, not in package requirements
-    LGB - Version 3.1.1, not in package requirements
     """
     feat = "cat"
     y = df["target"]

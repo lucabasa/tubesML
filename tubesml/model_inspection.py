@@ -271,7 +271,13 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
     # TODO: if the feature is not in the original data but created by the estimator, it breaks
     # In the future, it should not break
 
-    pdp = partial_dependence(estimator, features=feature, X=data, grid_resolution=grid_resolution, kind="average")
+    if isinstance(feature, tuple):
+        tmp = data.copy()
+    else:  # Future compatibility, they only want floats
+        tmp = data.copy()
+        tmp[feature] = tmp[feature].astype(float)
+
+    pdp = partial_dependence(estimator, features=feature, X=tmp, grid_resolution=grid_resolution, kind="average")
 
     try:  # FIXME:this is for backward compatibility with kaggle
         pdp["grid_values"]
