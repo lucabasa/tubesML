@@ -197,8 +197,6 @@ class Stacker(BaseTransformer):
 
         if isinstance(self.final_estimator, str):  # if final_estimator is a string, we don't need to fit a model
             return self
-        self.final_train = final_train
-        self.y = y
         self.final_estimator.fit(final_train, y)
 
         try:  # this is useful to well behave with other sklearn methods
