@@ -153,9 +153,28 @@ def corr_target(data, target, cols, x_estimator=None):
 
 def _ks_test(data, col, target, critical=0.05):
     """
-    It takes a categorical feature and makes dummies.
-    For each dummy, it performs a Kolmogorov-Smirnov test between the distribution of the target
-    of that subset vs the rest of the population.
+    Perform a Kolmogorov-Smirnov test on each dummy level of a categorical feature.
+
+    The function one-hot encodes the selected categorical column.
+    For each resulting dummy variable, it compares the distribution of the target
+    within that category vs. the rest of the dataset using a two-sample KS test.
+    If any dummy shows a statistically significant difference, the function returns True.
+
+    :param data: pandas DataFrame.
+                 The input dataset containing the feature and target.
+
+    :param col: str.
+                Name of the categorical column to test.
+
+    :param target: str.
+                   Name of the target column whose distribution is compared.
+
+    :param critical: float, optional.
+                     Significance threshold for the KS test (default is 0.05).
+
+    :return: bool.
+             True if at least one dummy level differs significantly from the rest,
+             False otherwise.
     """
     df = pd.get_dummies(data[[col] + [target]], columns=[col])
 
@@ -172,9 +191,49 @@ def _ks_test(data, col, target, critical=0.05):
 
 def find_cats(data, target, thrs=0.1, agg_func="mean", critical=0.05, ks=True, frac=1):
     """
-    Finds interesting categorical features either by perfoming a Kolmogorov-Smirnov test or
-    simply be comparing the descriptive statistic of the full population versus the one obtained with the
-    various subsets.
+    Identify categorical features that show meaningful differences in the target distribution.
+
+    The function evaluates each object-type column and determines whether it is
+    potentially predictive. Two approaches are available:
+
+    - Kolmogorov-Smirnov test (default):
+      For each category level with sufficient frequency, the function checks whether
+      the distribution of the target within that subset differs significantly from
+      the rest of the population.
+
+    - Descriptive statistic comparison:
+      For each category level, the chosen aggregation statistic of the target is
+      compared across groups. If the variability across groups exceeds a fraction
+      of the overall target standard deviation, the feature is considered relevant.
+
+    :param data: pandas DataFrame.
+                 The input dataset containing categorical features and the target.
+
+    :param target: str.
+                   Name of the target column.
+
+    :param thrs: float, optional.
+                 Minimum relative frequency required for a category level to be considered
+                 (default is 0.1).
+
+    :param agg_func: str or callable, optional.
+                     Aggregation function applied to the target when not using KS
+                     (default is "mean").
+
+    :param critical: float, optional.
+                     Significance threshold for the KS test (default is 0.05).
+
+    :param ks: bool, optional.
+               If True, use the Kolmogorov–Smirnov test; otherwise use descriptive statistics
+               (default is True).
+
+    :param frac: float, optional.
+                 Minimum fraction of the target's overall standard deviation required for
+                 a feature to be selected when using descriptive statistics (default is 1).
+
+    :return: list.
+             A list of categorical column names that show significant differences in the
+             target distribution.
     """
     cats = []
     tar_std = data[target].std()
@@ -198,12 +257,24 @@ def find_cats(data, target, thrs=0.1, agg_func="mean", critical=0.05, ks=True, f
 
 def segm_target(data, cat, target):
     """
-    Studies the target segmented by a categorical feature.
-    It plots both a boxplot and a distplot for visual support
+    Study the distribution of a continuous target segmented by a categorical feature.
 
-    :param data: Pandas Dataframe with the columns cat and target
-    :param cat: str, name of the category used to cut the data
-    :param target: str, name of the continuous target variable
+    The function computes descriptive statistics of the target for each category level
+    and provides visual support through a boxplot and kernel density plots. This helps
+    assess how the target varies across different segments of the categorical feature.
+
+    :param data: pandas DataFrame.
+                 The input dataset containing the categorical feature and target.
+
+    :param cat: str.
+                Name of the categorical column used to segment the data.
+
+    :param target: str.
+                   Name of the continuous target variable.
+
+    :return: pandas DataFrame.
+             A summary table with count, mean, max, min, median, and standard deviation
+             of the target for each category level.
     """
     df = data.groupby(cat, observed=False)[target].agg(["count", "mean", "max", "min", "median", "std"])
     fig, ax = plt.subplots(1, 2, figsize=(12, 5))

@@ -120,6 +120,34 @@ def plot_regression_predictions(data, true_label, pred_label, hue=None, feature=
 
 
 def plot_confusion_matrix(true_label, pred_label, ax=None, thrs=0.5, proba=True):
+    """
+    Plot a normalized confusion matrix from true and predicted labels.
+
+    The function computes a confusion matrix and displays it as a heatmap.
+    If predicted values are probabilities, a threshold can be applied to convert
+    them into class labels. A custom matplotlib axis can be provided; otherwise,
+    a new figure is created.
+
+    :param true_label: array-like.
+                       Ground truth labels.
+
+    :param pred_label: array-like.
+                       Predicted labels or predicted probabilities.
+
+    :param ax: matplotlib Axes, optional.
+               Axis on which to draw the heatmap. If None, a new figure is created.
+
+    :param thrs: float, optional.
+                 Threshold applied to predicted probabilities when ``proba=True``
+                 (default is 0.5).
+
+    :param proba: bool, optional.
+                  If True, ``pred_label`` is treated as probabilities and thresholded.
+                  If False, ``pred_label`` is assumed to contain class labels.
+
+    :return: matplotlib Axes or None.
+             Returns the axis when provided; otherwise displays the plot.
+    """
     if ax is None:
         _, ax = plt.subplots(1, figsize=(12, 12))
         end_action = True
@@ -147,10 +175,51 @@ def plot_classification_probs(
     data, true_label, pred_label, thrs=0.5, sample=None, feat=None, hue_feat=None, savename=None
 ):
     """
-    Plot prediction vs true label when the prediction is a probability
-    Plots also a confusion matrix, a
-    Data, true_label, and pred_label must be of compatible size
-    hue_feat is ignored when the unique values are more than 5 for readability
+    Visualize predicted probabilities against true labels with multiple diagnostic plots.
+
+    The function produces a set of four plots to help evaluate the behavior of a
+    probabilistic classifier:
+
+    - Histogram of predicted probabilities split by true label
+    - Normalized confusion matrix
+    - Barplot comparing mean true label vs. mean predicted probability
+    - Scatterplot of a continuous feature vs. predicted probability, optionally segmented
+      by a categorical feature
+
+    A continuous feature can be provided for the scatterplot; if missing, a dummy
+    feature is created. A categorical feature may be used for segmentation, provided
+    it has no more than five unique values.
+
+    :param data: pandas DataFrame.
+                 Input dataset containing the features and labels.
+
+    :param true_label: array-like.
+                       Ground truth binary labels.
+
+    :param pred_label: array-like.
+                       Predicted probabilities from a classifier.
+
+    :param thrs: float, optional.
+                 Threshold applied to predicted probabilities to derive class labels
+                 (default is 0.5).
+
+    :param sample: int, optional.
+                   If provided, randomly samples this many rows for the scatterplot
+                   to improve readability.
+
+    :param feat: str, optional.
+                 Name of a continuous feature to plot against predicted probabilities.
+                 If missing or invalid, a dummy feature is created.
+
+    :param hue_feat: str, optional.
+                     Name of a categorical feature used to segment the scatterplot.
+                     Ignored if not present or if it has more than five unique values.
+
+    :param savename: str, optional.
+                     If provided, saves the figure to this path instead of displaying it.
+
+    :return: None.
+             Displays or saves a 2x2 grid of diagnostic plots.
     """
 
     # prepare data
@@ -243,6 +312,45 @@ def plot_classification_probs(
 
 
 def eval_classification(data, target, preds, proba=False, thrs=0.5, plot=True, **kwargs):
+    """
+    Evaluate a binary classifier using accuracy, ROC AUC, and diagnostic plots.
+
+    The function computes standard classification metrics and optionally produces
+    visual diagnostics. When predictions are probabilities, a threshold is applied
+    to derive class labels and an ROC curve can be plotted. Additional plots such as
+    probability distributions and confusion matrices are generated depending on the
+    ``plot`` level.
+
+    :param data: pandas DataFrame.
+                 Dataset used for plotting when ``proba=True`` and ``plot > 0``.
+
+    :param target: array-like.
+                   Ground truth binary labels.
+
+    :param preds: array-like.
+                  Predicted labels or predicted probabilities.
+
+    :param proba: bool, optional.
+                  If True, ``preds`` is treated as predicted probabilities and
+                  thresholded to obtain class labels (default is False).
+
+    :param thrs: float, optional.
+                 Threshold applied to predicted probabilities when ``proba=True``
+                 (default is 0.5).
+
+    :param plot: int or bool, optional.
+                 Controls the level of plotting:
+                 - 0: no plots
+                 - 1: confusion matrix or probability diagnostics
+                 - 2: also plot ROC curve
+                 (default is True, equivalent to 1)
+
+    :param kwargs: dict, optional.
+                   Additional keyword arguments passed to ``plot_classification_probs``.
+
+    :return: None.
+             Prints evaluation metrics and displays plots depending on settings.
+    """
     if proba:
         preds_bin = preds >= thrs
         fpr, tpr, _ = roc_curve(target, preds)
