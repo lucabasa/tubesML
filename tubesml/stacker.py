@@ -1,17 +1,19 @@
-__author__ = "lucabasa"
-__version__ = "0.2.0"
-__status__ = "development"
+import warnings
+from copy import deepcopy
 
+import numpy as np
+import pandas as pd
+from sklearn.base import ClassifierMixin
+from sklearn.base import clone
+from sklearn.base import RegressorMixin
+from sklearn.utils._tags import get_tags
+from sklearn.utils._tags import Tags
+from sklearn.utils._tags import TargetTags
 
 from tubesml.base import BaseTransformer
-from tubesml.model_inspection import get_coef, get_feature_importance
 from tubesml.CV_score import CrossValidate
-
-import pandas as pd
-import numpy as np
-from sklearn.base import clone, RegressorMixin, ClassifierMixin
-
-import warnings
+from tubesml.model_inspection import get_coef
+from tubesml.model_inspection import get_feature_importance
 
 
 class Stacker(BaseTransformer, RegressorMixin, ClassifierMixin):
@@ -91,6 +93,29 @@ class Stacker(BaseTransformer, RegressorMixin, ClassifierMixin):
 
         if isinstance(self.final_estimator, str):
             self.passthrough = False  # if we blend the models, we don't need other inputs
+
+    def __sklearn_tags__(self):  # This is necessary to be compatible with GridSearch and similar things
+        if not isinstance(self.final_estimator, str):
+            tags = super().__sklearn_tags__()
+            sub_estimator_tags = get_tags(self.final_estimator)
+            tags.estimator_type = sub_estimator_tags.estimator_type
+            tags.classifier_tags = deepcopy(sub_estimator_tags.classifier_tags)
+            tags.regressor_tags = deepcopy(sub_estimator_tags.regressor_tags)
+            return Tags(
+                estimator_type=tags.estimator_type,
+                target_tags=TargetTags(required=False),
+                transformer_tags=None,
+                regressor_tags=tags.classifier_tags,
+                classifier_tags=tags.classifier_tags,
+            )
+        else:
+            return Tags(
+                estimator_type=None,
+                target_tags=TargetTags(required=False),
+                transformer_tags=None,
+                regressor_tags=None,
+                classifier_tags=None,
+            )
 
     def _lay1_kwargs_input(self, lay1_kwargs):
         if lay1_kwargs is None:
@@ -209,6 +234,7 @@ class Stacker(BaseTransformer, RegressorMixin, ClassifierMixin):
             self.meta_importances_ = self.return_feature_importances(final_train)
         self.columns = final_train.columns
 
+        self._is_fitted = True
         return self
 
     def _make_predict_test(self, X):

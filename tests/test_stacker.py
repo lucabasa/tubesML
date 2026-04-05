@@ -346,7 +346,6 @@ def test_high_correlation_warning():
         stk.fit(df_1, y)
 
 
-@pytest.mark.xfail(reason="At the moment not compatible")
 @pytest.mark.parametrize("scoring", ["accuracy", "neg_log_loss"])
 def test_gridsearch_stacker_simple(scoring):
     """
@@ -377,7 +376,6 @@ def test_gridsearch_stacker_simple(scoring):
             )
 
 
-@pytest.mark.xfail(reason="At the moment not compatible")
 @pytest.mark.parametrize("scoring", ["accuracy", "neg_log_loss"])
 def test_gridsearch_stacker_pipeline(scoring):
     """
@@ -410,7 +408,6 @@ def test_gridsearch_stacker_pipeline(scoring):
             )
 
 
-@pytest.mark.xfail(reason="At the moment not compatible")
 @pytest.mark.parametrize("passthrough", [True, False, "hybrid"])
 def test_gridsearch_stacker_passthrough(passthrough):
     """
