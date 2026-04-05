@@ -7,7 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
+import sklearn
 from lightgbm import LGBMClassifier
+from packaging.version import Version
 from sklearn.datasets import make_classification
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LogisticRegression
@@ -18,6 +20,10 @@ from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBClassifier
 
 import tubesml as tml
+
+xfail_sklearn_161 = pytest.mark.xfail(
+    Version(sklearn.__version__) == Version("1.6.1"), reason="Known failure on scikit-learn 1.6.1"
+)
 
 
 def create_data(classification=True):
@@ -258,6 +264,7 @@ def test_get_pdp(model):
     assert pdp["x_1"].isna().all()
 
 
+@xfail_sklearn_161
 @pytest.mark.parametrize(
     "model",
     [
@@ -270,8 +277,6 @@ def test_get_pdp(model):
 def test_get_pdp_cats(model):
     """
     Test basic functioning for various models
-    XGB - Version 1.3.3, not in package requirements
-    LGB - Version 3.1.1, not in package requirements
     """
     feat = "cat"
     y = df["target"]

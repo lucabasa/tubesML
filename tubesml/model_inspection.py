@@ -271,7 +271,13 @@ def get_pdp(estimator, feature, data, grid_resolution=100):
     # TODO: if the feature is not in the original data but created by the estimator, it breaks
     # In the future, it should not break
 
-    pdp = partial_dependence(estimator, features=feature, X=data, grid_resolution=grid_resolution, kind="average")
+    if isinstance(feature, tuple):
+        tmp = data.copy()
+    else:  # Future compatibility, they only want floats
+        tmp = data.copy()
+        tmp[feature] = tmp[feature].astype(float)
+
+    pdp = partial_dependence(estimator, features=feature, X=tmp, grid_resolution=grid_resolution, kind="average")
 
     try:  # FIXME:this is for backward compatibility with kaggle
         pdp["grid_values"]
@@ -423,11 +429,14 @@ def plot_partial_dependence(pdps, savename=None):
 
 def plot_shap_values(shap_values, features="all", savename=None):
     """
-    Plots the shap values and interaction for all the specified features used in the model
+    Plots SHAP values and SHAP interaction values for the specified features used in the model.
 
-    :param shap_values, the model shap values object (values, data, etc)
-    :param features, string or list, default = "all". List of features to plot. If all,
-        all the features will be used.
+    :param shap_values: object.
+        The SHAP values object containing attributes such as ``values`` and ``data``.
+
+    :param features: str or list, optional.
+        Features to plot. If a list is provided, only those features are plotted.
+        If set to ``"all"``, all available features are used (default is "all").
     """
 
     if features == "all":

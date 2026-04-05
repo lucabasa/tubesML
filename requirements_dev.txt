@@ -1,10 +1,10 @@
 -r requirements.txt
-black==24.10.0
-coverage==7.5.3
-jupyterlab==4.2.2
-lightgbm==4.4.0
-pre-commit==4.2.0
-pytest==8.2.2
-Sphinx==7.3.7
-sphinx-rtd-theme==2.0.0
-xgboost==2.1.0
+black==26.3.1
+coverage==7.13.5
+jupyterlab==4.5.6
+lightgbm>=4.6.0
+pre-commit==4.5.1
+pytest==9.0.2
+Sphinx==9.1.0
+sphinx-rtd-theme==3.1.0
+xgboost>=3.2.0

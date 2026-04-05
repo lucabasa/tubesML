@@ -15,15 +15,16 @@ PROJECT_URLS = {
     "Source Code": "https://github.com/lucabasa/tubesML",
 }
 
-VERSION = "1.0.2"
-PYTHON_REQUIRES = ">=3.7"
+VERSION = "1.1.0"
+PYTHON_REQUIRES = ">=3.10"
 INSTALL_REQUIRES = [
     "kneed==0.8.5",
-    "matplotlib>=3.7.2",
-    "pandas>=2.2.2",
-    "scikit-learn>=1.2.2,<1.6",
-    "seaborn>=0.12.2",
-    "shap>=0.44.1",
+    "matplotlib>=3.10.0",
+    "pandas>=2.3.3",
+    "scikit-learn>=1.6.1",
+    "scipy>=1.16.3",
+    "seaborn>=0.13.2",
+    "shap>=0.50.0",
 ]
 
 PACKAGES = [
@@ -42,7 +43,7 @@ CLASSIFIERS = [
     "Operating System :: MacOS",
 ]
 
-TEST_REQUIRE = ["pytest==8.2.2", "coverage==7.5.3", "xgboost==2.1.0", "lightgbm==4.4.0"]
+TEST_REQUIRE = ["pytest==9.0.2", "coverage==7.13.5", "xgboost>=3.2.0", "lightgbm>=4.6.0"]
 
 
 if __name__ == "__main__":
@@ -50,8 +51,8 @@ if __name__ == "__main__":
 
     import sys
 
-    if sys.version_info[:2] < (3, 7):
-        raise RuntimeError("tubesml requires python >= 3.7.")
+    if sys.version_info[:2] < (3, 11):
+        raise RuntimeError("tubesml requires python >= 3.11.")
 
     setup(
         name=DISTNAME,
