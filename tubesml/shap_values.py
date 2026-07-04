@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import shap
+import xgboost as xgb
 
 
 def get_shap_values(data, model, sample=700, class_pos=1, check_additivity=True):
@@ -28,7 +29,10 @@ def get_shap_values(data, model, sample=700, class_pos=1, check_additivity=True)
 
     data = data.copy().astype({col: data[col].to_numpy().dtype for col in data})
 
-    expl = shap.Explainer(model, data)
+    if isinstance(model, (xgb.XGBClassifier, xgb.XGBRegressor, xgb.Booster)):
+        expl = shap.TreeExplainer(model, feature_perturbation="tree_path_dependent")
+    else:
+        expl = shap.Explainer(model, data)
 
     n_samples = min(sample, len(data))
 
