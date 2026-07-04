@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 from lightgbm import early_stopping
 from lightgbm import LGBMClassifier
+from lightgbm import LGBMRegressor
 from sklearn.datasets import make_classification
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LogisticRegression
@@ -565,5 +566,120 @@ def test_shap_values_pipeline(model):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
                 data=df_1, target=y, estimator=full_pipe, cv=kfold, shap=True, shap_sample=10, regression=False
+            )
+            _, res = cv_score.score()
+
+
+def test_pseudo_label_regression():
+    df_r = create_data(classification=False)
+    y = df_r["target"]
+    df_1 = df_r.drop("target", axis=1)
+
+    pipe_transf = Pipeline(
+        [
+            ("fs", tml.DtypeSel(dtype="numeric")),
+            ("imp", tml.DfImputer(strategy="mean")),
+            ("poly", tml.DfPolynomial()),
+            ("sca", tml.DfScaler(method="standard")),
+            ("tarenc", tml.TargetEncoder()),
+            ("dummify", tml.Dummify()),
+            ("pca", tml.DfPCA(n_components=15)),
+        ]
+    )
+    pipe = tml.FeatureUnionDf(transformer_list=[("transf", pipe_transf)])
+
+    full_pipe = Pipeline([("pipe", pipe), ("model", LGBMRegressor(verbose=-1))])
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tml.CrossValidate(
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                regression=True,
+                pseudo_label=True,
+                early_stopping=True,
+            )
+            _, res = cv_score.score()
+
+
+@pytest.mark.parametrize("predict_proba", [True, False])
+def test_pseudo_label_classification(predict_proba):
+    y = pd.Series([0, 1, 2, 3, 4] * int(len(df) / 5))
+    df_1 = df.drop("target", axis=1)
+
+    pipe_transf = Pipeline(
+        [
+            ("fs", tml.DtypeSel(dtype="numeric")),
+            ("imp", tml.DfImputer(strategy="mean")),
+            ("poly", tml.DfPolynomial()),
+            ("sca", tml.DfScaler(method="standard")),
+            ("tarenc", tml.TargetEncoder()),
+            ("dummify", tml.Dummify()),
+            ("pca", tml.DfPCA(n_components=15)),
+        ]
+    )
+    pipe = tml.FeatureUnionDf(transformer_list=[("transf", pipe_transf)])
+
+    full_pipe = Pipeline([("pipe", pipe), ("model", LGBMClassifier(verbose=-1))])
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tml.CrossValidate(
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                regression=False,
+                predict_proba=predict_proba,
+                pseudo_label=True,
+                early_stopping=True,
+            )
+            _, res = cv_score.score()
+
+
+@pytest.mark.parametrize("predict_proba", [True, False])
+def test_pseudo_label_multiclassification(predict_proba):
+    y = df["target"]
+    df_1 = df.drop("target", axis=1)
+
+    pipe_transf = Pipeline(
+        [
+            ("fs", tml.DtypeSel(dtype="numeric")),
+            ("imp", tml.DfImputer(strategy="mean")),
+            ("poly", tml.DfPolynomial()),
+            ("sca", tml.DfScaler(method="standard")),
+            ("tarenc", tml.TargetEncoder()),
+            ("dummify", tml.Dummify()),
+            ("pca", tml.DfPCA(n_components=15)),
+        ]
+    )
+    pipe = tml.FeatureUnionDf(transformer_list=[("transf", pipe_transf)])
+
+    full_pipe = Pipeline([("pipe", pipe), ("model", LGBMClassifier(verbose=-1))])
+    kfold = KFold(n_splits=3)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            cv_score = tml.CrossValidate(
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                regression=False,
+                predict_proba=predict_proba,
+                multiclass=True,
+                class_pos=None,
+                pseudo_label=True,
+                early_stopping=True,
             )
             _, res = cv_score.score()
