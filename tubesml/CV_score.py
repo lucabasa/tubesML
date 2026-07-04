@@ -93,6 +93,14 @@ class CrossValidate:
     :param groups: string, default=None.
                         If provided, it must be a column present in `data`, to be used to use GroupKFold
 
+    :param pseudo_label: bool, default=False.
+                        If True, it uses the predictions on the test set to retrain the model on more data.
+                        This makes the process twice as slow.
+
+    :param pseudo_label_confidence: float, default=0.95.
+                        Relevant only if `pseudo_label=True`. For classification problems, we only train on samples
+                        for which the prediction is quite certain. This parameter defines how certain must it be
+
     :return oof: numpy array with the out of fold predictions for the entire train set.
 
     :return res_dict: A dictionary with additional results. If ``imp_coef=True``,
