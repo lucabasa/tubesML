@@ -90,6 +90,17 @@ class CrossValidate:
                         this may be necessary for a few models when the discrapancy is really small.
                         If often happens with infrequent dummies.
 
+    :param groups: string, default=None.
+                        If provided, it must be a column present in `data`, to be used to use GroupKFold
+
+    :param pseudo_label: bool, default=False.
+                        If True, it uses the predictions on the test set to retrain the model on more data.
+                        This makes the process twice as slow.
+
+    :param pseudo_label_confidence: float, default=0.95.
+                        Relevant only if `pseudo_label=True`. For classification problems, we only train on samples
+                        for which the prediction is quite certain. This parameter defines how certain must it be
+
     :return oof: numpy array with the out of fold predictions for the entire train set.
 
     :return res_dict: A dictionary with additional results. If ``imp_coef=True``,
@@ -124,6 +135,9 @@ class CrossValidate:
         regression=True,
         multiclass=False,
         check_shap_additivity=True,
+        groups=None,
+        pseudo_label=False,
+        pseudo_label_confidence=0.95,
     ):
         self.train = data.copy()
         if test is None:
@@ -145,6 +159,12 @@ class CrossValidate:
         self.regression = regression
         self.multiclass = multiclass
         self.check_shap_additivity = check_shap_additivity
+        if groups is None:
+            self.groups = None
+        else:
+            self.groups = data[groups]
+        self.pseudo_label = pseudo_label
+        self.pseudo_label_confidence = pseudo_label_confidence
         self._check_input()
         self._initialize_loop()
 
@@ -154,7 +174,9 @@ class CrossValidate:
         and, if provided, an average prediction on the test set. It can also produce various insights
         on the model, like feature importance and pdp's.
         """
-        for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values, self.target.values)):
+        for n_fold, (train_index, test_index) in enumerate(
+            self.cv.split(self.train.values, self.target.values, groups=self.groups)
+        ):
             trn_data = self.train.iloc[train_index, :].reset_index(drop=True)
             val_data = self.train.iloc[test_index, :].reset_index(drop=True)
 
@@ -164,43 +186,40 @@ class CrossValidate:
                 trn_data, val_data, trn_target
             )
 
-            if self.early_stopping:
-                # Fit the model with early stopping
-                model.fit(
-                    trn_data, trn_target, eval_set=[(trn_data, trn_target), (val_data, val_target)], **self.fit_params
+            if self.pseudo_label:
+                model_2 = clone(model)
+
+            oof, pred = self._fit_predict(model, transf_pipe, trn_data, trn_target, val_data, val_target, test_data)
+
+            if self.pseudo_label and self.df_test is not None:
+                trn_data_2, trn_target_2 = self._add_pseudo_labels(trn_data, trn_target, test_data, pred)
+
+                oof, pred = self._fit_predict(
+                    model_2, transf_pipe, trn_data_2, trn_target_2, val_data, val_target, test_data
                 )
-                # store iteration used
-                try:
-                    self.iteration.append(model.best_iteration)
-                except AttributeError:
-                    self.iteration.append(model.best_iteration_)
-            else:
-                model.fit(trn_data, trn_target, **self.fit_params)
 
             if self.regression:
-                self.oof[test_index] = model.predict(val_data).ravel()
+                self.oof[test_index] = oof
                 if self.df_test is not None:
-                    self.pred += model.predict(test_data).ravel()
-
+                    self.pred += pred
             elif self.multiclass:
                 if self.predict_proba:
-                    self.oof[test_index] = model.predict_proba(val_data)[:, :]
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred += model.predict_proba(test_data)[:, :]
+                        self.pred += pred
                 else:
-                    self.oof[test_index] = model.predict(val_data).ravel()
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred[:, n_fold] = model.predict(test_data).ravel()
-
+                        self.pred[:, n_fold] = pred
             else:
                 if self.predict_proba:
-                    self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred += model.predict_proba(test_data)[:, self.class_pos]
+                        self.pred += pred
                 else:
-                    self.oof[test_index] = model.predict(val_data).ravel()
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred[:, n_fold] = model.predict(test_data).ravel()
+                        self.pred[:, n_fold] = pred
 
             if self.imp_coef:
                 self._fold_imp(model, trn_data, n_fold)
@@ -219,6 +238,48 @@ class CrossValidate:
         else:
             self._postprocess_prediction()
             return self.oof, self.pred, self.result_dict
+
+    def _fit_predict(self, model, transf_pipe, trn_data, trn_target, val_data, val_target, test_data):
+        pred = None
+        if self.early_stopping:
+            # Fit the model with early stopping
+            model.fit(
+                trn_data, trn_target, eval_set=[(trn_data, trn_target), (val_data, val_target)], **self.fit_params
+            )
+            # store iteration used
+            try:
+                self.iteration.append(model.best_iteration)
+            except AttributeError:
+                self.iteration.append(model.best_iteration_)
+        else:
+            model.fit(trn_data, trn_target, **self.fit_params)
+
+        if self.regression:
+            oof = model.predict(val_data).ravel()
+            if self.df_test is not None:
+                pred = model.predict(test_data).ravel()
+
+        elif self.multiclass:
+            if self.predict_proba:
+                oof = model.predict_proba(val_data)[:, :]
+                if self.df_test is not None:
+                    pred = model.predict_proba(test_data)[:, :]
+            else:
+                oof = model.predict(val_data).ravel()
+                if self.df_test is not None:
+                    pred = model.predict(test_data).ravel()
+
+        else:
+            if self.predict_proba:
+                oof = model.predict_proba(val_data)[:, self.class_pos]
+                if self.df_test is not None:
+                    pred = model.predict_proba(test_data)[:, self.class_pos]
+            else:
+                oof = model.predict(val_data).ravel()
+                if self.df_test is not None:
+                    pred = model.predict(test_data).ravel()
+
+        return oof, pred
 
     def _check_input(self):
         """
@@ -307,6 +368,27 @@ class CrossValidate:
             test_data = val_data
 
         return trn_data, val_data, test_data, model, transf_pipe
+
+    def _add_pseudo_labels(self, trn_data, trn_target, test_data, pred):
+        if self.regression:
+            high_conf_mask = pred.index
+            pseudo_preds = pred
+        elif self.multiclass:
+            confidence = np.max(pred, axis=1)
+            high_conf_mask = confidence > self.pseudo_label_confidence  # Only use confident predictions
+            pseudo_preds = np.argmax(pred[high_conf_mask], axis=1)
+        else:
+            high_conf_mask = pred > self.pseudo_label_confidence
+            pseudo_preds = pred[high_conf_mask]
+
+        print(f"Adding {len(high_conf_mask)} samples")
+        X_concat = [trn_data, test_data[high_conf_mask]]
+        y_concat = [trn_target, pseudo_preds]
+
+        trn_data_2 = pd.concat(X_concat, axis=0)
+        trn_target_2 = np.concatenate(y_concat, axis=0)
+
+        return trn_data_2, trn_target_2
 
     def _fold_imp(self, model, trn_data, n_fold):
         feats = trn_data.columns

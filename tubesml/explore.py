@@ -283,7 +283,7 @@ def segm_target(data, cat, target):
     color_map = dict(zip(categories, palette))  # to ensure the same colors in both plots
 
     fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-    sns.boxplot(x=cat, y=target, data=data, ax=ax[0], palette=color_map)
+    sns.boxplot(x=cat, y=target, data=data, ax=ax[0], palette=color_map, hue=cat)
     for val in data[cat].unique():
         tmp = data[data[cat] == val]
         sns.kdeplot(
