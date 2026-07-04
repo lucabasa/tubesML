@@ -90,6 +90,9 @@ class CrossValidate:
                         this may be necessary for a few models when the discrapancy is really small.
                         If often happens with infrequent dummies.
 
+    :param groups: string, default=None.
+                        If provided, it must be a column present in `data`, to be used to use GroupKFold
+
     :return oof: numpy array with the out of fold predictions for the entire train set.
 
     :return res_dict: A dictionary with additional results. If ``imp_coef=True``,
@@ -124,6 +127,7 @@ class CrossValidate:
         regression=True,
         multiclass=False,
         check_shap_additivity=True,
+        groups=None,
     ):
         self.train = data.copy()
         if test is None:
@@ -145,6 +149,10 @@ class CrossValidate:
         self.regression = regression
         self.multiclass = multiclass
         self.check_shap_additivity = check_shap_additivity
+        if groups is None:
+            self.groups = None
+        else:
+            self.groups = data[groups]
         self._check_input()
         self._initialize_loop()
 
@@ -154,7 +162,9 @@ class CrossValidate:
         and, if provided, an average prediction on the test set. It can also produce various insights
         on the model, like feature importance and pdp's.
         """
-        for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values, self.target.values)):
+        for n_fold, (train_index, test_index) in enumerate(
+            self.cv.split(self.train.values, self.target.values, groups=self.groups)
+        ):
             trn_data = self.train.iloc[train_index, :].reset_index(drop=True)
             val_data = self.train.iloc[test_index, :].reset_index(drop=True)
 
