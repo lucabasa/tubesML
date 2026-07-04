@@ -128,6 +128,7 @@ class CrossValidate:
         multiclass=False,
         check_shap_additivity=True,
         groups=None,
+        pseudo_label=False,
     ):
         self.train = data.copy()
         if test is None:
@@ -153,6 +154,7 @@ class CrossValidate:
             self.groups = None
         else:
             self.groups = data[groups]
+        self.pseudo_label = pseudo_label
         self._check_input()
         self._initialize_loop()
 
@@ -162,9 +164,7 @@ class CrossValidate:
         and, if provided, an average prediction on the test set. It can also produce various insights
         on the model, like feature importance and pdp's.
         """
-        for n_fold, (train_index, test_index) in enumerate(
-            self.cv.split(self.train.values, self.target.values, groups=self.groups)
-        ):
+        for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values, self.target.values)):
             trn_data = self.train.iloc[train_index, :].reset_index(drop=True)
             val_data = self.train.iloc[test_index, :].reset_index(drop=True)
 
@@ -174,43 +174,49 @@ class CrossValidate:
                 trn_data, val_data, trn_target
             )
 
-            if self.early_stopping:
-                # Fit the model with early stopping
-                model.fit(
-                    trn_data, trn_target, eval_set=[(trn_data, trn_target), (val_data, val_target)], **self.fit_params
+            if self.pseudo_label:
+                model_2 = clone(model)
+
+            oof, pred = self._fit_predict(model, transf_pipe, trn_data, trn_target, val_data, val_target, test_data)
+
+            if self.pseudo_label and self.df_test is not None:
+                confidence = np.max(pred, axis=1)
+                high_conf_mask = confidence > 0.99  # Only use confident predictions
+                print(f"Adding {len(high_conf_mask)} samples")
+                if self.multiclass:
+                    pred = np.argmax(pred[high_conf_mask], axis=1)
+                X_concat = [trn_data, test_data[high_conf_mask]]
+                y_concat = [trn_target, pred]
+
+                trn_data_2 = pd.concat(X_concat, axis=0)
+                trn_target_2 = np.concatenate(y_concat, axis=0)
+
+                oof, pred = self._fit_predict(
+                    model_2, transf_pipe, trn_data_2, trn_target_2, val_data, val_target, test_data
                 )
-                # store iteration used
-                try:
-                    self.iteration.append(model.best_iteration)
-                except AttributeError:
-                    self.iteration.append(model.best_iteration_)
-            else:
-                model.fit(trn_data, trn_target, **self.fit_params)
 
             if self.regression:
-                self.oof[test_index] = model.predict(val_data).ravel()
+                self.oof[test_index] = oof
                 if self.df_test is not None:
-                    self.pred += model.predict(test_data).ravel()
-
+                    self.pred += pred
             elif self.multiclass:
                 if self.predict_proba:
-                    self.oof[test_index] = model.predict_proba(val_data)[:, :]
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred += model.predict_proba(test_data)[:, :]
+                        self.pred += pred
                 else:
-                    self.oof[test_index] = model.predict(val_data).ravel()
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred[:, n_fold] = model.predict(test_data).ravel()
-
+                        self.pred[:, n_fold] = pred
             else:
                 if self.predict_proba:
-                    self.oof[test_index] = model.predict_proba(val_data)[:, self.class_pos]
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred += model.predict_proba(test_data)[:, self.class_pos]
+                        self.pred += pred
                 else:
-                    self.oof[test_index] = model.predict(val_data).ravel()
+                    self.oof[test_index] = oof
                     if self.df_test is not None:
-                        self.pred[:, n_fold] = model.predict(test_data).ravel()
+                        self.pred[:, n_fold] = pred
 
             if self.imp_coef:
                 self._fold_imp(model, trn_data, n_fold)
@@ -229,6 +235,48 @@ class CrossValidate:
         else:
             self._postprocess_prediction()
             return self.oof, self.pred, self.result_dict
+
+    def _fit_predict(self, model, transf_pipe, trn_data, trn_target, val_data, val_target, test_data):
+        pred = None
+        if self.early_stopping:
+            # Fit the model with early stopping
+            model.fit(
+                trn_data, trn_target, eval_set=[(trn_data, trn_target), (val_data, val_target)], **self.fit_params
+            )
+            # store iteration used
+            try:
+                self.iteration.append(model.best_iteration)
+            except AttributeError:
+                self.iteration.append(model.best_iteration_)
+        else:
+            model.fit(trn_data, trn_target, **self.fit_params)
+
+        if self.regression:
+            oof = model.predict(val_data).ravel()
+            if self.df_test is not None:
+                pred = model.predict(test_data).ravel()
+
+        elif self.multiclass:
+            if self.predict_proba:
+                oof = model.predict_proba(val_data)[:, :]
+                if self.df_test is not None:
+                    pred = model.predict_proba(test_data)[:, :]
+            else:
+                oof = model.predict(val_data).ravel()
+                if self.df_test is not None:
+                    pred = model.predict(test_data).ravel()
+
+        else:
+            if self.predict_proba:
+                oof = model.predict_proba(val_data)[:, self.class_pos]
+                if self.df_test is not None:
+                    pred = model.predict_proba(test_data)[:, self.class_pos]
+            else:
+                oof = model.predict(val_data).ravel()
+                if self.df_test is not None:
+                    pred = model.predict(test_data).ravel()
+
+        return oof, pred
 
     def _check_input(self):
         """
