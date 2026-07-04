@@ -10,6 +10,7 @@ from lightgbm import LGBMClassifier
 from sklearn.datasets import make_classification
 from sklearn.datasets import make_regression
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GroupKFold
 from sklearn.model_selection import KFold
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
@@ -65,13 +66,14 @@ def test_initialization():
 
 
 @pytest.mark.parametrize("predict_proba", [True, False])
-@pytest.mark.parametrize("stratified", [True, False])
-def test_cvscore(predict_proba, stratified):
+@pytest.mark.parametrize("kfold_type", ["normal", "stratified", "grouped"])
+def test_cvscore(predict_proba, kfold_type):
     """
     Test it works without warnings with both the normal prediction and the predict_proba
     """
     y = df["target"]
     df_1 = df.drop("target", axis=1)
+    df_1["group"] = [1, 2, 3, 4, 5] * int(len(df_1) / 5)
 
     pipe_transf = Pipeline(
         [
@@ -88,17 +90,28 @@ def test_cvscore(predict_proba, stratified):
 
     full_pipe = Pipeline([("pipe", pipe), ("logit", LogisticRegression(solver="lbfgs"))])
 
-    if stratified:
+    if kfold_type == "stratified":
         kfold = StratifiedKFold(n_splits=3)
-    else:
+        group = None
+    elif kfold_type == "normal":
         kfold = KFold(n_splits=3)
+        group = None
+    elif kfold_type == "grouped":
+        kfold = GroupKFold(n_splits=3)
+        group = "group"
 
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         with warnings.catch_warnings():  # FIXME: clean before release
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             cv_score = tml.CrossValidate(
-                data=df_1, target=y, estimator=full_pipe, cv=kfold, predict_proba=predict_proba, regression=False
+                data=df_1,
+                target=y,
+                estimator=full_pipe,
+                cv=kfold,
+                predict_proba=predict_proba,
+                regression=False,
+                groups=group,
             )
             res, _ = cv_score.score()
     assert len(res) == len(df_1)

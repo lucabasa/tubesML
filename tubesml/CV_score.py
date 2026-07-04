@@ -129,6 +129,7 @@ class CrossValidate:
         check_shap_additivity=True,
         groups=None,
         pseudo_label=False,
+        pseudo_label_confidence=0.95,
     ):
         self.train = data.copy()
         if test is None:
@@ -155,6 +156,7 @@ class CrossValidate:
         else:
             self.groups = data[groups]
         self.pseudo_label = pseudo_label
+        self.pseudo_label_confidence = pseudo_label_confidence
         self._check_input()
         self._initialize_loop()
 
@@ -164,7 +166,9 @@ class CrossValidate:
         and, if provided, an average prediction on the test set. It can also produce various insights
         on the model, like feature importance and pdp's.
         """
-        for n_fold, (train_index, test_index) in enumerate(self.cv.split(self.train.values, self.target.values)):
+        for n_fold, (train_index, test_index) in enumerate(
+            self.cv.split(self.train.values, self.target.values, groups=self.groups)
+        ):
             trn_data = self.train.iloc[train_index, :].reset_index(drop=True)
             val_data = self.train.iloc[test_index, :].reset_index(drop=True)
 
@@ -180,16 +184,7 @@ class CrossValidate:
             oof, pred = self._fit_predict(model, transf_pipe, trn_data, trn_target, val_data, val_target, test_data)
 
             if self.pseudo_label and self.df_test is not None:
-                confidence = np.max(pred, axis=1)
-                high_conf_mask = confidence > 0.99  # Only use confident predictions
-                print(f"Adding {len(high_conf_mask)} samples")
-                if self.multiclass:
-                    pred = np.argmax(pred[high_conf_mask], axis=1)
-                X_concat = [trn_data, test_data[high_conf_mask]]
-                y_concat = [trn_target, pred]
-
-                trn_data_2 = pd.concat(X_concat, axis=0)
-                trn_target_2 = np.concatenate(y_concat, axis=0)
+                trn_data_2, trn_target_2 = self._add_pseudo_labels(trn_data, trn_target, test_data, pred)
 
                 oof, pred = self._fit_predict(
                     model_2, transf_pipe, trn_data_2, trn_target_2, val_data, val_target, test_data
@@ -365,6 +360,27 @@ class CrossValidate:
             test_data = val_data
 
         return trn_data, val_data, test_data, model, transf_pipe
+
+    def _add_pseudo_labels(self, trn_data, trn_target, test_data, pred):
+        if self.regression:
+            high_conf_mask = pred.index
+            pseudo_preds = pred
+        elif self.multiclass:
+            confidence = np.max(pred, axis=1)
+            high_conf_mask = confidence > self.pseudo_label_confidence  # Only use confident predictions
+            pseudo_preds = np.argmax(pred[high_conf_mask], axis=1)
+        else:
+            high_conf_mask = pred > self.pseudo_label_confidence
+            pseudo_preds = pred[high_conf_mask]
+
+        print(f"Adding {len(high_conf_mask)} samples")
+        X_concat = [trn_data, test_data[high_conf_mask]]
+        y_concat = [trn_target, pseudo_preds]
+
+        trn_data_2 = pd.concat(X_concat, axis=0)
+        trn_target_2 = np.concatenate(y_concat, axis=0)
+
+        return trn_data_2, trn_target_2
 
     def _fold_imp(self, model, trn_data, n_fold):
         feats = trn_data.columns
